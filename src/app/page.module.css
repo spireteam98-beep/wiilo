@@ -307,6 +307,9 @@
 }
 
 .shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: 1px solid #e7131a;
   background: #e7131a;
   color: #fff;
@@ -317,6 +320,12 @@
   text-transform: uppercase;
   padding: 7px 12px;
   border-radius: 0;
+  cursor: pointer;
+}
+
+.shareIcon {
+  width: 14px;
+  height: 14px;
 }
 
 .modalParagraph {

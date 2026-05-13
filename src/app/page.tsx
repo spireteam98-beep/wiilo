@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { Copy, X } from "lucide-react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { useAuth, useUser } from "@/firebase";
@@ -53,6 +53,7 @@ export default function HomePage() {
   const [loaded, setLoaded] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [origin, setOrigin] = useState("");
+  const [copied, setCopied] = useState(false);
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
 
@@ -105,6 +106,17 @@ export default function HomePage() {
     return `${origin}/share/${encodeURIComponent(key)}`;
   }, [origin, selected]);
   const shareText = useMemo(() => (selected ? `${selected.title} - ${selected.subtitle}` : ""), [selected]);
+
+  const handleCopyLink = async () => {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   return (
     <main className={styles.page}>
@@ -200,6 +212,10 @@ export default function HomePage() {
               </header>
               <div className={styles.modalBody}>
                 <div className={styles.shareRow}>
+                  <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
+                    <Copy className={styles.shareIcon} />
+                    {copied ? "Copied" : "Copy Link"}
+                  </button>
                   <a
                     className={styles.shareBtn}
                     href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}

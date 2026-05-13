@@ -54,18 +54,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const post = await findPost(id);
   const title = post?.title || "Myblog";
   const description = post?.excerpt || "Read the full article";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:9002";
   const image = post?.featuredImageUrl || "https://picsum.photos/seed/myblog-share/1200/630";
-  const url = `/share/${encodeURIComponent(id)}`;
+  const absoluteUrl = `${siteUrl}/share/${encodeURIComponent(id)}`;
 
   return {
+    metadataBase: new URL(siteUrl),
     title,
     description,
     openGraph: {
       title,
       description,
-      url,
+      url: absoluteUrl,
       type: "article",
-      images: [{ url: image }],
+      images: [{ url: image, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
