@@ -25,70 +25,19 @@ type ApiPost = {
   author?: string;
   credit?: string;
   featuredImageUrl?: string;
-  path?: string;
 };
-
-const defaultEntries: Entry[] = [
-  {
-    id: "survivor-secret",
-    title: "The Secret of Survivor",
-    subtitle:
-      "For 50 seasons, the show has gamified the tension at the heart of American life: Are we individuals or a community?",
-    author: "Julie Beck",
-    credit:
-      "Illustration by The Atlantic. Sources: CBS Broadcasting; CBS / Getty; Chuck Snyder / CBS / Getty; Monty Brinton / CBS Photo Archive / Getty; Monty Brinton / CBS / Getty.",
-    body: [
-      "The model of an authoritarian leader that the 20th century instilled in the Western imagination is a master of lies. Big Brother commands a machinery of propaganda that bombards his subjects with relentless projections of strength, combined with savaging of enemies real or imagined.",
-      "Donald Trump resembles this archetype in many ways, both superficially (the obsession with building new monuments to his greatness or renaming existing structures after him) and substantively (pressuring media and business into capitulating, turning the power ministries into organs of vengeance). But he differs in one key aspect: The president is a recipient and victim of propaganda as much as he is an originator of it.",
-    ],
-  },
-  {
-    id: "checkmate-iran",
-    title: "Checkmate in Iran",
-    subtitle: "Washington can’t reverse or control the consequences of losing this war.",
-    author: "Robert Kagan",
-    credit:
-      "Illustration by The Atlantic. Sources: Amirhossein Khorgooe / AFP / Getty; Maximillian Mann / The New York Times / Redux; Saul Loeb / AFP / Getty.",
-    body: [
-      "The model of an authoritarian leader that the 20th century instilled in the Western imagination is a master of lies. Big Brother commands a machinery of propaganda that bombards his subjects with relentless projections of strength, combined with savaging of enemies real or imagined.",
-      "Donald Trump resembles this archetype in many ways, both superficially (the obsession with building new monuments to his greatness or renaming existing structures after him) and substantively (pressuring media and business into capitulating, turning the power ministries into organs of vengeance). But he differs in one key aspect: The president is a recipient and victim of propaganda as much as he is an originator of it.",
-    ],
-  },
-  {
-    id: "trump-vance-rubio",
-    title: "Trump Isn’t Setting Vance or Rubio Up for the Future",
-    subtitle:
-      "The moves the president is making right now will put all possible successors in the same predicament.",
-    author: "David A. Graham",
-    credit: "Illustration by The Atlantic. Source: Tom William / CQ-Roll Call Inc. / Getty",
-    body: [
-      "The model of an authoritarian leader that the 20th century instilled in the Western imagination is a master of lies. Big Brother commands a machinery of propaganda that bombards his subjects with relentless projections of strength, combined with savaging of enemies real or imagined.",
-      "Donald Trump resembles this archetype in many ways, both superficially (the obsession with building new monuments to his greatness or renaming existing structures after him) and substantively (pressuring media and business into capitulating, turning the power ministries into organs of vengeance). But he differs in one key aspect: The president is a recipient and victim of propaganda as much as he is an originator of it.",
-    ],
-  },
-  {
-    id: "unpredictable-unreliable",
-    title: "Trump Has Gone From Unpredictable to Unreliable",
-    subtitle: "Allies and rivals alike are less likely to give the president what he seeks.",
-    author: "",
-    credit: "Samuel Corum / Getty",
-    body: [
-      "The model of an authoritarian leader that the 20th century instilled in the Western imagination is a master of lies. Big Brother commands a machinery of propaganda that bombards his subjects with relentless projections of strength, combined with savaging of enemies real or imagined.",
-      "Donald Trump resembles this archetype in many ways, both superficially (the obsession with building new monuments to his greatness or renaming existing structures after him) and substantively (pressuring media and business into capitulating, turning the power ministries into organs of vengeance). But he differs in one key aspect: The president is a recipient and victim of propaganda as much as he is an originator of it.",
-    ],
-  },
-];
 
 function mapApiPost(post: ApiPost): Entry {
   const bodyParts = String(post.body || "")
     .split(/\n{2,}/)
     .map((text) => text.trim())
     .filter(Boolean);
+
   return {
     id: post.id,
     title: post.title,
     subtitle: post.excerpt,
-    author: post.author || "Royal Midnimo",
+    author: post.author || "Mohamed Royal",
     credit: post.credit || "Illustration by The Atlantic style",
     body: bodyParts.length > 0 ? bodyParts : [post.excerpt],
     featuredImageUrl: post.featuredImageUrl || "",
@@ -133,126 +82,77 @@ export default function HomePage() {
     [entries, selectedId]
   );
 
-  if (!lead) {
-    return (
-      <main className={styles.page}>
-        <header className={styles.header}>
-          <div className={styles.authBar}>
-            {isUserLoading ? (
-              <span className={styles.authText}>Checking account...</span>
-            ) : user ? (
-              <>
-                <span className={styles.authText}>Signed in as {user.email || "account user"}</span>
-                <button
-                  type="button"
-                  className={styles.authBtn}
-                  disabled={signingOut}
-                  onClick={async () => {
-                    try {
-                      setSigningOut(true);
-                      await signOut(auth);
-                    } finally {
-                      setSigningOut(false);
-                    }
-                  }}
-                >
-                  {signingOut ? "Signing out..." : "Sign out"}
-                </button>
-              </>
-            ) : (
-              <Link href="/signin" className={styles.authBtnLink}>
-                Sign in
-              </Link>
-            )}
-          </div>
-          <p className={styles.kicker}>Myblog Home</p>
-          <h1 className={styles.brand}>Royal Midnimo</h1>
-        </header>
-        <section className={styles.introWrap}>
-          <p className={styles.intro}>
-            {loaded
-              ? "No posts found in Firestore yet. Add your first post in admin."
-              : "Loading posts..."}
-          </p>
-        </section>
-      </main>
-    );
-  }
-
   return (
     <main className={styles.page}>
       <header className={styles.header}>
         <div className={styles.authBar}>
-          {isUserLoading ? (
-            <span className={styles.authText}>Checking account...</span>
-          ) : user ? (
-            <>
-              <span className={styles.authText}>Signed in as {user.email || "account user"}</span>
-              <button
-                type="button"
-                className={styles.authBtn}
-                disabled={signingOut}
-                onClick={async () => {
-                  try {
-                    setSigningOut(true);
-                    await signOut(auth);
-                  } finally {
-                    setSigningOut(false);
-                  }
-                }}
-              >
-                {signingOut ? "Signing out..." : "Sign out"}
-              </button>
-            </>
+          <span className={styles.blogName}>Mohamed Royal</span>
+          {isUserLoading ? <span className={styles.authText}>Checking account...</span> : null}
+          {user ? (
+            <button
+              type="button"
+              className={styles.authBtn}
+              disabled={signingOut}
+              onClick={async () => {
+                try {
+                  setSigningOut(true);
+                  await signOut(auth);
+                } finally {
+                  setSigningOut(false);
+                }
+              }}
+            >
+              {signingOut ? "Signing out..." : "Sign out"}
+            </button>
           ) : (
             <Link href="/signin" className={styles.authBtnLink}>
               Sign in
             </Link>
           )}
         </div>
-        <p className={styles.kicker}>Myblog Home</p>
-        <h1 className={styles.brand}>Royal Midnimo</h1>
       </header>
 
-      <section className={styles.introWrap}>
-        <p className={styles.intro}>A first entry from a slow personal site, built to last longer than a feed.</p>
-      </section>
+      {!lead ? (
+        <p className={styles.emptyState}>{loaded ? "No posts found yet." : "Loading posts..."}</p>
+      ) : (
+        <>
+          <section className={styles.leadSection}>
+            <div className={styles.creditPanel}>
+              {lead.featuredImageUrl ? (
+                <img src={lead.featuredImageUrl} alt={lead.title} className={styles.featureImage} />
+              ) : (
+                <p className={styles.credit}>{lead.credit}</p>
+              )}
+            </div>
+            <article>
+              <button type="button" onClick={() => setSelectedId(lead.id)} className={styles.leadTitle}>
+                {lead.title}
+              </button>
+              <p className={styles.leadSubtitle}>{lead.subtitle}</p>
+              <p className={styles.author}>{lead.author}</p>
+              <button type="button" onClick={() => setSelectedId(lead.id)} className={styles.readMore}>
+                Read more
+              </button>
+            </article>
+          </section>
 
-      <section className={styles.leadSection}>
-        <div className={styles.creditPanel}>
-          {lead.featuredImageUrl ? (
-            <img src={lead.featuredImageUrl} alt={lead.title} className={styles.featureImage} />
-          ) : (
-            <p className={styles.credit}>{lead.credit}</p>
-          )}
-        </div>
-        <article>
-          <button type="button" onClick={() => setSelectedId(lead.id)} className={styles.leadTitle}>
-            {lead.title}
-          </button>
-          <p className={styles.leadSubtitle}>{lead.subtitle}</p>
-          <p className={styles.author}>{lead.author}</p>
-          <button type="button" onClick={() => setSelectedId(lead.id)} className={styles.readMore}>
-            Read more
-          </button>
-        </article>
-      </section>
-
-      <section className={styles.river}>
-        {river.map((post) => (
-          <article key={post.id} id={post.id} className={styles.card}>
-            <p className={styles.credit}>{post.credit}</p>
-            <button type="button" onClick={() => setSelectedId(post.id)} className={styles.cardTitle}>
-              {post.title}
-            </button>
-            <p className={styles.cardSubtitle}>{post.subtitle}</p>
-            {post.author ? <p className={styles.author}>{post.author}</p> : null}
-            <button type="button" onClick={() => setSelectedId(post.id)} className={styles.readMore}>
-              Read more
-            </button>
-          </article>
-        ))}
-      </section>
+          <section className={styles.river}>
+            {river.map((post) => (
+              <article key={post.id} className={styles.card}>
+                <p className={styles.credit}>{post.credit}</p>
+                <button type="button" onClick={() => setSelectedId(post.id)} className={styles.cardTitle}>
+                  {post.title}
+                </button>
+                <p className={styles.cardSubtitle}>{post.subtitle}</p>
+                {post.author ? <p className={styles.author}>{post.author}</p> : null}
+                <button type="button" onClick={() => setSelectedId(post.id)} className={styles.readMore}>
+                  Read more
+                </button>
+              </article>
+            ))}
+          </section>
+        </>
+      )}
 
       <div className={`${styles.modalRoot} ${selected ? styles.modalOpen : ""}`} aria-hidden={!selected}>
         <div onClick={() => setSelectedId(null)} className={styles.backdrop} />
@@ -263,9 +163,17 @@ export default function HomePage() {
 
           {selected ? (
             <article className={styles.modalArticle}>
-              <p className={styles.modalCredit}>{selected.credit}</p>
-              <h2 className={styles.modalTitle}>{selected.title}</h2>
-              <p className={styles.modalSubtitle}>{selected.subtitle}</p>
+              <header className={styles.modalHeader}>
+                {selected.featuredImageUrl ? (
+                  <img src={selected.featuredImageUrl} alt={selected.title} className={styles.modalHeroImage} />
+                ) : null}
+                <div className={styles.modalHeroOverlay} />
+                <div className={styles.modalTitleWrap}>
+                  <p className={styles.modalCredit}>{selected.credit}</p>
+                  <h2 className={styles.modalTitle}>{selected.title}</h2>
+                  <p className={styles.modalSubtitle}>{selected.subtitle}</p>
+                </div>
+              </header>
               <div className={styles.modalBody}>
                 {selected.body.map((paragraph, idx) => (
                   <p key={`${selected.id}-p-${idx}`} className={styles.modalParagraph}>
@@ -278,6 +186,10 @@ export default function HomePage() {
           ) : null}
         </section>
       </div>
+
+      <footer className={styles.footer}>
+        <p className={styles.footerSignature}>Mohamed Royal</p>
+      </footer>
     </main>
   );
 }
