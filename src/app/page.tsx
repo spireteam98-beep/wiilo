@@ -38,7 +38,7 @@ function mapApiPost(post: ApiPost): Entry {
     title: post.title,
     subtitle: post.excerpt,
     author: post.author || "Mohamed Royal",
-    credit: post.credit || "Politics",
+    credit: post.credit || "",
     body: bodyParts.length > 0 ? bodyParts : [post.excerpt],
     featuredImageUrl: post.featuredImageUrl || "",
   };
@@ -84,14 +84,17 @@ export default function HomePage() {
       // ignore malformed cache
     }
 
-    fetch("/api/myblog-posts")
+    fetch("/api/myblog-posts", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : []))
       .then((data: ApiPost[]) => {
         if (!mounted) return;
         if (Array.isArray(data) && data.length > 0) {
-          setEntries(data.map(mapApiPost));
+          const sorted = [...data].sort(
+            (a: any, b: any) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0)
+          );
+          setEntries(sorted.map(mapApiPost));
           try {
-            localStorage.setItem(POSTS_CACHE_KEY, JSON.stringify(data));
+            localStorage.setItem(POSTS_CACHE_KEY, JSON.stringify(sorted));
           } catch {
             // ignore cache write errors
           }
@@ -215,7 +218,7 @@ export default function HomePage() {
               {lead.featuredImageUrl ? (
                 <img src={lead.featuredImageUrl} alt={lead.title} className={styles.featureImage} />
               ) : (
-                <p className={styles.credit}>{lead.credit}</p>
+                lead.credit ? <p className={styles.credit}>{lead.credit}</p> : null
               )}
             </div>
             <article>
@@ -247,7 +250,7 @@ export default function HomePage() {
           <section className={styles.river}>
             {river.map((post) => (
               <article key={post.id} className={styles.card}>
-                <p className={styles.credit}>{post.credit}</p>
+                {post.credit ? <p className={styles.credit}>{post.credit}</p> : null}
                 <button
                   type="button"
                   onClick={() => {
@@ -291,7 +294,7 @@ export default function HomePage() {
                 ) : null}
                 <div className={styles.modalHeroOverlay} />
                 <div className={styles.modalTitleWrap}>
-                  <p className={styles.modalCredit}>{selected.credit}</p>
+                  {selected.credit ? <p className={styles.modalCredit}>{selected.credit}</p> : null}
                   <h2 className={styles.modalTitle}>{selected.title}</h2>
                   <p className={styles.modalSubtitle}>{selected.subtitle}</p>
                 </div>
