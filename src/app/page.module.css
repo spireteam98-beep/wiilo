@@ -299,6 +299,26 @@
   padding: 26px 18px 0;
 }
 
+.shareRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 18px;
+}
+
+.shareBtn {
+  border: 1px solid #e7131a;
+  background: #e7131a;
+  color: #fff;
+  text-decoration: none;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-radius: 0;
+}
+
 .modalParagraph {
   margin: 0 0 16px;
   font-family: "AGaramondPro", serif;

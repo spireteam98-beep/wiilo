@@ -15,6 +15,7 @@ type Entry = {
   credit: string;
   body: string[];
   featuredImageUrl?: string;
+  path?: string;
 };
 
 type ApiPost = {
@@ -25,6 +26,7 @@ type ApiPost = {
   author?: string;
   credit?: string;
   featuredImageUrl?: string;
+  path?: string;
 };
 
 function mapApiPost(post: ApiPost): Entry {
@@ -41,6 +43,7 @@ function mapApiPost(post: ApiPost): Entry {
     credit: post.credit || "Illustration by The Atlantic style",
     body: bodyParts.length > 0 ? bodyParts : [post.excerpt],
     featuredImageUrl: post.featuredImageUrl || "",
+    path: post.path || post.id,
   };
 }
 
@@ -49,6 +52,7 @@ export default function HomePage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [origin, setOrigin] = useState("");
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
 
@@ -75,12 +79,32 @@ export default function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  useEffect(() => {
+    if (entries.length === 0 || selectedId) return;
+    const queryPost = new URLSearchParams(window.location.search).get("post");
+    if (!queryPost) return;
+    const match = entries.find((item) => item.id === queryPost || item.path === queryPost);
+    if (match) {
+      setSelectedId(match.id);
+    }
+  }, [entries, selectedId]);
+
   const lead = entries[0];
   const river = entries.slice(1);
   const selected = useMemo(
     () => entries.find((item) => item.id === selectedId) ?? null,
     [entries, selectedId]
   );
+  const shareUrl = useMemo(() => {
+    if (!selected || !origin) return "";
+    const key = selected.path || selected.id;
+    return `${origin}/share/${encodeURIComponent(key)}`;
+  }, [origin, selected]);
+  const shareText = useMemo(() => (selected ? `${selected.title} - ${selected.subtitle}` : ""), [selected]);
 
   return (
     <main className={styles.page}>
@@ -175,6 +199,32 @@ export default function HomePage() {
                 </div>
               </header>
               <div className={styles.modalBody}>
+                <div className={styles.shareRow}>
+                  <a
+                    className={styles.shareBtn}
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Facebook
+                  </a>
+                  <a
+                    className={styles.shareBtn}
+                    href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    WhatsApp
+                  </a>
+                  <a
+                    className={styles.shareBtn}
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Twitter
+                  </a>
+                </div>
                 {selected.body.map((paragraph, idx) => (
                   <p key={`${selected.id}-p-${idx}`} className={styles.modalParagraph}>
                     {paragraph}
