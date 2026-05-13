@@ -56,7 +56,7 @@ export default function HomePage() {
   const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
   const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
 
-  const trackEvent = async (articleId: string, eventType: "open_modal" | "share_click") => {
+  const trackEvent = async (articleId: string, eventType: "open_modal" | "share_click" | "open_share_link") => {
     try {
       await fetch("/api/analytics/track", {
         method: "POST",
@@ -123,6 +123,16 @@ export default function HomePage() {
       setSelectedId(match.id);
     }
   }, [entries, selectedId]);
+
+  useEffect(() => {
+    if (!selectedId) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("ref") !== "share") return;
+    const key = `share_open_tracked_${selectedId}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, "1");
+    void trackEvent(selectedId, "open_share_link");
+  }, [selectedId]);
 
   const lead = entries[0];
   const river = entries.slice(1);

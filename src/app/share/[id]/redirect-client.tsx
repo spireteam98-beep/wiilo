@@ -7,7 +7,7 @@ export default function ShareRedirectClient({ target }: { target: string }) {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace(`/?post=${encodeURIComponent(target)}`);
+    router.replace(`/?post=${encodeURIComponent(target)}&ref=share`);
   }, [router, target]);
 
   return null;

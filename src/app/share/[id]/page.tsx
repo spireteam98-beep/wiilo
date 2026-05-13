@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getAdminDb } from "@/lib/firebase-admin";
 import ShareRedirectClient from "./redirect-client";
+import { unstable_cache } from "next/cache";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 type SharePost = {
   id: string;
@@ -12,41 +15,35 @@ type SharePost = {
 };
 
 const COLLECTIONS = ["myblog_posts", "content"];
-const EVENTS_COLLECTION = "myblog_analytics_events";
+
+const findPostCached = unstable_cache(
+  async (id: string): Promise<SharePost | null> => {
+    if (id.startsWith("http://") || id.startsWith("https://")) return null;
+    const db = getAdminDb();
+
+    for (const collection of COLLECTIONS) {
+      const byId = await db.collection(collection).doc(id).get();
+      if (byId.exists) {
+        const d = byId.data() as any;
+        return {
+          id: byId.id,
+          title: String(d?.title || ""),
+          excerpt: String(d?.excerpt || ""),
+          body: String(d?.body || d?.fullBodyContent || ""),
+          featuredImageUrl: String(d?.featuredImageUrl || d?.imageUrl || ""),
+        };
+      }
+    }
+
+    return null;
+  },
+  ["share-post-lookup-v1"],
+  { revalidate: 300 }
+);
 
 async function findPost(id: string): Promise<SharePost | null> {
   if (id.startsWith("http://") || id.startsWith("https://")) return null;
-  const db = getAdminDb();
-
-  for (const collection of COLLECTIONS) {
-    const byId = await db.collection(collection).doc(id).get();
-    if (byId.exists) {
-      const d = byId.data() as any;
-      return {
-        id: byId.id,
-        title: String(d?.title || ""),
-        excerpt: String(d?.excerpt || ""),
-        body: String(d?.body || d?.fullBodyContent || ""),
-        featuredImageUrl: String(d?.featuredImageUrl || d?.imageUrl || ""),
-      };
-    }
-  }
-
-  return null;
-}
-
-async function trackShareOpen(articleId: string) {
-  try {
-    const db = getAdminDb();
-    await db.collection(EVENTS_COLLECTION).add({
-      articleId,
-      eventType: "open_share_link",
-      source: "share_route",
-      createdAt: Date.now(),
-    });
-  } catch {
-    // keep share route resilient if analytics write fails
-  }
+  return findPostCached(id);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -83,11 +80,25 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const post = await findPost(id);
-  const target = post?.id || id;
-  if (post?.id) {
-    await trackShareOpen(post.id);
+  const target = id;
+  const headerStore = await headers();
+  const ua = (headerStore.get("user-agent") || "").toLowerCase();
+  const isSocialCrawler =
+    ua.includes("facebookexternalhit") ||
+    ua.includes("facebot") ||
+    ua.includes("twitterbot") ||
+    ua.includes("whatsapp") ||
+    ua.includes("linkedinbot") ||
+    ua.includes("telegrambot") ||
+    ua.includes("slackbot") ||
+    ua.includes("discordbot") ||
+    ua.includes("googlebot");
+
+  if (!isSocialCrawler) {
+    redirect(`/?post=${encodeURIComponent(target)}&ref=share`);
   }
+
+  const post = await findPost(id);
 
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "24px" }}>
@@ -95,7 +106,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
       <div style={{ textAlign: "center", maxWidth: "680px" }}>
         <h1 style={{ marginBottom: "12px" }}>{post?.title || "Opening article..."}</h1>
         <p style={{ marginBottom: "20px" }}>{post?.excerpt || "Redirecting to full article view..."}</p>
-        <Link href={`/?post=${encodeURIComponent(target)}`}>Open article</Link>
+        <Link href={`/?post=${encodeURIComponent(target)}&ref=share`}>Open article</Link>
       </div>
     </main>
   );
