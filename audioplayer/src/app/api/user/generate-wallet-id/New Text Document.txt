@@ -1,0 +1,48 @@
+import { firebaseAuth, firestoreDb } from '@/lib/firebase-admin';
+import { NextResponse } from 'next/server';
+import { customAlphabet } from 'nanoid';
+
+// Create a short alphanumeric alphabet (excluding confusing chars like 0, O, 1, l)
+const generateShortId = customAlphabet('23456789ABCDEFGHJKLMNPQRSTUVWXYZ', 8);
+
+export async function POST(req: Request) {
+  try {
+    const authHeader = req.headers.get('authorization') || '';
+    const idToken = authHeader.replace(/^Bearer\s+/, '');
+    const decodedToken = await firebaseAuth.verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+
+    const userRef = firestoreDb.collection('users').doc(uid);
+    const userDoc = await userRef.get();
+
+    // 1. Check if user already has an ID
+    if (userDoc.exists && userDoc.data()?.royalPayId) {
+      return NextResponse.json({ royalPayId: userDoc.data()?.royalPayId });
+    }
+
+    // 2. Generate and ensure uniqueness
+    let newId = '';
+    let isUnique = false;
+    let attempts = 0;
+
+    while (!isUnique && attempts < 5) {
+      newId = `RP-${generateShortId()}`;
+      const existing = await firestoreDb.collection('users')
+        .where('royalPayId', '==', newId)
+        .limit(1)
+        .get();
+      
+      if (existing.empty) isUnique = true;
+      attempts++;
+    }
+
+    if (!isUnique) throw new Error('Could not generate unique ID');
+
+    // 3. Save to profile
+    await userRef.set({ royalPayId: newId }, { merge: true });
+
+    return NextResponse.json({ ok: true, royalPayId: newId });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}

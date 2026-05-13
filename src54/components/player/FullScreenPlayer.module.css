@@ -1,0 +1,168 @@
+
+
+.audioPlayerContainer {
+  background-color: #282828; /* Player background color */
+  padding: 20px 0px; /* Adjusted padding to remove horizontal for full width */
+  border-radius: 8px;
+  width: 100%; /* Full width */
+  max-width: 100%; /* Ensure it can go full width */
+  margin: auto; 
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.progressSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding: 0 25px; /* Add padding back here if needed for inner content */
+}
+
+.timeStamp {
+  color: #b3b3b3;
+  font-size: 0.75em; /* 12px */
+  min-width: 40px;
+  text-align: center;
+}
+
+.progressBarContainer {
+  flex-grow: 1;
+  margin: 0 12px;
+  height: 4px;
+  background-color: #535353;
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+}
+
+.progressBar {
+  height: 100%;
+  /* width is set dynamically by style prop in component */
+  background-color: #ffffff;
+  border-radius: 2px;
+  position: relative;
+}
+
+.progressBarThumb {
+  width: 12px;
+  height: 12px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  /* 'left' is set dynamically by style prop in component, adjust to center thumb */
+  top: 50%;
+  transform: translateY(-50%); 
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  z-index: 10;
+}
+
+.controlsSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Distributes space between items */
+  padding: 0 25px; /* Add padding back here if needed for inner content */
+}
+
+.controlButton {
+  background: none;
+  border: none;
+  color: #b3b3b3;
+  font-size: 1.25em; /* Base size for icons, e.g., 20px */
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease-in-out;
+}
+
+.controlButton svg {
+  width: 1em;
+  height: 1em;
+}
+
+
+.controlButton:hover {
+  color: #ffffff;
+}
+
+.controlButtonPlayPause {
+  background-color: #ffffff; 
+  color: #000000;          
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 1.5em; 
+  margin: 0 15px; 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.controlButtonPlayPause svg {
+  width: 1em; 
+  height: 1em;
+  fill: #000000; 
+}
+
+.controlButtonPlayPause:hover {
+  background-color: #f0f0f0; 
+}
+
+
+.controlButtonSkipStyled {
+  background-color: #ffffff; 
+  color: #000000;           
+  width: 36px;              /* Reduced from 40px */
+  height: 36px;             /* Reduced from 40px */
+  border-radius: 50%;
+  font-size: 1.1em;         /* Reduced from 1.2em, makes internal SVG 1.1em */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
+}
+
+.controlButtonSkipStyled svg {
+  width: 1em; /* SVG size relative to button's font-size (1.1em) */
+  height: 1em;
+  fill: #000000; /* Ensure icon is black */
+}
+
+.controlButtonSkipStyled:hover {
+  background-color: #f0f0f0; 
+}
+
+
+.controlButtonActive,
+.controlButtonRepeatActive {
+  color: #1DB954; /* Spotify green for active state */
+}
+
+.controlButtonRepeatActive .repeatDot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  background-color: #1DB954;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.repeatDot {
+  display: none; /* Hidden by default */
+}
+
+
+.controlButtonShuffle {
+  font-size: 1.1em; /* Slightly smaller shuffle icon */
+}
+.controlButtonRepeat {
+  font-size: 1.1em; /* Slightly smaller repeat icon */
+  position: relative; /* For positioning the dot */
+}
+

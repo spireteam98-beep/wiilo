@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 7%; /* Deep Dark Black */
+    --foreground: 0 0% 98%; /* Slik White */
+
+    --card: 220 10% 15%; 
+    --card-foreground: 0 0% 95%;
+
+    --popover: 220 10% 12%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 141 76% 48%; /* Spotify Green #1ED760 */
+    --primary-foreground: 0 0% 10%; /* Dark text for contrast on primary green */
+
+    --secondary: 220 10% 25%; 
+    --secondary-foreground: 0 0% 80%;
+    
+    --muted: 220 10% 20%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 141 76% 48%; /* Spotify Green for accent */
+    --accent-foreground: 0 0% 10%; /* Dark text for contrast on accent green */
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 10% 20%;
+    --input: 220 10% 18%;
+    --ring: 141 76% 48%; /* Ring color to be Spotify Green */
+    
+    --radius: 0.5rem;
+
+    /* Sidebar variables */
+    --sidebar-background: 220 10% 12%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 141 76% 52%; /* Spotify Green variation */
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 220 10% 20%;
+    --sidebar-accent-foreground: 141 76% 48%; /* Spotify Green variation */
+    --sidebar-border: 220 10% 25%;
+    --sidebar-ring: 141 76% 52%; /* Spotify Green variation */
+
+    --chart-1: 141 70% 50%; 
+    --chart-2: 141 80% 45%;
+    --chart-3: 141 60% 55%;
+    --chart-4: 141 90% 40%;
+    --chart-5: 141 50% 60%;
+  }
+
+    /* Glassmorphic dialog original - used by TopUp */
+    .glassmorphic-dialog {
+        background-color: rgba(255, 255, 255, 0.1); 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        backdrop-filter: blur(8px); 
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        -webkit-backdrop-filter: blur(10px); 
+        border-radius: 10px;
+      }
+      
+      .dark .glassmorphic-dialog {
+        background-color: rgba(0, 0, 0, 0.1); 
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      }
+
+    /* Send Money Dialog Specific Styles */
+    .send-money-dialog-content {
+      background: linear-gradient(135deg, rgba(40,40,40,0.6), rgba(20,20,20,0.7)) !important; /* Darker, less colorful glass */
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+      backdrop-filter: blur(15px) !important; /* Adjusted blur */
+      -webkit-backdrop-filter: blur(15px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important; /* Subtler border */
+      color: hsl(var(--foreground)) !important;
+    }
+
+    .glass-input {
+      background-color: rgba(255, 255, 255, 0.1) !important; /* Slightly more transparent */
+      color: hsl(var(--foreground)) !important; 
+      border-radius: 8px !important; /* Slightly less rounded */
+      padding: 10px !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important; 
+      line-height: 1.5; 
+    }
+    
+    .glass-input-like { /* New class for non-input elements */
+      background-color: rgba(255, 255, 255, 0.05) !important; /* More subtle background */
+      color: hsl(var(--foreground)) !important; 
+      border-radius: 8px !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important; /* Subtler border */
+    }
+
+
+    .glass-input::placeholder {
+      color: rgba(255, 255, 255, 0.5) !important; /* Lighter placeholder */
+      opacity: 1; 
+    }
+    
+    .glass-input[name="note"] {
+      min-height: 60px !important; /* Use min-height for better adaptability */
+      resize: none !important;
+    }
+
+    .send-money-button {
+      background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8)) !important; /* Use theme primary color */
+      color: hsl(var(--primary-foreground)) !important; /* Use theme primary foreground color */
+      font-weight: 600 !important; /* Adjusted font-weight */
+      padding: 10px 16px !important; /* Adjusted padding */
+      border-radius: 8px !important;
+      transition: opacity 0.3s ease;
+      border: none !important; /* Remove border if any */
+    }
+
+    .send-money-button:hover {
+      opacity: 0.85 !important;
+    }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}

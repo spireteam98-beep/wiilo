@@ -1,0 +1,263 @@
+'use client';
+
+import React, { useEffect, useState, useRef } from 'react';
+import { FaPlay, FaPause, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import { BiSkipPrevious, BiSkipNext } from 'react-icons/bi';
+import '../styles/sounds-player.css';
+
+export default function Sounds() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleLoadClick = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      if (!audioRef.current) {
+        const audio = new Audio('/audio/kugudhimay.mp3');
+        audioRef.current = audio;
+
+        audio.addEventListener('loadedmetadata', () => {
+          setDuration(audio.duration);
+          setIsLoaded(true);
+          setIsLoading(false);
+        });
+
+        audio.addEventListener('timeupdate', () => {
+          setCurrentTime(audio.currentTime);
+        });
+
+        audio.addEventListener('ended', () => {
+          setIsPlaying(false);
+          setCurrentTime(0);
+        });
+
+        audio.addEventListener('error', (e) => {
+          console.error('Audio loading error:', e);
+          setError('Failed to load audio');
+          setIsLoading(false);
+        });
+      }
+
+    } catch (error) {
+      console.error('Error loading audio:', error);
+      setError('Failed to load audio');
+      setIsLoading(false);
+    }
+  };
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    if (audioRef.current && !isNaN(time) && isFinite(time)) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      const duration = audioRef.current.duration;
+      if (isFinite(duration)) {
+        setDuration(duration);
+        setIsLoaded(true);
+      }
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      const time = audioRef.current.currentTime;
+      if (isFinite(time)) {
+        setCurrentTime(time);
+      }
+    }
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(e.target.value);
+    setVolume(value);
+    if (audioRef.current) {
+      audioRef.current.volume = value;
+      setIsMuted(value === 0);
+    }
+  };
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      const newMuteState = !isMuted;
+      audioRef.current.muted = newMuteState;
+      setIsMuted(newMuteState);
+    }
+  };
+
+  return (
+    <div id="orb-modules">
+      {/* BBC Global Navigation */}
+      <div className="orbit-header-container">
+        <header id="orb-banner" role="banner">
+          <div id="orb-header" className="orb-nav-pri orb-nav-pri-white">
+            <div className="orb-nav-pri-container b-r b-g-p">
+              {/* BBC Logo */}
+              <div className="orb-nav-section orb-nav-blocks">
+                <a href="https://www.bbc.co.uk/">
+                  <svg className="bbc-logo" viewBox="0 0 84 24">
+                    {/* BBC Logo SVG path */}
+                  </svg>
+                </a>
+              </div>
+
+              {/* Sign in / Account */}
+              <div className="orbit-header-right">
+                <div className="orbit-status-wrapper">
+                  <div className="orbit-status-button">Sign in</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+      </div>
+
+      {/* BBC Sounds Main Content */}
+      <div id="main-wrapper">
+        <main id="main-content" role="main">
+          {/* Programme Header */}
+          <div className="programme-header">
+            <div className="programme-header__title">
+              <h1>
+                <span className="programme-header__title-text">
+                  Remi Burgz - The Birth of De-Bremi
+                </span>
+              </h1>
+            </div>
+            <div className="programme-header__synopsis">
+              <p>Remi challenges another listener on their specialist subject for No.1 Fan Quiz.</p>
+            </div>
+          </div>
+
+          {/* Audio Player */}
+          <div className="sounds-player-wrapper">
+            <div className="sounds-player">
+              <div className="player-controls">
+                {/* Your existing audio player controls */}
+                <div className="audioUI">
+                  <div id="p_audioui_container">
+                    <div id="p_audioui_coreControls">
+                      {/* Play/Pause Button */}
+                      <button 
+                        className="p_audioui_btn"
+                        onClick={togglePlay}
+                        aria-label={isPlaying ? 'Pause' : 'Play'}
+                      >
+                        {isPlaying ? <FaPause /> : <FaPlay />}
+                      </button>
+
+                      {/* Progress Bar */}
+                      <div className="p_audioui_progressBar">
+                        <input
+                          type="range"
+                          min={0}
+                          max={duration || 0}
+                          value={currentTime}
+                          onChange={handleTimeChange}
+                          className="progress-slider"
+                        />
+                        <div className="time-display">
+                          <span>{formatTime(currentTime)}</span>
+                          <span>{formatTime(duration)}</span>
+                        </div>
+                      </div>
+
+                      {/* Volume Control */}
+                      <div className="volume-control">
+                        <button onClick={() => setIsMuted(!isMuted)}>
+                          {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+                        </button>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1}
+                          step={0.1}
+                          value={isMuted ? 0 : volume}
+                          onChange={(e) => setVolume(parseFloat(e.target.value))}
+                          className="volume-slider"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hidden Audio Element */}
+                <audio
+                  ref={audioRef}
+                  src="/audio/kugudhimay.mp3"
+                  onTimeUpdate={handleTimeUpdate}
+                  onLoadedMetadata={handleLoadedMetadata}
+                  onEnded={() => {
+                    setIsPlaying(false);
+                    setCurrentTime(0);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Additional Content */}
+          <div className="programme-content">
+            <div className="programme-details">
+              <div className="broadcast-info">
+                <time>First broadcast: 25 January 2025</time>
+              </div>
+              <div className="programme-availability">
+                <span>Available for over a year</span>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* BBC Footer */}
+      <footer id="orb-footer" role="contentinfo">
+        <div id="orb-footer-inner">
+          <div className="orb-footer-links">
+            <ul>
+              <li><a href="https://www.bbc.co.uk/usingthebbc/terms">Terms of Use</a></li>
+              <li><a href="https://www.bbc.co.uk/aboutthebbc">About the BBC</a></li>
+              <li><a href="https://www.bbc.co.uk/usingthebbc/privacy">Privacy Policy</a></li>
+              <li><a href="https://www.bbc.co.uk/usingthebbc/cookies">Cookies</a></li>
+              <li><a href="https://www.bbc.co.uk/accessibility">Accessibility Help</a></li>
+              <li><a href="https://www.bbc.co.uk/contact">Contact the BBC</a></li>
+            </ul>
+          </div>
+          <div className="orb-footer-copy">
+            <small>Copyright © 2025 BBC. The BBC is not responsible for the content of external sites.</small>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

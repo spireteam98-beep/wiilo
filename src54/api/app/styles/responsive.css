@@ -1,0 +1,128 @@
+/* Responsive Breakpoints */
+:root {
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-xxl: 1400px;
+}
+
+/* Container */
+.container-fluid {
+  width: 100%;
+  padding-right: var(--bs-gutter-x, 0.75rem);
+  padding-left: var(--bs-gutter-x, 0.75rem);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+/* Responsive Grid */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .lg\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* Flexbox Utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+/* Spacing */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+.gap-4 { gap: 1.5rem; }
+.gap-5 { gap: 2rem; }
+
+/* Responsive Padding */
+.p-responsive {
+  padding: clamp(1rem, 5vw, 3rem);
+}
+
+/* Responsive Margins */
+.m-responsive {
+  margin: clamp(1rem, 5vw, 3rem);
+}
+
+/* Responsive Typography */
+.text-responsive {
+  font-size: clamp(1rem, 2.5vw, 2rem);
+}
+
+/* Responsive Images */
+.img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive Hide/Show */
+@media (max-width: 640px) {
+  .sm\:hidden { display: none; }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .md\:hidden { display: none; }
+}
+
+@media (min-width: 1025px) {
+  .lg\:hidden { display: none; }
+}
+
+/* Container Queries */
+.container {
+  container-type: inline-size;
+  container-name: sidebar;
+}
+
+@container sidebar (min-width: 400px) {
+  .sidebar-content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Aspect Ratio */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* Object Fit */
+.object-cover {
+  object-fit: cover;
+}
+
+.object-contain {
+  object-fit: contain;
+}
+
+/* Responsive Layout Shifts */
+.no-cls {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+} 

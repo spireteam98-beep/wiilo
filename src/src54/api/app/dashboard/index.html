@@ -1,0 +1,207 @@
+<html>
+<head>
+<link href="index.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+
+    <!-- App Header -->
+    <div class="appHeader">
+        <div class="left">
+            <h1>Digital Wallet</h1>
+        </div>
+        <div class="right">
+            <div class="profileImage">
+                <!-- Profile image or initial will go here -->
+            </div>
+            <button class="btn btn-text">Sign Out</button>
+        </div>
+    </div>
+
+    <!-- App Capsule -->
+    <div id="appCapsule">
+        <div class="section wallet-card-section pt-1">
+            <div class="wallet-card">
+                <!-- Balance -->
+                <div class="balance">
+                    <div class="left">
+                        <span class="title">Total Balance</span>
+                        <h1 class="total"><span id="currentBalance">0</span> coins</h1>
+                    </div>
+                    <div class="right">
+                        <a href="#" class="button" data-bs-toggle="modal" data-bs-target="#depositActionSheet">
+                            <ion-icon name="add-outline"></ion-icon>
+                        </a>
+                    </div>
+                </div>
+                <!-- * Balance -->
+
+                <!-- Wallet Footer -->
+                <div class="wallet-footer">
+                    <div class="item">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#withdrawActionSheet">
+                            <div class="icon-wrapper bg-danger">
+                                <ion-icon name="arrow-down-outline"></ion-icon>
+                            </div>
+                            <strong>Withdraw</strong>
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#sendActionSheet">
+                            <div class="icon-wrapper">
+                                <ion-icon name="arrow-forward-outline"></ion-icon>
+                            </div>
+                            <strong>Send</strong>
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#cardsActionSheet">
+                            <div class="icon-wrapper bg-success">
+                                <ion-icon name="card-outline"></ion-icon>
+                            </div>
+                            <strong>Cards</strong>
+                        </a>
+                    </div>
+                    <div class="item">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#exchangeActionSheet">
+                            <div class="icon-wrapper bg-warning">
+                                <ion-icon name="swap-vertical"></ion-icon>
+                            </div>
+                            <strong>Exchange</strong>
+                        </a>
+                    </div>
+                </div>
+                <!-- * Wallet Footer -->
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="section">
+            <div class="row mt-2">
+                <div class="col-6">
+                    <div class="stat-box">
+                        <div class="title">Total Sent</div>
+                        <div class="value text-danger">- <span id="totalSent">0</span> coins</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-box">
+                        <div class="title">Total Received</div>
+                        <div class="value text-success">+ <span id="totalReceived">0</span> coins</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- * Stats -->
+
+        <!-- Coin Packages -->
+        <div class="section mt-4">
+            <div class="section-heading">
+                <h2 class="title">Buy Coins</h2>
+            </div>
+            <div class="coin-packages" id="coinPackages">
+                <!-- Coin packages will be dynamically inserted here -->
+            </div>
+        </div>
+        <!-- * Coin Packages -->
+
+        <!-- Transfer Section -->
+        <div class="section mt-4">
+            <div class="section-heading">
+                <h2 class="title">Transfer Coins</h2>
+            </div>
+            <div class="transfer-section" id="transferSection">
+                <!-- Transfer component will be inserted here -->
+            </div>
+        </div>
+        <!-- * Transfer Section -->
+
+        <!-- Payment Section -->
+        <div class="section mt-4" id="paymentSection" style="display: none;">
+            <div class="section-heading">
+                <h2 class="title">Order Summary</h2>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="order-details">
+                        <!-- Order details will be dynamically inserted here -->
+                    </div>
+                    <div class="payment-buttons">
+                        <!-- Payment buttons will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- * Payment Section -->
+    </div>
+    <!-- * App Capsule -->
+
+    <!-- Modals -->
+    <!-- Deposit Action Sheet -->
+    <div class="modal fade action-sheet" id="depositActionSheet" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Balance</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="action-sheet-content">
+                        <!-- Deposit form will go here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Send Action Sheet -->
+    <div class="modal fade action-sheet" id="sendActionSheet" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Coins</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="action-sheet-content">
+                        <!-- Send form will go here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exchange Action Sheet -->
+    <div class="modal fade action-sheet" id="exchangeActionSheet" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Exchange Coins</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="action-sheet-content">
+                        <!-- Exchange form will go here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards Action Sheet -->
+    <div class="modal fade action-sheet" id="cardsActionSheet" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cards</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="action-sheet-content">
+                        <!-- Cards content will go here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Required Scripts -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html> 

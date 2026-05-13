@@ -1,0 +1,61 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+
+# production
+build/
+dist/
+
+# local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.vscode/.env
+src/gittoken.txt
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# vercel
+.vercel/
+
+# firebase
+.firebase/
+firebase-debug.log
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+.DS_Store
+Thumbs.db
+
+src/gittoken.txt
+audioplayer/src/lib/serviceAccountKey.json
+
+
+.vscode/.env
+audioplayer/src/lib/serviceAccountKey.json
+audioplayer/src/firebase/serviceAccountKey.json
+
+# === Secrets that MUST NOT be committed ===
+# Firebase admin / service-account keys (anywhere in the tree)
+*firebase-adminsdk*.json
+*firebase-admin*.json
+*serviceAccountKey*.json
+serviceAccount.json
+# Any stray env / token files
+_env_test.txt
+*.pem
+*.key
+*.crt
+gittoken*.txt

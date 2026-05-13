@@ -1,0 +1,327 @@
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  color: #111;
+  background: #fff;
+}
+
+.header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  padding-bottom: 18px;
+}
+
+.authBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.authText {
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.authBtn,
+.authBtnLink {
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.authBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.kicker {
+  margin: 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.68);
+}
+
+.brand {
+  margin: 12px 0 0;
+  font-family: "Atlantic Serif", serif;
+  font-size: clamp(42px, 8vw, 56px);
+  line-height: 0.95;
+  font-weight: 600;
+}
+
+.introWrap {
+  max-width: 760px;
+  margin: 32px auto 0;
+}
+
+.intro {
+  margin: 0;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(24px, 4.2vw, 29px);
+  line-height: 1.22;
+}
+
+.leadSection {
+  margin-top: 40px;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 32px 0;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.creditPanel {
+  min-height: 280px;
+  background: #f6f6f6;
+  padding: 24px;
+  overflow: hidden;
+}
+
+.featureImage {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  display: block;
+}
+
+.credit {
+  margin: 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(0, 0, 0, 0.66);
+}
+
+.leadTitle,
+.cardTitle {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #111;
+  text-align: left;
+  cursor: pointer;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 44px;
+  margin: 0 0 18px;
+  text-wrap: pretty;
+}
+
+.leadTitle {
+  margin-top: 10px;
+}
+
+.leadSubtitle {
+  margin: 16px 0 0;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(20px, 2.7vw, 22px);
+  line-height: 1.35;
+  color: rgba(0, 0, 0, 0.9);
+}
+
+.author {
+  margin: 16px 0 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.readMore {
+  margin-top: 14px;
+  border: 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.55);
+  background: transparent;
+  padding: 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.82);
+  cursor: pointer;
+}
+
+.river {
+  margin-top: 40px;
+  display: grid;
+  gap: 32px 40px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card {
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  padding-top: 20px;
+}
+
+.cardTitle {
+  margin-top: 8px;
+}
+
+.cardSubtitle {
+  margin: 12px 0 0;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(19px, 2.4vw, 21px);
+  line-height: 1.34;
+  color: rgba(0, 0, 0, 0.86);
+}
+
+.modalRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.modalOpen {
+  pointer-events: auto;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.modalOpen .backdrop {
+  opacity: 1;
+}
+
+.modal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(94vw, 760px);
+  transform: translate(-50%, calc(-50% + 8px));
+  background: #fffdf8;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.modalOpen .modal {
+  transform: translate(-50%, -50%);
+  opacity: 1;
+}
+
+.close {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 999px;
+  padding: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.closeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.modalArticle {
+  max-height: 78vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.modalCredit {
+  margin: 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.modalTitle {
+  margin: 14px 0 18px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 44px;
+  text-wrap: pretty;
+}
+
+.modalSubtitle {
+  margin: 14px 0 0;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(21px, 3vw, 23px);
+  line-height: 1.38;
+  color: rgba(0, 0, 0, 0.92);
+}
+
+.modalBody {
+  margin-top: 16px;
+}
+
+.modalParagraph {
+  margin: 0 0 16px;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(20px, 2.7vw, 22px);
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.92);
+}
+
+.modalAuthor {
+  margin: 16px 0 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.68);
+}
+
+@media (max-width: 1023px) {
+  .leadSection {
+    grid-template-columns: 1fr;
+  }
+
+  .river {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .leadTitle,
+  .cardTitle,
+  .modalTitle {
+    font-size: 46px;
+    line-height: 52px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 18px 14px 50px;
+  }
+
+  .river {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .modal {
+    padding: 18px;
+  }
+}

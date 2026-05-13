@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif; /* Using Inter as specified in layout */
+  background: linear-gradient(to bottom right, #001f4d 0%, #0a0a2a 50%, #7b001c 100%);
+  color: hsl(var(--foreground)); /* Keeping text color from theme for contrast */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh; /* Ensure gradient covers full height */
+  background-attachment: fixed; /* Fix gradient during scroll */
+  background-repeat: no-repeat; /* Prevent tiling */
+  background-size: cover; /* Ensure gradient covers viewport */
+}
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 205 90% 40%; /* Bright Teal/Cyan */
+    --primary-foreground: 205 100% 95%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 330 85% 55%; /* Bright Pink */
+    --accent-foreground: 330 100% 95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 205 90% 40%;
+    
+    --radius: 0.75rem; /* Slightly more rounded corners */
+
+    /* Sidebar variables - keeping these in case they are used by shadcn/ui components */
+    --sidebar-background: 240 5% 10%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 205 85% 45%; 
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 240 5% 20%;
+    --sidebar-accent-foreground: 205 85% 50%; 
+    --sidebar-border: 240 5% 25%;
+    --sidebar-ring: 205 85% 45%;
+
+    --chart-1: 205 70% 50%; 
+    --chart-2: 330 70% 50%;
+    --chart-3: 150 70% 50%;
+    --chart-4: 50 70% 50%;
+    --chart-5: 280 70% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  /* body is already styled above with the gradient */
+}
