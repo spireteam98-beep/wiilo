@@ -45,6 +45,31 @@ async function findPost(id: string): Promise<SharePost | null> {
   return findPostCached(id);
 }
 
+async function resolveShareImage(featuredImage: string | undefined, fallbackImage: string): Promise<string> {
+  if (!featuredImage) return fallbackImage;
+
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 2500);
+    const response = await fetch(featuredImage, {
+      method: "HEAD",
+      signal: controller.signal,
+      cache: "no-store",
+    });
+    clearTimeout(timer);
+
+    if (!response.ok) return fallbackImage;
+    const type = (response.headers.get("content-type") || "").toLowerCase();
+    if (!type.startsWith("image/")) return fallbackImage;
+
+    const length = Number(response.headers.get("content-length") || "0");
+    if (length > 0 && length < 8000) return fallbackImage; // likely tiny image
+    return featuredImage;
+  } catch {
+    return fallbackImage;
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const post = await findPost(id);
@@ -55,7 +80,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const proto = hdrs.get("x-forwarded-proto") || "https";
   const runtimeSiteUrl = host ? `${proto}://${host}` : "";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || runtimeSiteUrl || "https://mohamedroyal.com";
-  const image = post?.featuredImageUrl || "https://picsum.photos/seed/myblog-share/1200/630";
+  const fallbackImage = `${siteUrl}/api/og/${encodeURIComponent(id)}?t=${encodeURIComponent(title)}&e=${encodeURIComponent(description)}`;
+  const image = await resolveShareImage(post?.featuredImageUrl, fallbackImage);
   const absoluteUrl = `${siteUrl}/share/${encodeURIComponent(id)}`;
 
   return {
@@ -71,13 +97,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       url: absoluteUrl,
       type: "article",
       siteName: "mohamedroyal.com",
-      images: [{ url: image, secureUrl: image, width: 1200, height: 630, alt: title }],
+      images: [{ url: image, secureUrl: image, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [{ url: image, alt: title }],
       creator: "@mohamedroyal",
     },
   };
