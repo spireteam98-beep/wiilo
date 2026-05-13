@@ -54,6 +54,7 @@ export default function HomePage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
 
   const trackEvent = async (articleId: string, eventType: "open_modal" | "share_click") => {
     try {
@@ -70,12 +71,30 @@ export default function HomePage() {
 
   useEffect(() => {
     let mounted = true;
+    try {
+      const cachedRaw = localStorage.getItem(POSTS_CACHE_KEY);
+      if (cachedRaw) {
+        const cached = JSON.parse(cachedRaw) as ApiPost[];
+        if (Array.isArray(cached) && cached.length > 0) {
+          setEntries(cached.map(mapApiPost));
+          setLoaded(true);
+        }
+      }
+    } catch {
+      // ignore malformed cache
+    }
+
     fetch("/api/myblog-posts")
       .then((res) => (res.ok ? res.json() : []))
       .then((data: ApiPost[]) => {
         if (!mounted) return;
         if (Array.isArray(data) && data.length > 0) {
           setEntries(data.map(mapApiPost));
+          try {
+            localStorage.setItem(POSTS_CACHE_KEY, JSON.stringify(data));
+          } catch {
+            // ignore cache write errors
+          }
         } else {
           setEntries([]);
         }
@@ -135,6 +154,20 @@ export default function HomePage() {
 
   return (
     <main className={styles.page}>
+      {!loaded ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "#fff",
+            display: "grid",
+            placeItems: "center",
+            zIndex: 120,
+          }}
+        >
+          <p style={{ fontFamily: "AGaramondPro, serif", fontSize: 24, margin: 0 }}>Loading posts...</p>
+        </div>
+      ) : null}
       <header className={styles.header}>
         <div className={styles.authBar}>
           <h1 className={styles.brand}>Mohamed Royal</h1>
