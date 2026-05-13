@@ -4,8 +4,13 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Royal Notes',
-  description: 'Manage your business operations efficiently with Royal Notes.',
+  title: 'Mohamed Royal',
+  description: 'Mohamed Royal - editorial blog and article platform.',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({

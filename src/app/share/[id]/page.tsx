@@ -12,6 +12,7 @@ type SharePost = {
 };
 
 const COLLECTIONS = ["myblog_posts", "content"];
+const EVENTS_COLLECTION = "myblog_analytics_events";
 
 async function findPost(id: string): Promise<SharePost | null> {
   if (id.startsWith("http://") || id.startsWith("https://")) return null;
@@ -32,6 +33,20 @@ async function findPost(id: string): Promise<SharePost | null> {
   }
 
   return null;
+}
+
+async function trackShareOpen(articleId: string) {
+  try {
+    const db = getAdminDb();
+    await db.collection(EVENTS_COLLECTION).add({
+      articleId,
+      eventType: "open_share_link",
+      source: "share_route",
+      createdAt: Date.now(),
+    });
+  } catch {
+    // keep share route resilient if analytics write fails
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -67,6 +82,9 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
   const { id } = await params;
   const post = await findPost(id);
   const target = post?.id || id;
+  if (post?.id) {
+    await trackShareOpen(post.id);
+  }
 
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "24px" }}>

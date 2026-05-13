@@ -54,6 +54,19 @@ export default function HomePage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
 
+  const trackEvent = async (articleId: string, eventType: "open_modal" | "share_click") => {
+    try {
+      await fetch("/api/analytics/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        keepalive: true,
+        body: JSON.stringify({ articleId, eventType, source: "home" }),
+      });
+    } catch {
+      // swallow analytics errors so UI remains smooth
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     fetch("/api/myblog-posts")
@@ -107,6 +120,9 @@ export default function HomePage() {
     if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
+      if (selected?.id) {
+        void trackEvent(selected.id, "share_click");
+      }
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -118,7 +134,7 @@ export default function HomePage() {
     <main className={styles.page}>
       <header className={styles.header}>
         <div className={styles.authBar}>
-          <span className={styles.blogName}>Mohamed Royal</span>
+          <h1 className={styles.brand}>Mohamed Royal</h1>
           {isUserLoading ? <span className={styles.authText}>Checking account...</span> : null}
           {user ? (
             <button
@@ -157,12 +173,26 @@ export default function HomePage() {
               )}
             </div>
             <article>
-              <button type="button" onClick={() => setSelectedId(lead.id)} className={styles.leadTitle}>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedId(lead.id);
+                  void trackEvent(lead.id, "open_modal");
+                }}
+                className={styles.leadTitle}
+              >
                 {lead.title}
               </button>
               <p className={styles.leadSubtitle}>{lead.subtitle}</p>
               <p className={styles.author}>{lead.author}</p>
-              <button type="button" onClick={() => setSelectedId(lead.id)} className={styles.readMore}>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedId(lead.id);
+                  void trackEvent(lead.id, "open_modal");
+                }}
+                className={styles.readMore}
+              >
                 Read more
               </button>
             </article>
@@ -172,12 +202,26 @@ export default function HomePage() {
             {river.map((post) => (
               <article key={post.id} className={styles.card}>
                 <p className={styles.credit}>{post.credit}</p>
-                <button type="button" onClick={() => setSelectedId(post.id)} className={styles.cardTitle}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedId(post.id);
+                    void trackEvent(post.id, "open_modal");
+                  }}
+                  className={styles.cardTitle}
+                >
                   {post.title}
                 </button>
                 <p className={styles.cardSubtitle}>{post.subtitle}</p>
                 {post.author ? <p className={styles.author}>{post.author}</p> : null}
-                <button type="button" onClick={() => setSelectedId(post.id)} className={styles.readMore}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedId(post.id);
+                    void trackEvent(post.id, "open_modal");
+                  }}
+                  className={styles.readMore}
+                >
                   Read more
                 </button>
               </article>
@@ -207,6 +251,12 @@ export default function HomePage() {
                 </div>
               </header>
               <div className={styles.modalBody}>
+                {selected.body.map((paragraph, idx) => (
+                  <p key={`${selected.id}-p-${idx}`} className={styles.modalParagraph}>
+                    {paragraph}
+                  </p>
+                ))}
+                <p className={styles.modalAuthor}>Royal Notes</p>
                 <div className={styles.shareRow}>
                   <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
                     <Copy className={styles.shareIcon} />
@@ -217,6 +267,9 @@ export default function HomePage() {
                     href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      if (selected?.id) void trackEvent(selected.id, "share_click");
+                    }}
                   >
                     Facebook
                   </a>
@@ -225,6 +278,9 @@ export default function HomePage() {
                     href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      if (selected?.id) void trackEvent(selected.id, "share_click");
+                    }}
                   >
                     WhatsApp
                   </a>
@@ -233,17 +289,14 @@ export default function HomePage() {
                     href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      if (selected?.id) void trackEvent(selected.id, "share_click");
+                    }}
                   >
                     Twitter
                   </a>
                 </div>
-                {selected.body.map((paragraph, idx) => (
-                  <p key={`${selected.id}-p-${idx}`} className={styles.modalParagraph}>
-                    {paragraph}
-                  </p>
-                ))}
               </div>
-              {selected.author ? <p className={styles.modalAuthor}>{selected.author}</p> : null}
             </article>
           ) : null}
         </section>

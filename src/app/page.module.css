@@ -19,11 +19,12 @@
   gap: 12px;
 }
 
-.blogName {
+.brand {
   margin: 0;
   font-family: "Atlantic Serif", serif;
-  font-size: 22px;
+  font-size: clamp(28px, 5vw, 42px);
   line-height: 1;
+  font-weight: 600;
   color: #111;
 }
 

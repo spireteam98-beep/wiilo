@@ -45,7 +45,7 @@ export async function GET() {
           body: String(data?.fullBodyContent || data?.excerpt || ""),
           featuredImageUrl: String(data?.imageUrl || ""),
           path: String(data?.slug || doc.id),
-          author: String(data?.author || "Royal Midnimo"),
+          author: String(data?.author || "Mohamed Royal"),
           credit: String(data?.credit || "From content/Culture"),
           category: String(data?.category || ""),
           contentType: String(data?.contentType || ""),
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     const articleBody = String(body?.body || "").trim();
     const featuredImageUrl = String(body?.featuredImageUrl || "").trim();
     const path = String(body?.path || "").trim();
-    const author = String(body?.author || "Royal Midnimo").trim();
+    const author = String(body?.author || "Mohamed Royal").trim();
     const credit = String(body?.credit || "").trim();
 
     if (!title || !excerpt || !articleBody) {
