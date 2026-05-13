@@ -3,8 +3,6 @@ import Link from "next/link";
 import { getAdminDb } from "@/lib/firebase-admin";
 import ShareRedirectClient from "./redirect-client";
 import { unstable_cache } from "next/cache";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 
 type SharePost = {
   id: string;
@@ -81,23 +79,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const target = id;
-  const headerStore = await headers();
-  const ua = (headerStore.get("user-agent") || "").toLowerCase();
-  const isSocialCrawler =
-    ua.includes("facebookexternalhit") ||
-    ua.includes("facebot") ||
-    ua.includes("twitterbot") ||
-    ua.includes("whatsapp") ||
-    ua.includes("linkedinbot") ||
-    ua.includes("telegrambot") ||
-    ua.includes("slackbot") ||
-    ua.includes("discordbot") ||
-    ua.includes("googlebot");
-
-  if (!isSocialCrawler) {
-    redirect(`/?post=${encodeURIComponent(target)}&ref=share`);
-  }
-
   const post = await findPost(id);
 
   return (
