@@ -38,7 +38,7 @@ function mapApiPost(post: ApiPost): Entry {
     title: post.title,
     subtitle: post.excerpt,
     author: post.author || "Mohamed Royal",
-    credit: post.credit || "Illustration by The Atlantic style",
+    credit: post.credit || "Politics",
     body: bodyParts.length > 0 ? bodyParts : [post.excerpt],
     featuredImageUrl: post.featuredImageUrl || "",
   };
