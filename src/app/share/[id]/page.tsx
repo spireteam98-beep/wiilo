@@ -60,6 +60,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   return {
     metadataBase: new URL(siteUrl),
+    alternates: {
+      canonical: absoluteUrl,
+    },
     title,
     description,
     openGraph: {
@@ -67,7 +70,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description,
       url: absoluteUrl,
       type: "article",
-      images: [{ url: image, width: 1200, height: 630, alt: title }],
+      images: [{ url: image, secureUrl: image, width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",

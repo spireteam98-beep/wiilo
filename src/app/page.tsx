@@ -53,6 +53,7 @@ export default function HomePage() {
   const [copied, setCopied] = useState(false);
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
+  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
 
   const trackEvent = async (articleId: string, eventType: "open_modal" | "share_click") => {
     try {
@@ -111,9 +112,11 @@ export default function HomePage() {
     [entries, selectedId]
   );
   const shareUrl = useMemo(() => {
-    if (!selected || !origin) return "";
-    return `${origin}/share/${encodeURIComponent(selected.id)}`;
-  }, [origin, selected]);
+    if (!selected) return "";
+    const base = publicSiteUrl || origin;
+    if (!base) return "";
+    return `${base.replace(/\/+$/, "")}/share/${encodeURIComponent(selected.id)}`;
+  }, [origin, publicSiteUrl, selected]);
   const shareText = useMemo(() => (selected ? `${selected.title} - ${selected.subtitle}` : ""), [selected]);
 
   const handleCopyLink = async () => {
