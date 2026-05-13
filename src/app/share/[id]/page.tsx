@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getAdminDb } from "@/lib/firebase-admin";
 import ShareRedirectClient from "./redirect-client";
 import { unstable_cache } from "next/cache";
+import { headers } from "next/headers";
 
 type SharePost = {
   id: string;
@@ -49,7 +50,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const post = await findPost(id);
   const title = post?.title || "Myblog";
   const description = post?.excerpt || "Read the full article";
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:9002";
+  const hdrs = await headers();
+  const host = hdrs.get("x-forwarded-host") || hdrs.get("host") || "";
+  const proto = hdrs.get("x-forwarded-proto") || "https";
+  const runtimeSiteUrl = host ? `${proto}://${host}` : "";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || runtimeSiteUrl || "https://mohamedroyal.com";
   const image = post?.featuredImageUrl || "https://picsum.photos/seed/myblog-share/1200/630";
   const absoluteUrl = `${siteUrl}/share/${encodeURIComponent(id)}`;
 
@@ -65,6 +70,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description,
       url: absoluteUrl,
       type: "article",
+      siteName: "mohamedroyal.com",
       images: [{ url: image, secureUrl: image, width: 1200, height: 630, alt: title }],
     },
     twitter: {
@@ -72,6 +78,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       title,
       description,
       images: [image],
+      creator: "@mohamedroyal",
     },
   };
 }

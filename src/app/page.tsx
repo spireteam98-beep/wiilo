@@ -53,7 +53,7 @@ export default function HomePage() {
   const [copied, setCopied] = useState(false);
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
-  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mohamedroyal.com";
   const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
 
   const trackEvent = async (articleId: string, eventType: "open_modal" | "share_click" | "open_share_link") => {
