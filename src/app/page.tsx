@@ -15,7 +15,6 @@ type Entry = {
   credit: string;
   body: string[];
   featuredImageUrl?: string;
-  path?: string;
 };
 
 type ApiPost = {
@@ -26,7 +25,6 @@ type ApiPost = {
   author?: string;
   credit?: string;
   featuredImageUrl?: string;
-  path?: string;
 };
 
 function mapApiPost(post: ApiPost): Entry {
@@ -43,7 +41,6 @@ function mapApiPost(post: ApiPost): Entry {
     credit: post.credit || "Illustration by The Atlantic style",
     body: bodyParts.length > 0 ? bodyParts : [post.excerpt],
     featuredImageUrl: post.featuredImageUrl || "",
-    path: post.path || post.id,
   };
 }
 
@@ -88,7 +85,7 @@ export default function HomePage() {
     if (entries.length === 0 || selectedId) return;
     const queryPost = new URLSearchParams(window.location.search).get("post");
     if (!queryPost) return;
-    const match = entries.find((item) => item.id === queryPost || item.path === queryPost);
+    const match = entries.find((item) => item.id === queryPost);
     if (match) {
       setSelectedId(match.id);
     }
@@ -102,8 +99,7 @@ export default function HomePage() {
   );
   const shareUrl = useMemo(() => {
     if (!selected || !origin) return "";
-    const key = selected.path || selected.id;
-    return `${origin}/share/${encodeURIComponent(key)}`;
+    return `${origin}/share/${encodeURIComponent(selected.id)}`;
   }, [origin, selected]);
   const shareText = useMemo(() => (selected ? `${selected.title} - ${selected.subtitle}` : ""), [selected]);
 

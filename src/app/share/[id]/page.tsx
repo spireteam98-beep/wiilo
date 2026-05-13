@@ -9,16 +9,16 @@ type SharePost = {
   excerpt: string;
   featuredImageUrl?: string;
   body?: string;
-  path?: string;
 };
 
 const COLLECTIONS = ["myblog_posts", "content"];
 
-async function findPost(idOrPath: string): Promise<SharePost | null> {
+async function findPost(id: string): Promise<SharePost | null> {
+  if (id.startsWith("http://") || id.startsWith("https://")) return null;
   const db = getAdminDb();
 
   for (const collection of COLLECTIONS) {
-    const byId = await db.collection(collection).doc(idOrPath).get();
+    const byId = await db.collection(collection).doc(id).get();
     if (byId.exists) {
       const d = byId.data() as any;
       return {
@@ -27,21 +27,6 @@ async function findPost(idOrPath: string): Promise<SharePost | null> {
         excerpt: String(d?.excerpt || ""),
         body: String(d?.body || d?.fullBodyContent || ""),
         featuredImageUrl: String(d?.featuredImageUrl || d?.imageUrl || ""),
-        path: String(d?.path || d?.slug || byId.id),
-      };
-    }
-
-    const byPath = await db.collection(collection).where("path", "==", idOrPath).limit(1).get();
-    if (!byPath.empty) {
-      const doc = byPath.docs[0];
-      const d = doc.data() as any;
-      return {
-        id: doc.id,
-        title: String(d?.title || ""),
-        excerpt: String(d?.excerpt || ""),
-        body: String(d?.body || d?.fullBodyContent || ""),
-        featuredImageUrl: String(d?.featuredImageUrl || d?.imageUrl || ""),
-        path: String(d?.path || d?.slug || doc.id),
       };
     }
   }
@@ -81,7 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const post = await findPost(id);
-  const target = post?.path || post?.id || id;
+  const target = post?.id || id;
 
   return (
     <main style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: "24px" }}>
