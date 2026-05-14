@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CircleDollarSign, Copy, Lock, ShieldCheck, UserRound, X } from "lucide-react";
+import { Copy, Lock, ShieldCheck, UserRound, X } from "lucide-react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { useAuth, useFirestore, useUser } from "@/firebase";
@@ -256,15 +256,7 @@ export default function HomePage() {
         </div>
       ) : null}
       <header className={styles.header}>
-        <div className={styles.utilityRow}>
-          <a className={styles.utilityLink} href="/admin/myblog-posts">Admin</a>
-          <a className={styles.utilityLink} href="/api/myblog-posts">Feed</a>
-        </div>
         <div className={styles.statusRow}>
-          <span className={styles.statusPill}>
-            <CircleDollarSign className={styles.statusIcon} />
-            Balance: {coinBalance} coins
-          </span>
           <span className={styles.statusPill}>
             <ShieldCheck className={styles.statusIcon} />
             Protected
