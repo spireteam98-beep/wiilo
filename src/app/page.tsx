@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useAuth, useFirestore, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { doc, onSnapshot } from "firebase/firestore";
+import { arrayUnion, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import TopUpDialog from "@/components/TopUpDialog";
 
 type Entry = {
@@ -57,6 +57,7 @@ export default function HomePage() {
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
   const [coinBalance, setCoinBalance] = useState(0);
+  const [freeReadIds, setFreeReadIds] = useState<string[]>([]);
   const [paywallOpen, setPaywallOpen] = useState(false);
   const auth = useAuth();
   const firestore = useFirestore();
@@ -134,21 +135,37 @@ export default function HomePage() {
   useEffect(() => {
     if (!user?.uid) {
       setCoinBalance(0);
+      setFreeReadIds([]);
       return;
     }
     const userRef = doc(firestore, "users", user.uid);
     const unsub = onSnapshot(
       userRef,
       (snap) => {
-        const data = snap.data() as { coins?: number } | undefined;
+        const data = snap.data() as { coins?: number; freeArticleReads?: unknown } | undefined;
         setCoinBalance(Number(data?.coins || 0));
+        const reads = Array.isArray(data?.freeArticleReads)
+          ? data.freeArticleReads.filter((v): v is string => typeof v === "string")
+          : [];
+        setFreeReadIds(reads);
       },
       () => {
         setCoinBalance(0);
+        setFreeReadIds([]);
       }
     );
     return () => unsub();
   }, [firestore, user?.uid]);
+
+  const markFreeRead = async (articleId: string) => {
+    if (!user?.uid) return;
+    const userRef = doc(firestore, "users", user.uid);
+    try {
+      await updateDoc(userRef, { freeArticleReads: arrayUnion(articleId) });
+    } catch {
+      await setDoc(userRef, { freeArticleReads: [articleId] }, { merge: true });
+    }
+  };
 
   useEffect(() => {
     if (entries.length === 0 || selectedId) return;
@@ -204,11 +221,20 @@ export default function HomePage() {
       router.push(`/signin?returnTo=${encodeURIComponent(returnTo)}`);
       return;
     }
-    if (coinBalance <= 0) {
+    const hasFreeRead = freeReadIds.includes(articleId);
+    const freeReadsUsed = freeReadIds.length;
+    const hasFreeReadsLeft = freeReadsUsed < 3;
+
+    if (coinBalance <= 0 && !hasFreeRead && !hasFreeReadsLeft) {
       setPendingArticleId(articleId);
       setPaywallOpen(true);
       return;
     }
+
+    if (coinBalance <= 0 && !hasFreeRead && hasFreeReadsLeft) {
+      void markFreeRead(articleId);
+    }
+
     setSelectedId(articleId);
     void trackEvent(articleId, "open_modal");
   };
@@ -247,6 +273,11 @@ export default function HomePage() {
             <UserRound className={styles.statusIcon} />
             {user ? "Signed in" : "Guest"}
           </span>
+          {user ? (
+            <span className={styles.statusPill}>
+              Free reads left: {Math.max(0, 3 - freeReadIds.length)}
+            </span>
+          ) : null}
         </div>
         <div className={styles.authBar}>
           <h1 className={styles.brand}>Mohamed Royal</h1>
