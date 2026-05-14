@@ -296,21 +296,33 @@
 
 .modalHeader {
   position: relative;
-  min-height: 70vh;
+  min-height: 76vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
   overflow: hidden;
   background: #020202;
+  background-size: cover;
+  background-position: center;
+}
+
+.modalHeader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.56) 38%, rgba(0, 0, 0, 0.72) 100%),
+    radial-gradient(circle at 50% 20%, rgba(231, 19, 26, 0.16), transparent 45%);
+  z-index: 1;
 }
 
 .modalTitleWrap {
   position: relative;
   z-index: 2;
   width: 100%;
-  padding: 40px 22px 26px;
+  padding: 14vh 22px 26px;
   max-width: 980px;
   margin: 0 auto;
-  align-self: center;
+  align-self: start;
   text-align: center;
 }
 
@@ -357,6 +369,7 @@
   width: min(920px, calc(100% - 44px));
   margin: 0 auto;
   position: relative;
+  z-index: 2;
 }
 
 .modalTopRule::after,
@@ -365,17 +378,18 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
+  top: 0;
+  height: 0;
   border-top: 3px solid #e7131a;
-  opacity: 0.95;
+  opacity: 1;
 }
 
 .modalTopRule {
-  padding-top: 26px;
+  padding-top: 24px;
 }
 
 .modalBottomRule {
-  padding-bottom: 30px;
+  padding-bottom: 24px;
 }
 
 .modalKicker {

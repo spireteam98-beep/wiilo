@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Copy, X } from "lucide-react";
+import { CircleDollarSign, Copy, Lock, ShieldCheck, UserRound, X } from "lucide-react";
 import styles from "./page.module.css";
 import Link from "next/link";
-import { useAuth, useUser } from "@/firebase";
+import { useAuth, useFirestore, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
+import { doc, onSnapshot } from "firebase/firestore";
+import TopUpDialog from "@/components/TopUpDialog";
 
 type Entry = {
   id: string;
@@ -45,13 +48,18 @@ function mapApiPost(post: ApiPost): Entry {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [pendingArticleId, setPendingArticleId] = useState<string | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
+  const [coinBalance, setCoinBalance] = useState(0);
+  const [paywallOpen, setPaywallOpen] = useState(false);
   const auth = useAuth();
+  const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mohamedroyal.com";
   const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
@@ -84,7 +92,10 @@ export default function HomePage() {
       // ignore malformed cache
     }
 
-    fetch("/api/myblog-posts", { cache: "no-store" })
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    fetch("/api/myblog-posts", { cache: "no-store", signal: controller.signal })
       .then((res) => (res.ok ? res.json() : []))
       .then((data: ApiPost[]) => {
         if (!mounted) return;
@@ -106,16 +117,38 @@ export default function HomePage() {
         setEntries([]);
       })
       .finally(() => {
+        clearTimeout(timeout);
         if (mounted) setLoaded(true);
       });
     return () => {
       mounted = false;
+      clearTimeout(timeout);
+      controller.abort();
     };
   }, []);
 
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) {
+      setCoinBalance(0);
+      return;
+    }
+    const userRef = doc(firestore, "users", user.uid);
+    const unsub = onSnapshot(
+      userRef,
+      (snap) => {
+        const data = snap.data() as { coins?: number } | undefined;
+        setCoinBalance(Number(data?.coins || 0));
+      },
+      () => {
+        setCoinBalance(0);
+      }
+    );
+    return () => unsub();
+  }, [firestore, user?.uid]);
 
   useEffect(() => {
     if (entries.length === 0 || selectedId) return;
@@ -165,6 +198,21 @@ export default function HomePage() {
     }
   };
 
+  const openArticle = (articleId: string) => {
+    if (!user) {
+      const returnTo = `/?post=${encodeURIComponent(articleId)}`;
+      router.push(`/signin?returnTo=${encodeURIComponent(returnTo)}`);
+      return;
+    }
+    if (coinBalance <= 0) {
+      setPendingArticleId(articleId);
+      setPaywallOpen(true);
+      return;
+    }
+    setSelectedId(articleId);
+    void trackEvent(articleId, "open_modal");
+  };
+
   return (
     <main className={styles.page}>
       {!loaded ? (
@@ -182,6 +230,24 @@ export default function HomePage() {
         </div>
       ) : null}
       <header className={styles.header}>
+        <div className={styles.utilityRow}>
+          <a className={styles.utilityLink} href="/admin/myblog-posts">Admin</a>
+          <a className={styles.utilityLink} href="/api/myblog-posts">Feed</a>
+        </div>
+        <div className={styles.statusRow}>
+          <span className={styles.statusPill}>
+            <CircleDollarSign className={styles.statusIcon} />
+            Balance: {coinBalance} coins
+          </span>
+          <span className={styles.statusPill}>
+            <ShieldCheck className={styles.statusIcon} />
+            Protected
+          </span>
+          <span className={styles.statusPill}>
+            <UserRound className={styles.statusIcon} />
+            {user ? "Signed in" : "Guest"}
+          </span>
+        </div>
         <div className={styles.authBar}>
           <h1 className={styles.brand}>Mohamed Royal</h1>
           {isUserLoading ? <span className={styles.authText}>Checking account...</span> : null}
@@ -222,12 +288,10 @@ export default function HomePage() {
               )}
             </div>
             <article>
+              <p className={styles.sectionLabel}>Ideas</p>
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedId(lead.id);
-                  void trackEvent(lead.id, "open_modal");
-                }}
+                onClick={() => openArticle(lead.id)}
                 className={styles.leadTitle}
               >
                 {lead.title}
@@ -236,14 +300,17 @@ export default function HomePage() {
               <p className={styles.author}>{lead.author}</p>
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedId(lead.id);
-                  void trackEvent(lead.id, "open_modal");
-                }}
+                onClick={() => openArticle(lead.id)}
                 className={styles.readMore}
               >
                 Read more
               </button>
+              {!user ? (
+                <p className={styles.gateHint}>
+                  <Lock className={styles.gateHintIcon} />
+                  Sign in to read full article
+                </p>
+              ) : null}
             </article>
           </section>
 
@@ -251,12 +318,10 @@ export default function HomePage() {
             {river.map((post) => (
               <article key={post.id} className={styles.card}>
                 {post.credit ? <p className={styles.credit}>{post.credit}</p> : null}
+                <p className={styles.sectionLabel}>Notes</p>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedId(post.id);
-                    void trackEvent(post.id, "open_modal");
-                  }}
+                  onClick={() => openArticle(post.id)}
                   className={styles.cardTitle}
                 >
                   {post.title}
@@ -265,14 +330,17 @@ export default function HomePage() {
                 {post.author ? <p className={styles.author}>{post.author}</p> : null}
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedId(post.id);
-                    void trackEvent(post.id, "open_modal");
-                  }}
+                  onClick={() => openArticle(post.id)}
                   className={styles.readMore}
                 >
                   Read more
                 </button>
+                {!user ? (
+                  <p className={styles.gateHint}>
+                    <Lock className={styles.gateHintIcon} />
+                    Sign in required
+                  </p>
+                ) : null}
               </article>
             ))}
           </section>
@@ -288,16 +356,23 @@ export default function HomePage() {
 
           {selected ? (
             <article className={styles.modalArticle}>
-              <header className={styles.modalHeader}>
-                {selected.featuredImageUrl ? (
-                  <img src={selected.featuredImageUrl} alt={selected.title} className={styles.modalHeroImage} />
-                ) : null}
-                <div className={styles.modalHeroOverlay} />
+              <header
+                className={styles.modalHeader}
+                style={
+                  selected.featuredImageUrl
+                    ? { backgroundImage: `url("${selected.featuredImageUrl}")` }
+                    : undefined
+                }
+              >
+                <div className={styles.modalTopRule}>
+                  <span className={styles.modalKicker}>Royal Notes</span>
+                </div>
                 <div className={styles.modalTitleWrap}>
-                  {selected.credit ? <p className={styles.modalCredit}>{selected.credit}</p> : null}
                   <h2 className={styles.modalTitle}>{selected.title}</h2>
+                  <span className={styles.modalTitleDot} aria-hidden="true" />
                   <p className={styles.modalSubtitle}>{selected.subtitle}</p>
                 </div>
+                <div className={styles.modalBottomRule} />
               </header>
               <div className={styles.modalBody}>
                 {selected.body.map((paragraph, idx) => (
@@ -351,8 +426,64 @@ export default function HomePage() {
         </section>
       </div>
 
+      <TopUpDialog
+        open={paywallOpen}
+        onOpenChange={(open) => {
+          setPaywallOpen(open);
+          if (!open) setPendingArticleId(null);
+        }}
+        userId={user?.uid || ""}
+        userEmail={user?.email || null}
+        currentCoins={coinBalance}
+        onCoinsUpdated={(nextCoins) => setCoinBalance(nextCoins)}
+        onSuccess={() => {
+          if (pendingArticleId) {
+            setSelectedId(pendingArticleId);
+            void trackEvent(pendingArticleId, "open_modal");
+            setPendingArticleId(null);
+          }
+        }}
+      />
+
       <footer className={styles.footer}>
-        <p className={styles.footerSignature}>Mohamed Royal</p>
+        <div className={styles.footerTop}>
+          <div className={styles.footerCol}>
+            <h3 className={styles.footerHead}>About</h3>
+            <a className={styles.footerLink} href="#">Our History</a>
+            <a className={styles.footerLink} href="#">Careers</a>
+          </div>
+          <div className={styles.footerCol}>
+            <h3 className={styles.footerHead}>Contact</h3>
+            <a className={styles.footerLink} href="#">Help Center</a>
+            <a className={styles.footerLink} href="#">Contact Us</a>
+            <a className={styles.footerLink} href="#">Press</a>
+          </div>
+          <div className={styles.footerCol}>
+            <h3 className={styles.footerHead}>Podcasts</h3>
+            <a className={styles.footerLink} href="#">Radio Atlantic</a>
+            <a className={styles.footerLink} href="#">Galaxy Brain</a>
+            <a className={styles.footerLink} href="#">Autocracy in America</a>
+          </div>
+          <div className={styles.footerCol}>
+            <h3 className={styles.footerHead}>Subscription</h3>
+            <a className={styles.footerLink} href="#">Purchase</a>
+            <a className={styles.footerLink} href="#">Give a Gift</a>
+            <a className={styles.footerLink} href="#">Manage Subscription</a>
+          </div>
+          <div className={styles.footerCol}>
+            <h3 className={styles.footerHead}>Follow</h3>
+            <a className={styles.footerLink} href="#">Facebook</a>
+            <a className={styles.footerLink} href="#">Instagram</a>
+            <a className={styles.footerLink} href="#">YouTube</a>
+            <a className={styles.footerLink} href="#">X</a>
+          </div>
+        </div>
+        <div className={styles.footerBottom}>
+          <p className={styles.footerMeta}>Privacy Policy</p>
+          <p className={styles.footerMeta}>Terms & Conditions</p>
+          <p className={styles.footerMeta}>Site Map</p>
+          <p className={styles.footerSignature}>mohamedroyal.com © 2026 Mohamed Royal</p>
+        </div>
       </footer>
     </main>
   );
