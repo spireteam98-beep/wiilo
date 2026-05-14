@@ -446,38 +446,6 @@ export default function HomePage() {
       />
 
       <footer className={styles.footer}>
-        <div className={styles.footerTop}>
-          <div className={styles.footerCol}>
-            <h3 className={styles.footerHead}>About</h3>
-            <a className={styles.footerLink} href="#">Our History</a>
-            <a className={styles.footerLink} href="#">Careers</a>
-          </div>
-          <div className={styles.footerCol}>
-            <h3 className={styles.footerHead}>Contact</h3>
-            <a className={styles.footerLink} href="#">Help Center</a>
-            <a className={styles.footerLink} href="#">Contact Us</a>
-            <a className={styles.footerLink} href="#">Press</a>
-          </div>
-          <div className={styles.footerCol}>
-            <h3 className={styles.footerHead}>Podcasts</h3>
-            <a className={styles.footerLink} href="#">Radio Atlantic</a>
-            <a className={styles.footerLink} href="#">Galaxy Brain</a>
-            <a className={styles.footerLink} href="#">Autocracy in America</a>
-          </div>
-          <div className={styles.footerCol}>
-            <h3 className={styles.footerHead}>Subscription</h3>
-            <a className={styles.footerLink} href="#">Purchase</a>
-            <a className={styles.footerLink} href="#">Give a Gift</a>
-            <a className={styles.footerLink} href="#">Manage Subscription</a>
-          </div>
-          <div className={styles.footerCol}>
-            <h3 className={styles.footerHead}>Follow</h3>
-            <a className={styles.footerLink} href="#">Facebook</a>
-            <a className={styles.footerLink} href="#">Instagram</a>
-            <a className={styles.footerLink} href="#">YouTube</a>
-            <a className={styles.footerLink} href="#">X</a>
-          </div>
-        </div>
         <div className={styles.footerBottom}>
           <p className={styles.footerMeta}>Privacy Policy</p>
           <p className={styles.footerMeta}>Terms & Conditions</p>
