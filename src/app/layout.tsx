@@ -1,5 +1,6 @@
 import type {Metadata} from 'next';
 import './globals.css';
+import { Analytics } from '@vercel/analytics/next';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 
@@ -71,6 +72,7 @@ export default function RootLayout({
         <FirebaseClientProvider>
           {children}
           <Toaster />
+          <Analytics />
         </FirebaseClientProvider>
       </body>
     </html>
