@@ -443,7 +443,7 @@
   line-height: 1;
 }
 
-.articleCaption, figcaption {
+.articleCaption {
   font-family: Inter, system-ui, sans-serif;
   font-size: 0.9rem;
   color: #6f6c69;
@@ -451,6 +451,8 @@
   margin-top: 0.5rem;
   text-transform: none;
 }
+
+
 
 .inlineHighlight {
   color: #d1171d;
