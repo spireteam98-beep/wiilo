@@ -35,6 +35,7 @@ export default function MyblogPostsAdminPage() {
   const [result, setResult] = useState("");
   const [debug, setDebug] = useState("");
   const [analyticsRows, setAnalyticsRows] = useState<AnalyticsRow[]>([]);
+  const [dailySiteVisits, setDailySiteVisits] = useState<{ [date: string]: number }>({});
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsError, setAnalyticsError] = useState("");
   const [analyticsView, setAnalyticsView] = useState<"summary" | "detailed">("summary");
@@ -49,8 +50,10 @@ export default function MyblogPostsAdminPage() {
       if (!response.ok || !data?.ok || !Array.isArray(data?.rows)) {
         setAnalyticsError(data?.message || "Failed to load analytics");
         setAnalyticsRows([]);
+        setDailySiteVisits({});
       } else {
         setAnalyticsRows(data.rows);
+        setDailySiteVisits(data.dailySiteVisits || {});
       }
     } catch (error: any) {
       setAnalyticsError(String(error?.message || error));
@@ -196,6 +199,34 @@ export default function MyblogPostsAdminPage() {
           {analyticsError ? (
             <p style={{ marginTop: 12, color: "#b91c1c" }}>{analyticsError}</p>
           ) : null}
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginTop: 18 }}>
+            {(() => {
+              const today = new Date().toISOString().split("T")[0];
+              const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+              const todayVisits = dailySiteVisits[today] || 0;
+              const yesterdayVisits = dailySiteVisits[yesterday] || 0;
+              const allTimeVisits = Object.values(dailySiteVisits).reduce((sum, value) => sum + value, 0);
+              return (
+                <>
+                  <div style={{ ...metricBoxStyle, background: "#f8fafc" }}>
+                    <p style={metricLabelStyle}>Today visits</p>
+                    <p style={metricValueStyle}>{todayVisits}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "#475569" }}>{today}</p>
+                  </div>
+                  <div style={{ ...metricBoxStyle, background: "#f8fafc" }}>
+                    <p style={metricLabelStyle}>Yesterday visits</p>
+                    <p style={metricValueStyle}>{yesterdayVisits}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "#475569" }}>{yesterday}</p>
+                  </div>
+                  <div style={{ ...metricBoxStyle, background: "#f8fafc" }}>
+                    <p style={metricLabelStyle}>All-time visits</p>
+                    <p style={metricValueStyle}>{allTimeVisits}</p>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
 
           {/* SUMMARY VIEW */}
           {analyticsView === "summary" && (
