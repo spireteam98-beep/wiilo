@@ -65,18 +65,40 @@ export default function HomePage() {
   const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mohamedroyal.com";
   const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
 
-  const trackEvent = async (articleId: string, eventType: "open_modal" | "share_click" | "open_share_link") => {
+  const trackEvent = async (
+    articleId: string | null,
+    eventType: "open_modal" | "share_click" | "open_share_link" | "page_view",
+    options?: { pageUrl?: string; referrer?: string; source?: string }
+  ) => {
     try {
+      const payload: Record<string, unknown> = {
+        eventType,
+        source: options?.source || "home",
+      };
+      if (articleId) payload.articleId = articleId;
+      if (options?.pageUrl) payload.pageUrl = options.pageUrl;
+      if (options?.referrer) payload.referrer = options.referrer;
+
       await fetch("/api/analytics/track", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         keepalive: true,
-        body: JSON.stringify({ articleId, eventType, source: "home" }),
+        body: JSON.stringify(payload),
       });
     } catch {
       // swallow analytics errors so UI remains smooth
     }
   };
+
+  useEffect(() => {
+    const pageUrl = window.location.href;
+    const referrer = document.referrer || "";
+    void trackEvent(null, "page_view", {
+      pageUrl,
+      referrer,
+      source: referrer ? "referral" : "direct",
+    });
+  }, []);
 
   useEffect(() => {
     let mounted = true;

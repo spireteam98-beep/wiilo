@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminDb } from "@/lib/firebase-admin";
 import { randomBytes } from "crypto";
+import { getAdminDb } from "@/lib/firebase-admin";
 
 const EVENTS_COLLECTION = "myblog_analytics_events";
 const SESSIONS_COLLECTION = "myblog_analytics_sessions";
@@ -11,49 +11,66 @@ const ALLOWED_EVENTS = new Set([
   "shared_to_contact",
   "received_shared_link",
   "conversion",
+  "page_view",
 ]);
+
+function getHostFromUrl(url: string) {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    return "";
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const articleId = String(body?.articleId || "").trim();
+    const rawArticleId = String(body?.articleId || "").trim();
     const eventType = String(body?.eventType || "").trim();
-    const source = String(body?.source || "").trim();
+    const source = String(body?.source || "").trim() || "web";
     const sessionId = String(body?.sessionId || "").trim();
-    const userId = String(body?.userId || "").trim();
+    const userId = String(body?.userId || "").trim() || "anonymous";
     const referrer = String(body?.referrer || "").trim();
+    const pageUrl = String(body?.pageUrl || "").trim();
+    const domain = String(body?.domain || "").trim();
     const additionalData = body?.additionalData || {};
 
+    const articleId = rawArticleId || (eventType === "page_view" ? "site_visit" : "");
     if (!articleId || !ALLOWED_EVENTS.has(eventType)) {
       return NextResponse.json({ ok: false, message: "Invalid analytics payload" }, { status: 400 });
     }
 
     const db = getAdminDb();
     const timestamp = Date.now();
-    
-    // Create or update session
+    const date = new Date(timestamp).toISOString().split("T")[0];
     const effectiveSessionId = sessionId || `session_${randomBytes(8).toString("hex")}`;
-    
+    const pageHost = domain || getHostFromUrl(pageUrl) || "unknown";
+    const referrerHost = getHostFromUrl(referrer);
+    const isDirect = eventType === "page_view" && !referrerHost;
+
     await db.collection(EVENTS_COLLECTION).add({
       articleId,
       eventType,
-      source: source || "web",
+      source,
       sessionId: effectiveSessionId,
-      userId: userId || "anonymous",
+      userId,
       referrer: referrer || null,
+      referrerHost: referrerHost || null,
+      pageUrl: pageUrl || null,
+      domain: pageHost,
+      isDirect,
       additionalData,
       createdAt: timestamp,
-      date: new Date(timestamp).toISOString().split("T")[0], // For easier aggregation
+      date,
     });
 
-    // Track session activity
     await db.collection(SESSIONS_COLLECTION).doc(effectiveSessionId).set(
       {
         articleIds: { [articleId]: true },
         eventCount: 1,
         lastActivityAt: timestamp,
-        userId: userId || "anonymous",
-        source: source || "web",
+        userId,
+        source,
       },
       { merge: true }
     );
