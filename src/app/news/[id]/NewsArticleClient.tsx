@@ -79,13 +79,20 @@ export default function NewsArticleClient({
             </Link>
           </div>
 
-            <header className={newsStyles.articleHero}>
-              <p className={newsStyles.rubric}>News</p>
-              <h1 className={newsStyles.articleTitle}>{title}</h1>
-              {excerpt ? <p className={newsStyles.articleDek}>{excerpt}</p> : null}
-              <div className={newsStyles.utilityBar}>
-                <span className={newsStyles.timestamp}>{formatNewsDate(date)}</span>
-                <span className={newsStyles.readTime}>{readMinutes} min read</span>
+            <header className={newsStyles.articleHeroHero}>
+              <div className={newsStyles.heroBg} aria-hidden>
+                <img src={image} alt="" className={newsStyles.leadImage} />
+              </div>
+
+              <div className={newsStyles.articleHeroContent}>
+                <p className={newsStyles.rubric}>News</p>
+                <h1 className={newsStyles.articleTitle}>{title}</h1>
+                <div className={newsStyles.titleRule} />
+                {excerpt ? <p className={newsStyles.articleDek}>{excerpt}</p> : null}
+                <div className={newsStyles.utilityBar}>
+                  <span className={newsStyles.timestamp}>{formatNewsDate(date)}</span>
+                  <span className={newsStyles.readTime}>{readMinutes} min read</span>
+                </div>
               </div>
             </header>
 

@@ -43,6 +43,42 @@
   position: relative;
 }
 
+/* Large editorial hero with dimmed featured image behind title */
+.articleHeroHero {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  padding: 56px 18px 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heroBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.heroBg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.22) saturate(0.8) contrast(0.95);
+  opacity: 0.98;
+  transform: scale(1.03);
+}
+
+.articleHeroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 980px;
+  width: 100%;
+}
+
 .articleHero::before {
   content: "";
   display: block;
@@ -60,6 +96,31 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #2c2825;
+}
+
+.articleTitle {
+  margin: 10px 0 8px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+  .articleTitle {
+    font-size: 36px;
+  }
+}
+
+/* decorative red rule aligned to the right, like the reference design */
+.titleRule {
+  height: 3px;
+  background: #d1171d;
+  width: 44%;
+  margin: 18px auto 0;
 }
 
 .articleDek {
@@ -104,6 +165,11 @@
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* hide the inline lead figure on the article page — we surface the image as a dimmed hero background */
+.leadFigure {
+  display: none;
 }
 
 .leadCaption {
@@ -247,6 +313,73 @@
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Article content typographic accents: subtitles, quotes, inline highlights */
+.body h2,
+.body h3 {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 40px;
+  line-height: 1.02;
+  margin: 34px 0 18px;
+  text-align: center;
+  color: #111;
+}
+
+.body blockquote {
+  background: #000;
+  color: #fff;
+  padding: 46px 28px;
+  margin: 40px auto;
+  max-width: 980px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 44px;
+  line-height: 1.03;
+  font-weight: 800;
+  text-align: center;
+  position: relative;
+}
+
+.body blockquote:before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  width: calc(100% - 24px);
+  height: 3px;
+  background: #d1171d;
+  opacity: 0.95;
+}
+
+.body blockquote:after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: calc(100% - 24px);
+  height: 3px;
+  background: #d1171d;
+  opacity: 0.95;
+}
+
+.body .inline-highlight {
+  color: #d1171d;
+  font-weight: 800;
+  background: transparent;
+  padding: 0 3px;
+  border-bottom: 3px solid #d1171d;
+  display: inline-block;
+  line-height: 1;
+}
+
+.body figcaption {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 14px;
+  color: #6f6c69;
+  margin-top: 8px;
 }
 
 /* Share button row */
