@@ -91,7 +91,13 @@ export const getContentItems = async (queryConstraints: QueryConstraint[] = [], 
     }
 
     const q = query(contentCollectionRef, ...finalConstraints);
+    console.log('[getContentItems] running query with constraints:', finalConstraints.map(c => (c as any)?._field || String(c)));
     const querySnapshot = await getDocs(q);
+
+    console.log(`[getContentItems] query returned ${querySnapshot.size} documents`);
+    if (querySnapshot.empty) {
+      console.warn('[getContentItems] No documents found for provided query constraints');
+    }
 
     const items = querySnapshot.docs.map((doc) => ({
       id: doc.id,
@@ -154,7 +160,9 @@ export const getCategories = async (): Promise<string[]> => {
     const categoriesCollectionRef = collection(db, CATEGORIES_COLLECTION);
     const q = query(categoriesCollectionRef, orderBy('name'));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => doc.data().name as string);
+    const names = querySnapshot.docs.map(doc => doc.data().name as string);
+    console.log(`[getCategories] fetched ${names.length} categories:`, names);
+    return names;
   } catch (error) {
     console.error('Error fetching categories:', error);
     throw error;
@@ -185,18 +193,26 @@ export const getContentItemsByCategory = async (categoryName: string): Promise<C
     // Optional: Check if the category exists in the categories collection
     const categories = await getCategories();
     if (!categories.includes(categoryName)) {
-        console.warn(`Category "${categoryName}" does not exist.`);
-        // Optionally throw an error or return an empty array
+        console.warn(`Category "${categoryName}" does not exist. Available categories: ${categories.join(', ')}`);
         return [];
     }
+
+    console.log(`[getContentItemsByCategory] category exists: "${categoryName}". Running query...`);
     const q = query(
- collection(db, CONTENT_COLLECTION),
- where('category', '==', categoryName),
+      collection(db, CONTENT_COLLECTION),
+      where('category', '==', categoryName),
     );
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContentItem));
+    console.log(`[getContentItemsByCategory] query returned ${querySnapshot.size} documents for category "${categoryName}"`);
+    if (querySnapshot.empty) console.warn(`[getContentItemsByCategory] No content found for category "${categoryName}"`);
+    const items = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ContentItem));
+    console.log('[getContentItemsByCategory] document IDs:', querySnapshot.docs.map(d => d.id));
+    return items;
   } catch (error) {
     console.error(`Error fetching content items for category ${categoryName}:`, error);
+    if ((error as any)?.code === 'permission-denied' || String(error).toLowerCase().includes('permission')) {
+      console.error('[getContentItemsByCategory] Permission denied. Check Firestore rules and authentication.');
+    }
     throw error;
   }
 };
