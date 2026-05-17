@@ -2,7 +2,6 @@
 
 import { CSSProperties, FormEvent, useState } from "react";
 
-<<<<<<< HEAD
 type EventTotals = {
   open_modal: number;
   share_click: number;
@@ -12,26 +11,16 @@ type EventTotals = {
   conversion: number;
 };
 
-=======
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
 type AnalyticsRow = {
   articleId: string;
   title: string;
   excerpt: string;
   featuredImageUrl: string;
-<<<<<<< HEAD
   totals: EventTotals;
   conversionRate: number;
   totalEngagement: number;
   uniqueSessions: number;
   byDate: { [date: string]: EventTotals };
-=======
-  totals: {
-    open_modal: number;
-    share_click: number;
-    open_share_link: number;
-  };
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
 };
 
 export default function MyblogPostsAdminPage() {
@@ -48,11 +37,8 @@ export default function MyblogPostsAdminPage() {
   const [analyticsRows, setAnalyticsRows] = useState<AnalyticsRow[]>([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsError, setAnalyticsError] = useState("");
-<<<<<<< HEAD
   const [analyticsView, setAnalyticsView] = useState<"summary" | "detailed">("summary");
   const [expandedArticle, setExpandedArticle] = useState<string | null>(null);
-=======
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
 
   const loadAnalytics = async () => {
     setAnalyticsLoading(true);
@@ -118,11 +104,7 @@ export default function MyblogPostsAdminPage() {
 
   return (
     <main style={{ minHeight: "100dvh", background: "#fff", color: "#111", padding: "24px" }}>
-<<<<<<< HEAD
       <div style={{ maxWidth: 1200, margin: "0 auto", border: "1px solid #ddd", borderRadius: 12, padding: 20 }}>
-=======
-      <div style={{ maxWidth: 980, margin: "0 auto", border: "1px solid #ddd", borderRadius: 12, padding: 20 }}>
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
         <h1 style={{ margin: 0, fontSize: 28 }}>Myblog Post Admin</h1>
         <p style={{ marginTop: 8, color: "#555" }}>
           Add article title, excerpt, full body, featured image URL, and path.
@@ -173,7 +155,6 @@ export default function MyblogPostsAdminPage() {
         ) : null}
 
         <section style={{ marginTop: 28, borderTop: "1px solid #e5e7eb", paddingTop: 18 }}>
-<<<<<<< HEAD
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
             <h2 style={{ margin: 0, fontSize: 22 }}>Article Analytics</h2>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -210,34 +191,12 @@ export default function MyblogPostsAdminPage() {
                 {analyticsLoading ? "Loading..." : "Refresh Analytics"}
               </button>
             </div>
-=======
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-            <h2 style={{ margin: 0, fontSize: 22 }}>Article Analytics</h2>
-            <button
-              type="button"
-              onClick={loadAnalytics}
-              disabled={analyticsLoading}
-              style={{
-                height: 38,
-                border: "none",
-                borderRadius: 8,
-                background: analyticsLoading ? "#9ca3af" : "#111",
-                color: "#fff",
-                fontWeight: 600,
-                padding: "0 14px",
-                cursor: analyticsLoading ? "not-allowed" : "pointer",
-              }}
-            >
-              {analyticsLoading ? "Loading..." : "Refresh Analytics"}
-            </button>
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
           </div>
 
           {analyticsError ? (
             <p style={{ marginTop: 12, color: "#b91c1c" }}>{analyticsError}</p>
           ) : null}
 
-<<<<<<< HEAD
           {/* SUMMARY VIEW */}
           {analyticsView === "summary" && (
             <div style={{ marginTop: 12, overflowX: "auto" }}>
@@ -279,34 +238,6 @@ export default function MyblogPostsAdminPage() {
                           >
                             <strong>{row.title || row.articleId}</strong>
                           </button>
-=======
-          <div style={{ marginTop: 12, overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 760 }}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>Article</th>
-                  <th style={thStyle}>Modal Opens</th>
-                  <th style={thStyle}>Share Clicks</th>
-                  <th style={thStyle}>Share Link Opens</th>
-                  <th style={thStyle}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analyticsRows.length === 0 ? (
-                  <tr>
-                    <td style={tdStyle} colSpan={5}>
-                      {analyticsLoading ? "Loading analytics..." : "No analytics yet. Click Refresh Analytics."}
-                    </td>
-                  </tr>
-                ) : (
-                  analyticsRows.map((row) => {
-                    const total =
-                      row.totals.open_modal + row.totals.share_click + row.totals.open_share_link;
-                    return (
-                      <tr key={row.articleId}>
-                        <td style={tdStyle}>
-                          <strong>{row.title || row.articleId}</strong>
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
                           {row.excerpt ? (
                             <p style={{ margin: "6px 0 0", color: "#475569", fontSize: 13 }}>{row.excerpt}</p>
                           ) : null}
@@ -314,10 +245,9 @@ export default function MyblogPostsAdminPage() {
                         <td style={tdStyle}>{row.totals.open_modal}</td>
                         <td style={tdStyle}>{row.totals.share_click}</td>
                         <td style={tdStyle}>{row.totals.open_share_link}</td>
-<<<<<<< HEAD
                         <td style={tdStyle}>{row.totals.conversion}</td>
                         <td style={tdStyle}>{row.conversionRate}%</td>
-                        <td style={tdStyle} style={{ ...tdStyle, fontWeight: 600 }}>{row.totalEngagement}</td>
+                        <td style={{ ...tdStyle, fontWeight: 600 }}>{row.totalEngagement}</td>
                         <td style={tdStyle}>{row.uniqueSessions}</td>
                       </tr>
                     ))
@@ -443,16 +373,6 @@ export default function MyblogPostsAdminPage() {
               )}
             </div>
           )}
-=======
-                        <td style={tdStyle}>{total}</td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
         </section>
       </div>
     </main>
@@ -481,10 +401,7 @@ const thStyle: CSSProperties = {
   padding: "10px 8px",
   fontSize: 13,
   color: "#334155",
-<<<<<<< HEAD
   fontWeight: 600,
-=======
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
 };
 
 const tdStyle: CSSProperties = {
@@ -494,7 +411,6 @@ const tdStyle: CSSProperties = {
   fontSize: 14,
   verticalAlign: "top",
 };
-<<<<<<< HEAD
 
 const metricBoxStyle: CSSProperties = {
   background: "#fff",
@@ -518,5 +434,3 @@ const metricValueStyle: CSSProperties = {
   fontWeight: "bold",
   color: "#111",
 };
-=======
->>>>>>> 0494a776537b9315d8e0e43318380df702710e5b
