@@ -36,6 +36,7 @@ export default function MyblogPostsAdminPage() {
   const [debug, setDebug] = useState("");
   const [analyticsRows, setAnalyticsRows] = useState<AnalyticsRow[]>([]);
   const [dailySiteVisits, setDailySiteVisits] = useState<{ [date: string]: number }>({});
+  const [dailyDirectSiteVisits, setDailyDirectSiteVisits] = useState<{ [date: string]: number }>({});
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [analyticsError, setAnalyticsError] = useState("");
   const [analyticsView, setAnalyticsView] = useState<"summary" | "detailed">("summary");
@@ -51,9 +52,11 @@ export default function MyblogPostsAdminPage() {
         setAnalyticsError(data?.message || "Failed to load analytics");
         setAnalyticsRows([]);
         setDailySiteVisits({});
+        setDailyDirectSiteVisits({});
       } else {
         setAnalyticsRows(data.rows);
         setDailySiteVisits(data.dailySiteVisits || {});
+        setDailyDirectSiteVisits(data.dailyDirectSiteVisits || {});
       }
     } catch (error: any) {
       setAnalyticsError(String(error?.message || error));
@@ -207,6 +210,8 @@ export default function MyblogPostsAdminPage() {
               const todayVisits = dailySiteVisits[today] || 0;
               const yesterdayVisits = dailySiteVisits[yesterday] || 0;
               const allTimeVisits = Object.values(dailySiteVisits).reduce((sum, value) => sum + value, 0);
+              const todayDirectVisits = dailyDirectSiteVisits[today] || 0;
+              const allTimeDirectVisits = Object.values(dailyDirectSiteVisits).reduce((sum, value) => sum + value, 0);
               return (
                 <>
                   <div style={{ ...metricBoxStyle, background: "#f8fafc" }}>
@@ -220,8 +225,17 @@ export default function MyblogPostsAdminPage() {
                     <p style={{ margin: 0, fontSize: 12, color: "#475569" }}>{yesterday}</p>
                   </div>
                   <div style={{ ...metricBoxStyle, background: "#f8fafc" }}>
+                    <p style={metricLabelStyle}>Today direct visits</p>
+                    <p style={metricValueStyle}>{todayDirectVisits}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "#475569" }}>{today}</p>
+                  </div>
+                  <div style={{ ...metricBoxStyle, background: "#f8fafc" }}>
                     <p style={metricLabelStyle}>All-time visits</p>
                     <p style={metricValueStyle}>{allTimeVisits}</p>
+                  </div>
+                  <div style={{ ...metricBoxStyle, background: "#f8fafc" }}>
+                    <p style={metricLabelStyle}>All-time direct visits</p>
+                    <p style={metricValueStyle}>{allTimeDirectVisits}</p>
                   </div>
                 </>
               );

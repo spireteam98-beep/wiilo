@@ -48,6 +48,7 @@ export async function GET() {
 
     const articleMap = new Map<string, AnalyticsRow>();
     const dailySiteVisits: { [date: string]: number } = {};
+    const dailyDirectSiteVisits: { [date: string]: number } = {};
 
     postsSnap.docs.forEach((doc) => {
       const d = doc.data() as any;
@@ -96,10 +97,14 @@ export async function GET() {
         row.byDate[date][eventType as keyof EventTotals] += 1;
       }
 
+      if (eventType === "page_view") {
+        dailySiteVisits[date] = (dailySiteVisits[date] || 0) + 1;
+      }
+
       if (isDirect && eventType === "page_view") {
         row.directVisits += 1;
         row.directVisitsByDate[date] = (row.directVisitsByDate[date] || 0) + 1;
-        dailySiteVisits[date] = (dailySiteVisits[date] || 0) + 1;
+        dailyDirectSiteVisits[date] = (dailyDirectSiteVisits[date] || 0) + 1;
       }
 
       row.totalEngagement += 1;
@@ -107,7 +112,10 @@ export async function GET() {
 
     const rows = Array.from(articleMap.values()).sort((a, b) => b.totalEngagement - a.totalEngagement);
 
-    return NextResponse.json({ ok: true, rows, dailySiteVisits }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json(
+      { ok: true, rows, dailySiteVisits, dailyDirectSiteVisits },
+      { headers: { "Cache-Control": "no-store" } }
+    );
   } catch (error: any) {
     return NextResponse.json(
       { ok: false, message: "Failed to load analytics summary", error: String(error?.message || error) },
