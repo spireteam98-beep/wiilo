@@ -1,0 +1,356 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Editorial Fonts (AGaramondPro · Atlantic Serif · Logic Monospace) ───── */
+@font-face {
+  font-display: swap;
+  font-family: AGaramondPro;
+  font-style: normal;
+  font-weight: 400;
+  src: local("Adobe Garamond Pro Regular"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Regular.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Regular.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: AGaramondPro;
+  font-style: italic;
+  font-weight: 400;
+  src: local("Adobe Garamond Pro Italic"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Italic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Italic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: AGaramondPro;
+  font-style: normal;
+  font-weight: 600;
+  src: local("Adobe Garamond Pro Semibold"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Semibold.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Semibold.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Regular.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Regular.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: normal;
+  font-weight: 600;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Bold.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Bold.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Logic Monospace";
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Medium.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Medium.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Logic Monospace";
+  font-style: normal;
+  font-weight: 300;
+  src: url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Regular.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Regular.woff) format("woff");
+}
+
+@layer base {
+  :root {
+    /* Wiillo Palette */
+    /* Purple: #7c3aed (HSL: 262 83% 58%) */
+    /* Pink: #ff2d7a (HSL: 338 100% 59%) */
+    /* Background: #f4f1f8 (HSL: 264 25% 96%) */
+    /* Foreground: #201929 (HSL: 267 24% 13%) */
+    
+    --background: 264 25% 96%;
+    --foreground: 267 24% 13%;
+    
+    --card: 0 0% 100% / 0.82;
+    --card-foreground: 267 24% 13%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 267 24% 13%;
+    
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 262 83% 95%;
+    --secondary-foreground: 262 83% 40%;
+    
+    --muted: 264 12% 45%;
+    --muted-foreground: 264 12% 45%;
+    
+    --accent: 338 100% 59%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 262 83% 58% / 0.12;
+    --input: 262 83% 58% / 0.12;
+    --ring: 262 83% 58%;
+    
+    --radius: 1.25rem; /* 20px */
+    
+    --sidebar-background: 0 0% 100% / 0.55;
+    --sidebar-foreground: 264 12% 45%;
+    --sidebar-primary: 262 83% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 83% 58% / 0.08;
+    --sidebar-accent-foreground: 267 24% 13%;
+    --sidebar-border: 0 0% 100% / 0.65;
+    --sidebar-ring: 262 83% 58%;
+  }
+
+  .dark {
+    --background: 267 24% 8%;
+    --foreground: 264 25% 96%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    background: #fff;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/80 backdrop-blur-[20px] border border-white/60 shadow-[0_18px_50px_rgba(62,28,107,0.10)];
+  }
+  
+  .wiillo-grad {
+    background: linear-gradient(135deg, #ff2d7a, #7c3aed);
+  }
+  
+  .wiillo-grad-text {
+    @apply wiillo-grad bg-clip-text text-transparent;
+  }
+
+  .brand-mark {
+    @apply flex gap-2 items-center;
+  }
+  
+  .brand-dot {
+    @apply w-3.5 h-3.5 rounded-full;
+  }
+  
+  .brand-dot-1 { background: #ff2d7a; box-shadow: 0 8px 18px rgba(255,45,122,.25); }
+  .brand-dot-2 { background: linear-gradient(135deg, #ff2d7a, #7c3aed); }
+  .brand-dot-3 { background: rgba(23,18,33,.85); }
+
+  @keyframes progress-load {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(-20%); }
+    100% { transform: translateX(0); }
+  }
+
+  .animate-progress {
+    animation: progress-load 3s ease-in-out forwards;
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Branded TV player styles */
+.video-container {
+  position: relative;
+  background-color: #000;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.controls-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 0.85rem 1.1rem 1rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+}
+
+.progress-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.time-display {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1;
+}
+
+.progress-bar {
+  position: relative;
+  height: 0.3rem;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: height 0.2s ease;
+}
+
+.video-container:hover .progress-bar,
+.video-container:focus-within .progress-bar {
+  height: 0.45rem;
+}
+
+.buffered-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: inherit;
+}
+
+.watched-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #f97316);
+  border-radius: inherit;
+}
+
+.playhead {
+  position: absolute;
+  top: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 9999px;
+  background: #f97316;
+  border: 2px solid #fff;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.video-container:hover .playhead,
+.video-container:focus-within .playhead {
+  opacity: 1;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.left-controls,
+.right-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.controls button {
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.controls button:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.controls button[aria-label='Pause'],
+.controls button[aria-label='Play'] {
+  height: 2.75rem;
+  width: 2.75rem;
+  background: #fff;
+  color: #000;
+}
+
+.video-meta {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 0.35rem;
+  min-width: 0;
+}
+
+.video-title {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.time-inline {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+@media (max-width: 768px) {
+  .controls-container {
+    padding: 0.7rem 0.8rem 0.85rem;
+  }
+
+  .controls {
+    gap: 0.5rem;
+  }
+
+  .controls button {
+    height: 2.2rem;
+    width: 2.2rem;
+  }
+
+  .controls button[aria-label='Pause'],
+  .controls button[aria-label='Play'] {
+    height: 2.45rem;
+    width: 2.45rem;
+  }
+
+  .video-meta {
+    max-width: 42vw;
+  }
+
+  .progress-controls .time-display {
+    display: none;
+  }
+}

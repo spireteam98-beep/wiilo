@@ -1,0 +1,177 @@
+
+.playerControlsContainer {
+  z-index: 2;
+  padding: 1rem;
+  position: relative;
+}
+
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.time,
+.duration {
+  font-size: 14px;
+  color: #b3b3b3;
+  min-width: 45px;
+  text-align: center;
+}
+
+.playerSeekBarHolder {
+  flex-grow: 1;
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bar {
+  height: 4px;
+  background-color: #5a5a5a;
+  border-radius: 2px;
+  position: relative;
+  flex-grow: 1;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: rgb(255, 68, 0);
+  border-radius: 2px;
+  position: relative;
+}
+
+.p_seekThumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ff4400;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p_seekThumbLine {
+  width: 2px;
+  height: 10px;
+  background-color: white;
+  display: none;
+}
+
+.p_seekThumbHalo {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #ff4400;
+  opacity: 0;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.playerControls {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.controlGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.audioButton {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.audioButton.playing .base_circle {
+  fill: transparent;
+  stroke: white;
+  stroke-width: 2;
+}
+
+.audioButton.playing .pause_icon {
+  fill: white;
+}
+
+@media (hover: hover) {
+  .p_seekThumb:hover .p_seekThumbHalo {
+    transform: scale(1.5);
+    opacity: 0.3;
+    background-color: rgb(255, 68, 0);
+  }
+
+  .audioButton:hover {
+    transform: scale(1.1);
+  }
+
+  .audioButton:hover .highlight_circle {
+    fill: rgba(255, 68, 0, 0.2);
+  }
+}
+
+.audioButton.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.p_audioButton_buttonInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.base_circle {
+  fill: white;
+  transition: fill 0.2s, stroke 0.2s;
+}
+
+.highlight_circle {
+  fill: transparent;
+  transition: fill 0.2s;
+}
+
+.play_icon {
+  fill: black;
+}
+
+.pause_icon {
+  fill: white;
+}
+
+.intervalArrow {
+  fill: white;
+}
+
+.iconNumber {
+  fill: white;
+  font-weight: 700;
+}
+
+.skipIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.audioButton.playing .play_icon {
+  fill: white;
+}

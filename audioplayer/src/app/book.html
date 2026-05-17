@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Launch Interactive Map</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #f0f4ff, #dce3f7);
+      overflow: hidden;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .node {
+      position: absolute;
+      padding: 12px 18px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .node:hover {
+      transform: scale(1.2);
+      background: #eef;
+    }
+
+    .tooltip {
+      position: absolute;
+      background: rgba(0,0,0,0.85);
+      color: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+      max-width: 220px;
+      font-size: 14px;
+      z-index: 10;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="lines"></canvas>
+
+    <!-- Example nodes -->
+    <div class="node" style="top:20%; left:45%;" data-info="Introduction: sets the stage for the book.">Intro</div>
+    <div class="node" style="top:50%; left:20%;" data-info="Chapter 1: Exploring the main theme.">Ch.1</div>
+    <div class="node" style="top:70%; left:50%;" data-info="Chapter 2: Deep dive into character arcs.">Ch.2</div>
+    <div class="node" style="top:40%; left:75%;" data-info="Themes: Key ideas woven throughout.">Themes</div>
+    <div class="node" style="top:80%; left:30%;" data-info="Conclusion: Wrapping up insights and takeaways.">End</div>
+
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('lines');
+    const ctx = canvas.getContext('2d');
+    const $tooltip = $('#tooltip');
+    const $nodes = $('.node');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      drawLines();
+    }
+
+    function drawLines() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#666';
+      ctx.lineWidth = 2;
+
+      const positions = $nodes.map(function() {
+        const rect = this.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width/2,
+          y: rect.top + rect.height/2
+        };
+      }).get();
+
+      ctx.beginPath();
+      for (let i = 0; i < positions.length-1; i++) {
+        ctx.moveTo(positions[i].x, positions[i].y);
+        ctx.lineTo(positions[i+1].x, positions[i+1].y);
+      }
+      ctx.stroke();
+    }
+
+    $(window).on('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Tooltip interactions
+    $nodes.on('mouseenter', function(e) {
+      const info = $(this).data('info');
+      $tooltip.text(info).fadeIn(200);
+      moveTooltip(e);
+    });
+
+    $nodes.on('mousemove', function(e) {
+      moveTooltip(e);
+    });
+
+    $nodes.on('mouseleave', function() {
+      $tooltip.fadeOut(200);
+    });
+
+    function moveTooltip(e) {
+      $tooltip.css({
+        top: e.pageY + 15,
+        left: e.pageX + 15
+      });
+    }
+
+    // Click interaction: highlight node + redraw lines
+    $nodes.on('click', function() {
+      $nodes.removeClass('active');
+      $(this).addClass('active').css('background', '#cce');
+      drawLines();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,805 @@
+/* ── News Section — Editorial Magazine Styles ───────────────────────────────
+   Fonts: AGaramondPro, Atlantic Serif, Logic Monospace (declared in globals.css)
+   Card body & article modal use warm cream #f8f7f4 background for a cozy read.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* ── Share section ───────────────────────────────────────────────────────── */
+
+/* Shared article page shell: same width + rhythm as in-app modal */
+.sharePageRoot {
+  min-height: 100vh;
+  background: #f8f7f4;
+  color: #2c2825;
+}
+
+.sharePageShell {
+  width: 100%;
+  background: #f8f7f4;
+}
+
+.sharePageBody {
+  padding: 22px 16px 56px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #5e6a74;
+  text-decoration: none;
+  margin-bottom: 22px;
+}
+
+.backLink:hover {
+  color: #2c2825;
+}
+
+.articleHero {
+  margin-bottom: 24px;
+}
+
+.rubric {
+  margin: 0 0 14px;
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #2c2825;
+}
+
+.articleDek {
+  margin: 0 0 18px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 28px;
+  line-height: 1.28;
+  font-style: italic;
+  color: #5e6a74;
+}
+
+.utilityBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 0.25px solid rgba(0, 0, 0, 0.15);
+  border-bottom: 0.25px solid rgba(0, 0, 0, 0.15);
+  padding: 12px 0;
+}
+
+.utilityBar .timestamp {
+  margin-bottom: 0;
+  padding-top: 0;
+}
+
+.readTime {
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #6f6c69;
+}
+
+.leadFigure {
+  margin: 22px 0 0;
+}
+
+.leadImage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.leadCaption {
+  margin-top: 8px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 14px;
+  line-height: 1.25;
+  color: #6f6c69;
+}
+
+.articleWell {
+  width: 100%;
+}
+
+.paywallBox {
+  margin-top: 18px;
+  border: 1px solid rgba(44, 40, 37, 0.12);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+}
+
+.paywallTitle {
+  margin: 0;
+  font-family: "Atlantic Serif", Atlantic, Bodoni, "Times New Roman", Times, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-size: 22px;
+  line-height: 1.1;
+  color: #21272c;
+}
+
+.paywallText {
+  margin: 10px 0 16px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #5e6a74;
+}
+
+.shareSection {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.12);
+}
+
+.shareLabel {
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #5e6a74;
+  margin: 0 0 16px;
+}
+
+/* Link-preview card */
+
+.previewCard {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  margin-bottom: 20px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  background: #fff;
+}
+
+.previewCard:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.previewImgWrap {
+  flex-shrink: 0;
+  width: 110px;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 480px) {
+  .previewImgWrap {
+    width: 140px;
+  }
+}
+
+.previewImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.previewText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  min-width: 0;
+}
+
+.previewDomain {
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6f6c69;
+}
+
+.previewTitle {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #21272c;
+  /* two-line clamp */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.previewExcerpt {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 13px;
+  font-style: italic;
+  color: #5e6a74;
+  line-height: 1.5;
+  /* two-line clamp */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Share button row */
+
+.shareBtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.shareBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.shareBtn:active {
+  transform: translateY(0);
+}
+
+.shareBtnWa  { background-color: #25d366; }
+.shareBtnFb  { background-color: #1877f2; }
+.shareBtnTw  { background-color: #000; }
+.shareBtnCopy {
+  background-color: #f1efe9;
+  color: #2c2825;
+  border: 1px solid rgba(44, 40, 37, 0.15);
+}
+
+.shareBtnCopy:hover { opacity: 1; background-color: #e7e3db; }
+
+.shareBtnIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ── Section shell ───────────────────────────────────────────────────────── */
+
+.sectionHeading {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: end;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 34px;
+  line-height: 36px;
+  font-family: "Atlantic Serif", Atlantic, Bodoni, "Times New Roman", Times, serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 400;
+  margin: 0;
+  color: #fff;
+}
+
+@media (min-width: 1024px) {
+  .sectionTitle {
+    font-size: 38px;
+    line-height: 40px;
+  }
+}
+
+/* ── 4-col responsive grid ───────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── Card ────────────────────────────────────────────────────────────────── */
+
+.card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+}
+
+.card:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 3px;
+}
+
+/* Image */
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  /* 16:9 aspect via padding-bottom */
+  padding-bottom: 56.25%;
+  overflow: hidden;
+  background-color: #c0ccda;
+}
+
+.cardImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover .cardImage {
+  transform: scale(1.05);
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.05) 60%);
+}
+
+.dateBadge {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  background: rgba(0, 0, 0, 0.45);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 3px 9px;
+  border-radius: 4px;
+}
+
+/* Card body — warm cream "paper" background */
+
+.cardBody {
+  background-color: #f8f7f4;
+  padding: 20px 16px;
+}
+
+.cardTitle {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  color: #2c2825;
+  margin: 0 0 8px;
+  /* three-line clamp */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s;
+}
+
+.card:hover .cardTitle {
+  color: #48413d;
+}
+
+.cardExcerpt {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 26px;
+  color: #000;
+  margin: 0 0 16px;
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 1024px) {
+  .cardTitle {
+    font-size: 22px;
+    line-height: 1.4;
+  }
+
+  .cardExcerpt {
+    font-size: 18px;
+    line-height: 27px;
+  }
+}
+
+/* ── Skeleton loader ─────────────────────────────────────────────────────── */
+
+.skeletonCard {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.skeletonImg {
+  width: 100%;
+  padding-bottom: 56.25%;
+  background-color: rgba(255, 255, 255, 0.07);
+  animation: skeletonPulse 1.8s ease-in-out infinite;
+}
+
+.skeletonBody {
+  background-color: #f8f7f4;
+  padding: 20px 16px;
+}
+
+.skeletonLine {
+  height: 13px;
+  background-color: rgba(0, 0, 0, 0.09);
+  border-radius: 3px;
+  margin-bottom: 9px;
+  animation: skeletonPulse 1.8s ease-in-out infinite;
+}
+
+.skeletonLineLong  { width: 80%; }
+.skeletonLineFull  { width: 100%; }
+.skeletonLineShort { width: 55%; }
+
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* ── Article reader modal ────────────────────────────────────────────────── */
+
+/*
+  Applied to <DialogContent> via cn().
+  Override the Radix Dialog default so the entire modal looks like
+  a magazine article printed on warm cream paper.
+*/
+.modalContent {
+  background-color: #f8f7f4 !important;
+  color: #2c2825;
+  border-radius: 8px !important;
+  border: none !important;
+  padding: 0 !important;
+  max-width: 680px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Preview modal typography (Atlantic style) */
+.previewModalTitle {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-size: 32px;
+  line-height: 1.05;
+  font-weight: 400;
+  color: #f8f7f4;
+  margin: 0;
+}
+
+.previewModalDate {
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: rgba(248, 247, 244, 0.62);
+  margin: 0;
+}
+
+.previewModalLabel {
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: rgba(248, 247, 244, 0.72);
+  margin: 0;
+}
+
+.previewModalText {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 20px;
+  line-height: 1.38;
+  font-weight: 400;
+  color: rgba(248, 247, 244, 0.9);
+  margin: 0;
+}
+
+/* Hero image */
+
+.heroWrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 44%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.heroImg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.heroGradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(248, 247, 244, 0) 45%, #f8f7f4 100%);
+}
+
+/* Close button */
+
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(248, 247, 244, 0.9);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  border: 0.5px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2c2825;
+  transition: background 0.15s;
+}
+
+.closeBtn:hover {
+  background: #fff;
+}
+
+/* Scrollable article body */
+
+.scrollBody {
+  overflow-y: auto;
+  padding: 0 28px 56px;
+  flex: 1 1 auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 640px) {
+  .scrollBody {
+    padding: 0 36px 56px;
+  }
+}
+
+/* Timestamp  — Logic Monospace, all-caps */
+
+.timestamp {
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  line-height: 14px;
+  text-transform: uppercase;
+  color: rgba(44, 40, 37, 0.45);
+  display: block;
+  padding-top: 18px;
+  margin-bottom: 16px;
+}
+
+/* Article title */
+
+.articleTitle {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 42px;
+  line-height: 48px;
+  font-weight: 400;
+  color: #000;
+  margin: 0 0 18px;
+  text-wrap: pretty;
+}
+
+/* Thin rule between header & body */
+
+.divider {
+  border: 0;
+  border-top: 0.25px solid rgba(0, 0, 0, 0.15);
+  margin: 20px 0 28px;
+}
+
+/* ── Article body prose ──────────────────────────────────────────────────── */
+
+.body {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 22px;
+  line-height: 1.5em;
+  color: #000;
+}
+
+.body p {
+  max-width: 713px;
+  padding-left: 24px;
+  padding-right: 24px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 22px;
+  line-height: 1.5;
+  margin: 0 auto 20px;
+}
+
+/* Drop-cap first letter on first paragraph */
+.body > p:first-child::first-letter {
+  float: left;
+  text-align: left;
+  text-transform: uppercase;
+  font-family: "Atlantic Serif", Atlantic, Bodoni, "Times New Roman", Times, serif;
+  line-height: 0.7;
+  font-size: 4.85em;
+  margin-top: 0.11em;
+  margin-right: 0.175em;
+  font-style: normal;
+}
+
+.body h2 {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 32px;
+  line-height: 1.125;
+  font-weight: 400;
+  color: #21272c;
+  margin-top: 32px;
+  margin-bottom: 18px;
+}
+
+.body h3 {
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, "Times New Roman", Times, serif;
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 600;
+  color: #21272c;
+  margin-top: 28px;
+  margin-bottom: 12px;
+}
+
+.body h4 {
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 30px;
+  color: #21272c;
+  margin-top: 18px;
+  margin-bottom: 8px;
+}
+
+/* Pull-quote / blockquote */
+.body blockquote {
+  margin: 32px 0;
+  padding-left: 22px;
+  border-left: 3px solid rgba(0, 0, 0, 0.15);
+  color: #5e6a74;
+  font-size: 24px;
+  line-height: 34px;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Links */
+.body a {
+  color: #2c2825;
+  text-decoration: underline;
+  text-decoration-thickness: 0.05em;
+  text-underline-offset: 2px;
+}
+
+.body a:hover {
+  color: #48413d;
+}
+
+/* Inline images */
+.body img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 24px auto;
+  border-radius: 4px;
+  background-color: #c0ccda;
+}
+
+.body figure {
+  margin: 28px 0;
+}
+
+.body figcaption {
+  font-family: "Logic Monospace", "Courier New", monospace;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.3;
+  color: #6f6c69;
+  padding-top: 8px;
+}
+
+/* Lists */
+.body ul {
+  padding-left: 26px;
+  list-style: disc;
+  margin-bottom: 20px;
+}
+
+.body ol {
+  padding-left: 26px;
+  list-style: decimal;
+  margin-bottom: 20px;
+}
+
+.body li {
+  margin-bottom: 8px;
+}
+
+/* Horizontal rule inside article */
+.body hr {
+  border: 0;
+  border-top: 0.25px solid rgba(0, 0, 0, 0.15);
+  margin: 32px auto;
+  max-width: 30%;
+}

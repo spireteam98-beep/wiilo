@@ -1,0 +1,221 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- HELPER FUNCTIONS ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Prevents client-side coin inflation while allowing content unlock deductions.
+    function validWalletUpdate() {
+      let old = resource.data;
+      let neu = request.resource.data;
+      let oldCoins = (old.keys().hasAll(['coins']) && old.coins is number) ? old.coins : 0;
+      let newCoins = (neu.keys().hasAll(['coins']) && neu.coins is number) ? neu.coins : oldCoins;
+      let noCoinInflation = newCoins <= oldCoins;
+      let consumedShapeValid = !neu.keys().hasAny(['consumedContentIds']) || neu.consumedContentIds is list;
+      return noCoinInflation && consumedShapeValid;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * User wallet and profile documents.
+     * Supports: Google OAuth sign-in, content-access coin deduction, wallet top-up via backend.
+     * Coin inflation from the client is blocked by validWalletUpdate().
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.coins is number
+        && request.resource.data.coins >= 0;
+
+      allow update: if isOwner(userId) && resource != null && validWalletUpdate();
+      allow delete: if isOwner(userId);
+    }
+
+  }
+}
+
+    /** @description Verifies the document exists and the user is a member of the owning tenant. */
+    function isExistingTenantMember(tenantId) {
+      return resource != null && isTenantMember(tenantId);
+    }
+
+    /** @description Validates user wallet/profile updates while preventing client-side coin inflation. */
+    function validUserWalletUpdate() {
+      let old = resource.data;
+      let neu = request.resource.data;
+
+      let oldCoins = (old.keys().hasAll(['coins']) && old.coins is number) ? old.coins : 0;
+      let newCoins = (neu.keys().hasAll(['coins']) && neu.coins is number) ? neu.coins : oldCoins;
+
+      let sameIdentity = neu.uid == old.uid;
+      let noCoinInflation = newCoins <= oldCoins;
+      let consumedShapeValid = !neu.keys().hasAny(['consumedContentIds']) || neu.consumedContentIds is list;
+
+      return sameIdentity && noCoinInflation && consumedShapeValid;
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Global mapping of Firebase Auth UIDs to Tenant IDs. Necessary for multi-tenant bootstrap.
+     * @path /users_global/{userId}
+     * @allow (create) if the user is creating their own record.
+     * @deny (list) to prevent user enumeration.
+     * @principle Self-creation and owner-only access for identity mapping.
+     */
+    match /users_global/{userId} {
+      // Explicit owner-only access; avoids edge-case listener/get denials.
+      allow read, write: if isOwner(userId);
+    }
+
+    /**
+     * @description End-user wallet/profile used by content access guard.
+     * @path /users/{userId}
+     * @principle Owner-only access with anti-inflation wallet checks.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      allow create: if isOwner(userId)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.coins is number
+        && request.resource.data.coins >= 0;
+
+      allow update: if isOwner(userId) && resource != null && validUserWalletUpdate();
+      allow delete: if isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Root Tenant document. Access restricted to members of that specific tenant.
+     * @path /tenants/{tenantId}
+     * @allow (get) if user belongs to this tenant.
+     * @deny (create) if user is not already associated with this tenantId globally.
+     * @principle Enforces tenant-level data isolation.
+     */
+    match /tenants/{tenantId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.id == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Detailed user profiles within a specific tenant.
+     * @path /tenants/{tenantId}/users/{userId}
+     * @allow (list) for any member of the tenant to see colleagues.
+     * @deny (update) if trying to change the profile of another user.
+     * @principle Tenant-scoped user management.
+     */
+    match /tenants/{tenantId}/users/{userId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Tenant-specific roles and permissions.
+     * @path /tenants/{tenantId}/roles/{roleId}
+     * @allow (read) for all tenant members to verify permissions.
+     * @deny (write) for non-tenant members.
+     * @principle RBAC data isolation.
+     */
+    match /tenants/{tenantId}/roles/{roleId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Module enablement flags for a tenant.
+     * @path /tenants/{tenantId}/moduleConfigurations/{moduleConfigId}
+     * @allow (get) to check if a feature like 'Inventory' is active.
+     * @principle Feature-flag isolation per tenant.
+     */
+    match /tenants/{tenantId}/moduleConfigurations/{moduleConfigId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Products and services owned by a tenant.
+     * @path /tenants/{tenantId}/products/{productId}
+     * @allow (create) if the denormalized tenantId matches the path.
+     * @principle Resource ownership validation via denormalized fields.
+     */
+    match /tenants/{tenantId}/products/{productId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Customer records for a tenant's CRM.
+     * @path /tenants/{tenantId}/customers/{customerId}
+     * @allow (list) for sales staff within the same tenant.
+     * @principle Data privacy between different business accounts.
+     */
+    match /tenants/{tenantId}/customers/{customerId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Sales orders processed within a tenant.
+     * @path /tenants/{tenantId}/salesOrders/{salesOrderId}
+     * @allow (create) if the creating user belongs to the tenant.
+     * @principle Transactional data isolation.
+     */
+    match /tenants/{tenantId}/salesOrders/{salesOrderId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Line items for a specific sales order.
+     * @path /tenants/{tenantId}/salesOrders/{salesOrderId}/salesLineItems/{lineItemId}
+     * @allow (create) if the line item explicitly includes the parent's tenantId.
+     * @principle Deeply nested denormalization to avoid costly parent lookups.
+     */
+    match /tenants/{tenantId}/salesOrders/{salesOrderId}/salesLineItems/{lineItemId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+
+    /**
+     * @description Inventory adjustments (stock in/out/damage).
+     * @path /tenants/{tenantId}/inventoryAdjustments/{inventoryAdjustmentId}
+     * @allow (write) if the adjustment is recorded by a verified tenant user.
+     * @principle Audit trail integrity via tenant-membership verification.
+     */
+    match /tenants/{tenantId}/inventoryAdjustments/{inventoryAdjustmentId} {
+      allow get, list: if isTenantMember(tenantId);
+      allow create: if isTenantMember(tenantId) && request.resource.data.tenantId == tenantId;
+      allow update: if isExistingTenantMember(tenantId) && request.resource.data.tenantId == resource.data.tenantId;
+      allow delete: if isExistingTenantMember(tenantId);
+    }
+  }
+}

@@ -1,0 +1,91 @@
+'use client';
+
+import { useAudioPlayer } from '@/contexts/audio-player-context';
+import Image from 'next/image';
+import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
+import { Play, Pause, SkipBack, SkipForward, Volume2, Download, Heart } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useToast } from '@/hooks/use-toast';
+
+const AudioPlayer = () => {
+  const { currentTrack, isPlaying, togglePlayPause } = useAudioPlayer();
+  const { toast } = useToast();
+
+  if (!currentTrack) {
+    return null;
+  }
+
+  const handleDownload = () => {
+    toast({
+      title: "Added to Downloads",
+      description: `${currentTrack.title} is now available for offline playback.`,
+    });
+    // In a real app, you'd handle actual download logic and persistence here.
+    if (typeof window !== 'undefined') {
+        const downloads = JSON.parse(localStorage.getItem('downloads') || '[]');
+        if (!downloads.includes(currentTrack.id)) {
+          downloads.push(currentTrack.id);
+          localStorage.setItem('downloads', JSON.stringify(downloads));
+        }
+    }
+  };
+
+  const image = PlaceHolderImages.find(p => p.id === currentTrack.imageId) || PlaceHolderImages[0];
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 h-24 border-t bg-background/95 backdrop-blur-sm">
+      <div className="container mx-auto grid h-full grid-cols-3 items-center px-4">
+        <div className="flex items-center gap-4">
+          {image && (
+            <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md">
+                <Image
+                    src={image.imageUrl}
+                    alt={currentTrack.title}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={image.imageHint}
+                />
+            </div>
+          )}
+          <div>
+            <p className="font-semibold truncate">{currentTrack.title}</p>
+            <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
+          </div>
+          <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
+            <Heart className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={handleDownload} className="hidden sm:inline-flex">
+            <Download className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <div className="flex flex-col items-center justify-center gap-2">
+            <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" disabled>
+                    <SkipBack />
+                </Button>
+                <Button size="icon" className="h-12 w-12" onClick={togglePlayPause}>
+                    {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 fill-current" />}
+                </Button>
+                <Button variant="ghost" size="icon" disabled>
+                    <SkipForward />
+                </Button>
+            </div>
+             <div className="flex w-full max-w-xs items-center gap-2 text-xs text-muted-foreground">
+                <span>0:00</span>
+                <Slider defaultValue={[0]} max={100} step={1} className="w-full" disabled/>
+                <span>0:00</span>
+            </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2">
+          <Volume2 className="h-5 w-5 text-muted-foreground" />
+          <Slider defaultValue={[50]} max={100} step={1} className="w-24" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AudioPlayer;

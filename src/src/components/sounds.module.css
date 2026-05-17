@@ -1,0 +1,701 @@
+
+/* Base Styles */
+/* Global resets like * { margin: 0; padding: 0; } are handled by Tailwind's preflight in globals.css */
+
+/* Styles for body tag should be in globals.css or applied to a root component class */
+
+.appContainer {
+    height: 100%; /* Occupy full viewport height of its fixed container */
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+    padding-top: env(safe-area-inset-top, 20px); /* Adjusted for potential notch */
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    max-width: 480px; /* Max width for phone-like appearance */
+    width: 100%;
+    margin: 0 auto; /* Center if viewport is wider */
+    position: relative;
+    background-color: #000000;
+    color: #FFFFFF;
+    overflow: hidden; /* Prevent content spill on smaller viewports */
+}
+
+.appContainer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        rgba(255, 69, 0, 0.05) 0%,
+        rgba(255, 69, 0, 0.02) 50%,
+        rgba(255, 69, 0, 0.05) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.appContainer > * {
+    position: relative;
+    z-index: 2;
+}
+
+.appContainer:hover {
+    box-shadow: 0 0 30px rgba(255, 69, 0, 0.2);
+    border-color: rgba(255, 69, 0, 0.4);
+    transition: all 0.3s ease;
+}
+
+.status_bar { /* Assuming this was .status-bar in your HTML */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 14px;
+    color: #FFFFFF;
+}
+
+.left_status { /* Assuming .left-status */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.google {
+    font-weight: 500;
+    color: #FFFFFF;
+}
+
+.status_icons { /* Assuming .status-icons */
+    display: flex;
+    gap: 4px;
+    color: #FFFFFF;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0; 
+    margin-bottom: 16px; 
+    flex-shrink: 0; 
+}
+
+.headerButton { 
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.headerButton svg { 
+    width: 24px;
+    height: 24px;
+}
+
+.headerTitle {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 600; /* semibold */
+    text-transform: uppercase;
+    color: #FFFFFF;
+    text-align: center;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 8px; 
+}
+
+.artwork {
+    position: relative;
+    max-width: 280px; 
+    margin: 24px auto; 
+    aspect-ratio: 1 / 1; 
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6); 
+}
+
+.artworkImage { 
+    /* No specific styles needed here if using Next/Image with layout="fill" */
+}
+
+.artwork_overlay { /* Assuming .artwork-overlay */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.bbc_logo { /* Assuming .bbc-logo */
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    gap: 2px;
+}
+
+.bbc_logo span {
+    background-color: #FFFFFF;
+    color: #000000;
+    padding: 2px 4px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.new_episodes_link { /* Assuming .new-episodes-link */
+    position: absolute;
+    bottom: 60px;
+    left: 16px;
+    background-color: #8B0000;
+    color: #FFFFFF;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.new_episodes_link:hover {
+    background-color: #FF4500;
+    transform: scale(1.05);
+}
+
+.episode_number { /* Assuming .episode-number */
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    background-color: #FFFFFF;
+    color: #000000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+
+.podcastInfo { 
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 0 10px;
+    flex-shrink: 0;
+}
+
+.title {
+    font-size: 1.5rem; 
+    font-weight: 700; 
+    margin-bottom: 4px;
+    color: #FFFFFF;
+    line-height: 1.2;
+}
+
+.episode {
+    font-size: 1rem; 
+    color: #b3b3b3; 
+}
+
+.progressSection { 
+    margin-bottom: 24px;
+    padding: 0 4px; 
+    flex-shrink: 0;
+}
+
+.progressBar { 
+    width: 100%;
+    height: 6px; 
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.2); 
+    border-radius: 3px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    outline: none;
+    display: block; 
+}
+
+.progressBar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: hsl(var(--primary)); 
+    border-radius: 50%;
+    cursor: pointer;
+    border: none; 
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    margin-top: -4px; 
+    position: relative; /* Added for z-index */
+    z-index: 1; /* Added for z-index */
+}
+
+.progressBar::-moz-range-thumb { 
+    width: 14px;
+    height: 14px;
+    background: hsl(var(--primary)); 
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    position: relative; /* Added for z-index */
+    z-index: 1; /* Added for z-index */
+}
+
+
+.timestamps {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem; 
+    color: rgba(255, 255, 255, 0.7); 
+    padding: 0 2px;
+    margin-top: 4px;
+}
+.currentTime { 
+}
+.totalTime { 
+}
+
+.playbackControls { 
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    gap: 16px; 
+    margin: 20px 0; 
+    padding: 16px 0;
+    flex-shrink: 0;
+}
+
+.controlButton { 
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    opacity: 0.9;
+    transition: opacity 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.controlButton:hover {
+    opacity: 1;
+    color: hsl(var(--primary)); 
+    transform: scale(1.1);
+}
+.controlButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+.controlButton svg { 
+    width: 28px;
+    height: 28px;
+}
+
+.skipButton { 
+    composes: controlButton; 
+}
+.skipButtonSvg { 
+    width: 40px; 
+    height: 40px;
+    fill: #FFFFFF;
+}
+.skipButton .skipText { 
+    font-size: 11px;
+    font-weight: 500;
+    fill: #FFFFFF;
+    text-anchor: middle;
+    dominant-baseline: middle; 
+    user-select: none;
+}
+.skipButton .intervalArrow {
+    fill: #FFFFFF;
+    stroke: #FFFFFF;
+    stroke-width: 1;
+}
+.skipButton:hover .skipButtonSvg,
+.skipButton:hover .skipText,
+.skipButton:hover .intervalArrow {
+    fill: hsl(var(--primary));
+    stroke: hsl(var(--primary));
+}
+
+.playPauseButton {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 64px; 
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 8px; 
+}
+.playPauseButton svg { 
+    width: 100%;
+    height: 100%;
+}
+.base_circle { 
+    fill: none;
+    stroke: #FFFFFF;
+    stroke-width: 2;
+    transition: all 0.2s ease;
+}
+.highlight_circle { 
+    fill: none; 
+    stroke: rgba(255, 255, 255, 0.1); 
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.playPauseButton:hover .highlight_circle {
+    opacity: 1;
+}
+.playPauseButton:hover .base_circle {
+    stroke-width: 2.5;
+}
+.play_icon { 
+    transition: opacity 0.15s ease;
+    fill: #000000; /* Black icons */
+    opacity: 1;
+}
+.pause_icon { 
+    transition: opacity 0.15s ease;
+    fill: #000000; /* Black icons */
+    opacity: 0;
+}
+.pause_icon rect {
+    fill: #000000; /* Ensure pause bars are black if filled */
+}
+.playPauseButton.playing .base_circle {
+    fill: hsl(var(--primary)); 
+    stroke: hsl(var(--primary));
+}
+.playPauseButton.playing .play_icon {
+    opacity: 0 !important; 
+}
+.playPauseButton.playing .pause_icon {
+    opacity: 1 !important; 
+}
+.playPauseButton.playing .pause_icon rect {
+    fill: #000000; 
+}
+
+
+.bottomControls { 
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 12px 0;
+    margin-top: auto; 
+    margin-bottom: env(safe-area-inset-bottom, 10px);
+    flex-shrink: 0;
+}
+
+.bottomControlButton { 
+    background: none;
+    border: none;
+    color: #FFFFFF;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s ease, color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+.bottomControlButton svg { 
+    width: 20px;
+    height: 20px;
+}
+.bottomControlButton:hover {
+    opacity: 1;
+    color: hsl(var(--primary));
+}
+.speedButton { 
+    composes: bottomControlButton; 
+}
+.speedButton span {
+    font-size: 0.875rem; 
+    font-weight: 500;
+}
+
+@media screen and (max-width: 375px) { 
+    .appContainer {
+        padding: 0 12px;
+        padding-top: env(safe-area-inset-top, 15px);
+        padding-bottom: env(safe-area-inset-bottom, 15px);
+    }
+    .artwork {
+      max-width: 220px; 
+      margin: 16px auto;
+    }
+    .title {
+        font-size: 1.25rem; 
+    }
+    .episode {
+        font-size: 0.875rem; 
+    }
+    .playbackControls {
+        gap: 12px; 
+    }
+    .skipButtonSvg {
+        width: 36px; 
+        height: 36px;
+    }
+    .skipButton .skipText {
+        font-size: 10px;
+    }
+    .playPauseButton {
+        width: 56px; 
+        height: 56px;
+    }
+    .controlButton svg { 
+        width: 24px;
+        height: 24px;
+    }
+    .bottomControls {
+        padding: 8px 0;
+    }
+    .bottomControlButton svg { 
+        width: 18px;
+        height: 18px;
+    }
+     .speedButton span {
+        font-size: 0.75rem; 
+    }
+}
+
+
+/* Styles for the custom SVG play/pause button parts */
+.p_audioui_playpause_circle {
+  stroke: rgb(255, 255, 255);
+  stroke-width: 2; 
+  fill: none;
+  transition: all 0.2s ease;
+}
+
+.p_audioui_playpause_highlightCircle {
+  fill: hsl(var(--primary) / 0.1); 
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.playPauseButton:hover .p_audioui_playpause_highlightCircle {
+  opacity: 1;
+}
+.playPauseButton:hover .p_audioui_playpause_circle {
+  stroke-width: 2.5;
+}
+
+
+.p_audioui_playpause_playIcon {
+  fill: #FFFFFF; 
+  transition: opacity 0.15s ease;
+}
+
+.p_audioui_playpause_pauseIcon {
+  fill: #FFFFFF; 
+  transition: opacity 0.15s ease;
+}
+
+.playPauseButton.playing .p_audioui_playpause_circle {
+  fill: hsl(var(--primary));
+  stroke: hsl(var(--primary));
+}
+.playPauseButton.playing .p_audioui_playpause_playIcon {
+  opacity: 0 !important;
+}
+.playPauseButton.playing .p_audioui_playpause_pauseIcon {
+  opacity: 1 !important;
+  fill: #000000; 
+}
+
+/* Styles for the custom SVG skip buttons */
+.p_audioui_intervalArrow {
+  fill: #FFFFFF;
+  stroke: #FFFFFF;
+  stroke-width: 1; 
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+.p_audioui_iconNumber {
+  font-size: 11px; 
+  font-weight: 500;
+  fill: #FFFFFF;
+  text-anchor: middle;
+  dominant-baseline: central; 
+  user-select: none;
+  transition: fill 0.2s ease;
+}
+
+.skipButton:hover .p_audioui_intervalArrow,
+.skipButton:hover .p_audioui_iconNumber {
+  fill: hsl(var(--primary));
+  stroke: hsl(var(--primary));
+}
+
+/* Ensure SVGs within buttons scale with the button size if needed, but direct size on SVG is better */
+.p_audioButton_buttonInner svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Specific for playlist chevrons, if used */
+.p_audioui_playlistChevron { 
+    fill: #FFFFFF;
+}
+.controlButton:hover .p_audioui_playlistChevron {
+    fill: hsl(var(--primary));
+}
+
+/* Class names from your HTML that might be used by BBC's JS directly */
+/* If these classes are solely for BBC's JS and not for styling by this module,
+   they should be wrapped in :global() or handled via global CSS.
+   However, if they are meant to be styled by this module, ensure they are prefixed with `styles.` in JSX.
+*/
+.play_c_herospace_container,
+.sc_c_herospace,
+.gel_1_1,
+.sc_u_clip_overflow,
+.sc_c_herospace__background_image,
+.gel_wrap,
+.gs_u_box_size,
+.sc_o_island,
+.sc_c_herospace__container,
+.sc_c_herospace__details,
+.gel_9_24\@xl,
+.gs_u_display_inline_block\@xl,
+.sc_c_herospace__imagery,
+.gel_3_12,
+.gel_2_12\@l,
+.gel_10_24\@xl,
+.gs_u_float_right\@xl,
+.sc_c_herospace__image,
+.sc_c_herospace__image--live,
+.sc_c_herospace__network_logo,
+.sc_c_herospace__network_logo--live,
+.sc_o_island__point,
+.sc_o_island__point--br,
+.gs_u_pl__\@xl, /* Escaped '+' as '__' */
+.gel_15_24\@xl,
+.gs_u_align_top,
+.gel_17_24\@xl,
+.sc_c_herospace__details_titles,
+.gs_u_pt\+,
+.gs_u_mh\+\+, /* Escaped '+' as '__' */
+.sc_u_screenreader_only,
+.sc_c_herospace__network_title,
+.gel_long_primer_bold,
+.gs_u_display_block,
+.gs_u_mt,
+.gs_u_mb_alt, /* Adjusted, original was mb-alt */
+.gs_u_display_inline_block,
+.gs_u_ml_0\@xl, /* Adjusted, original was ml-0@xl */
+.gel_pica_bold,
+.gs_u_mb,
+.sc_c_marquee--non_touch, /* Adjusted from --non-touch */
+.sc_c_marquee,
+.sc_c_herospace__details_titles_secondary,
+.sc_c_marquee__title,
+.gel_great_primer,
+.gs_u_pb_, /* Adjusted, original was pb- */
+.b_font_weight_500, /* Adjusted, original was b-font-weight-500 */
+.sc_c_marquee__title_1,
+.sc_c_marquee__title_2,
+.sc_c_smp,
+.play_c_player,
+.optimizely_player,
+.gs_u_mt_, /* Adjusted from mt- */
+.gs_u_pb\@m,
+.gs_u_pb\+\@xl, /* Adjusted */
+.gs_u_pl0,
+.gs_u_pr0,
+.p_playerSeekBarHolder,
+.p_bar,
+.p_seekBar,
+.p_progressBarAvailable,
+.p_seekThumb,
+.p_seekBarPositionLine,
+.p_seekThumbLine,
+.p_seekThumbHalo,
+.mediaContainer, 
+.control_group, 
+.p_audioui_playlistButton,
+.p_audioButton_buttonInner,
+.p_audioui_playlistChevron,
+.p_audioui_intervalButton,
+.sc_s_contrast,
+.sc_c_schedule,
+.sc_o_scrollable,
+.gs_u_pv,
+.sc_c_schedule__list,
+.sc_u_flex_nowrap,
+.gs_u_ml0,
+.sc_c_broadcast,
+.gel_layout__item,
+.gel_1_3\@l, 
+.sc_c_broadcast--onair,
+.gs_u_pl0,
+.gel_layout--middle,
+.sc_c_broadcast__meta,
+.sc_u_truncate,
+.gel_minion_bold,
+.sc_c_broadcast__meta_status, 
+.gel_minion,
+.sc_c_broadcast__meta_time, 
+.gs_u_pr_alt\+, 
+.sc_c_broadcast--next,
+.gs_u_ml,
+.gs_u_ml\+\@m, 
+.sc_c_broadcast__meta_next, 
+.gs_u_pl\+, 
+.gel_pica_bold,
+.gel_long_primer,
+.gs_u_mt__, 
+.sc_c_schedule__full_schedule, 
+.sc_o_link--secondary,
+.gel_brevier_bold,
+.sc_o_link,
+.sc_c_icon--tv_schedule, 
+.sc_c_icon,
+.sc_c_icon--primary,
+.sc_c_schedule__schedule_icon, 
+.gs_u_align_middle,
+.sc_o_link__text,
+.sc_c_schedule__full_schedule_text 
+{
+  /* These classes appear to be from the BBC Sounds HTML structure. */
+  /* If these are styled by the external BBC CSS files linked in layout.tsx, */
+  /* they don't need to be styled here unless you want to override them. */
+  /* If they ARE meant to be styled by this module, they should be accessed in JSX */
+  /* as styles.play_c_herospace_container, styles.sc_c_herospace, etc. */
+}
+
+/* Remove extra space at the bottom of the player */
+.player { /* Assuming this is a local class for the root of your player component */
+  min-height: unset !important;
+  height: auto !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Remove extra space from schedule containers if these classes are used locally */
+.sc_s_contrast,
+.sc_c_schedule,
+.gel_wrap {
+  min-height: unset !important;
+  height: auto !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}

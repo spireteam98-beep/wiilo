@@ -1,0 +1,58 @@
+{
+  "placeholderImages": [
+    {
+      "id": "user-avatar",
+      "description": "User avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjQzNjgzMjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "promo-banner",
+      "description": "Promotional banner for tech week deals",
+      "imageUrl": "https://images.unsplash.com/photo-1709653574992-205e5c314a49?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8Y29sb3JmdWwlMjBhYnN0cmFjdCUyMHRlY2hub2xvZ3l8ZW58MHx8fHwxNzY0Mzc4NzAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "colorful abstract technology"
+    },
+    {
+      "id": "macbook-pro",
+      "description": "Macbook Pro",
+      "imageUrl": "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsYXB0b3AlMjBjb21wdXRlcnxlbnwwfHx8fDE3NjQzMjUyMzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop computer"
+    },
+    {
+      "id": "airpods-max",
+      "description": "Airpods Max headphones",
+      "imageUrl": "https://images.unsplash.com/photo-1697055656373-720a6a0e9b4c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxoZWFkcGhvbmVzJTIwd2hpdGV8ZW58MHx8fHwxNzY0Mzc4NzAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "headphones white"
+    },
+    {
+      "id": "macbook-pro-2",
+      "description": "Macbook Pro",
+      "imageUrl": "https://images.unsplash.com/photo-1511385348-a52b4a160dc2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsYXB0b3AlMjBjb21wdXRlcnxlbnwwfHx8fDE3NjQzMjUyMzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop computer"
+    },
+    {
+      "id": "macbook-pro-3",
+      "description": "Macbook Pro",
+      "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxsYXB0b3AlMjBjb21wdXRlcnxlbnwwfHx8fDE3NjQzMjUyMzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop computer"
+    },
+    {
+      "id": "macbook-screen-1",
+      "description": "Macbook screen with desert wallpaper",
+      "imageUrl": "https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxsYXB0b3AlMjBzY3JlZW58ZW58MHx8fHwxNzY0MjgzODc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop screen"
+    },
+    {
+      "id": "macbook-screen-2",
+      "description": "Macbook screen with abstract wallpaper",
+      "imageUrl": "https://images.unsplash.com/photo-1617035969161-f6d66f95445e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxsYXB0b3AlMjBzY3JlZW58ZW58MHx8fHwxNzY0MjgzODc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop screen"
+    },
+    {
+      "id": "macbook-screen-3",
+      "description": "Macbook screen with code",
+      "imageUrl": "https://images.unsplash.com/photo-1555066931-bf19f8fd1085?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxsYXB0b3AlMjBzY3JlZW4lMjBjb2RlfGVufDB8fHx8MTc2NDM4MTg1M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop screen code"
+    }
+  ]
+}

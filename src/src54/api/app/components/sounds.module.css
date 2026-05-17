@@ -1,0 +1,218 @@
+.audioPlayer {
+  background: linear-gradient(145deg, #1a1a1a, #2a2a2a);
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.playerControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.controlGroup {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.progressContainer {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.time {
+  color: white;
+  font-size: 14px;
+  opacity: 0.7;
+  min-width: 45px;
+  text-align: center;
+}
+
+.playerSeekBarHolder {
+  flex-grow: 1;
+  cursor: pointer;
+  position: relative;
+}
+
+.bar {
+  height: 4px;
+  background: #4a4a4a;
+  border-radius: 2px;
+  position: relative;
+}
+
+.progressBar {
+  height: 100%;
+  background: #ff4400;
+  border-radius: 2px;
+  position: relative;
+}
+
+.seekDot {
+  width: 12px;
+  height: 12px;
+  background: #ff4400;
+  border-radius: 50%;
+  position: absolute;
+  right: -6px;
+  top: -4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.playerSeekBarHolder:hover .seekDot {
+  opacity: 1;
+}
+
+.audioButton {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.audioButton:hover {
+  transform: scale(1.1);
+}
+
+.buttonInner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.playButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff4400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.playButton:hover {
+  transform: scale(1.1);
+  background: #ff5500;
+}
+
+.base_circle {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.highlight_circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.audioButton:hover .highlight_circle {
+  opacity: 0.2;
+}
+
+.playingText {
+  color: #ff8800 !important;
+  font-weight: bold;
+}
+
+.playingIndicator {
+  stroke: #ff8800 !important;
+  stroke-width: 3px;
+  fill: rgba(255, 136, 0, 0.2);
+}
+
+.volumeControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.volumeSlider {
+  width: 80px;
+  height: 4px;
+  background: #4a4a4a;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.intervalArrow {
+  fill: currentColor;
+}
+
+.iconNumber {
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  line-height: 14px;
+}
+
+@media screen and (max-width: 768px) {
+  .audioPlayer {
+    padding: 16px;
+  }
+
+  .progressContainer {
+    padding: 0 8px;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .time {
+    font-size: 12px;
+    min-width: 35px;
+  }
+
+  .controlGroup {
+    gap: 12px;
+  }
+
+  .audioButton {
+    padding: 6px;
+    transform: scale(0.9);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .audioPlayer {
+    padding: 12px;
+  }
+
+  .progressContainer {
+    padding: 0 4px;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .time {
+    font-size: 10px;
+    min-width: 30px;
+  }
+
+  .controlGroup {
+    gap: 8px;
+  }
+
+  .audioButton {
+    padding: 4px;
+    transform: scale(0.8);
+  }
+}

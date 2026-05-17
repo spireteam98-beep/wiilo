@@ -1,0 +1,17 @@
+{
+  "id": "icasti-env",
+  "name": "icasti",
+  "values": [
+    { "key": "base_url", "value": "https://icasti.com", "enabled": true },
+    { "key": "api_key", "value": "1:486545175288:web:6d53203232567ae786810d", "enabled": true },
+    { "key": "test_email", "value": "test@yourdomain.com", "enabled": true },
+    { "key": "test_password", "value": "password123", "enabled": true },
+    { "key": "id_token", "value": "", "enabled": true },
+    { "key": "admin_id_token", "value": "", "enabled": true },
+    { "key": "notificationId", "value": "", "enabled": true },
+    { "key": "uniqueId", "value": "my-unique-12345", "enabled": true }
+  ],
+  "timestamp": 0,
+  "synced": false,
+  "isPublic": false
+}

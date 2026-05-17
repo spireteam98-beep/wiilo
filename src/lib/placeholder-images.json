@@ -1,0 +1,28 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-onboarding",
+      "description": "Professional business dashboard overview",
+      "imageUrl": "https://picsum.photos/seed/omnibiz1/1200/800",
+      "imageHint": "business dashboard"
+    },
+    {
+      "id": "business-shop",
+      "description": "Retail shop interior",
+      "imageUrl": "https://picsum.photos/seed/shop1/400/300",
+      "imageHint": "retail store"
+    },
+    {
+      "id": "business-restaurant",
+      "description": "Modern restaurant dining area",
+      "imageUrl": "https://picsum.photos/seed/rest1/400/300",
+      "imageHint": "restaurant interior"
+    },
+    {
+      "id": "business-pharmacy",
+      "description": "Clean pharmacy shelf",
+      "imageUrl": "https://picsum.photos/seed/pharm1/400/300",
+      "imageHint": "pharmacy"
+    }
+  ]
+}

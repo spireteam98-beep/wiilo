@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wallet Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('warm-indoor-bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      backdrop-filter: blur(8px);
+      color: #fff;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+      padding: 30px;
+      background: rgba(0,0,0,0.6);
+      min-height: 100vh;
+    }
+
+    .glass-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    h1,h2,h3 {
+      margin: 0;
+    }
+
+    /* Summary cards */
+    .summary {
+      display: flex;
+      gap: 20px;
+    }
+    .summary .glass-card {
+      flex: 1;
+      text-align: center;
+    }
+    .summary h3 {
+      font-size: 1.2rem;
+      color: #f97316;
+    }
+    .summary p {
+      font-size: 1.4rem;
+      font-weight: bold;
+    }
+
+    /* Statistic section */
+    .statistic {
+      margin-top: 20px;
+    }
+    .statistic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .statistic-header button {
+      background: #f97316;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .line-graph {
+      margin-top: 20px;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aaa;
+      font-size: 0.9rem;
+    }
+
+    /* Right column profile */
+    .profile {
+      text-align: center;
+    }
+    .profile img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #f97316;
+    }
+    .profile h3 {
+      margin-top: 10px;
+    }
+    .profile p {
+      color: #f97316;
+      font-weight: bold;
+    }
+
+    /* Quick actions */
+    .actions {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .actions div {
+      text-align: center;
+      cursor: pointer;
+    }
+
+    /* Credit card */
+    .credit-card {
+      margin-top: 20px;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      border-radius: 20px;
+      padding: 20px;
+      color: #000;
+      font-weight: bold;
+    }
+
+    /* Goals */
+    .goals {
+      display: flex;
+      gap: 20px;
+    }
+    .goal {
+      flex: 1;
+      text-align: center;
+    }
+    .goal-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 6px solid #f97316;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* Business */
+    .business {
+      text-align: center;
+    }
+    .progress-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 8px solid #f97316;
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    /* Transactions */
+    .transaction {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .transaction img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .transaction-details {
+      flex: 1;
+    }
+    .transaction-amount {
+      color: #4ade80;
+      font-weight: bold;
+    }
+    .see-all {
+      margin-top: 10px;
+      text-align: right;
+    }
+    .see-all button {
+      background: none;
+      border: none;
+      color: #f97316;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Left Column -->
+    <div>
+      <h1>My Dashboard</h1>
+      <div class="summary">
+        <div class="glass-card">
+          <h3>Total Balance</h3>
+          <p>$789,999.56</p>
+        </div>
+        <div class="glass-card">
+          <h3>Earnings</h3>
+          <p>$998,999.56</p>
+        </div>
+        <div class="glass-card">
+          <h3>Expenses</h3>
+          <p>$39,999.67</p>
+        </div>
+      </div>
+
+      <div class="glass-card statistic">
+        <div class="statistic-header">
+          <h2>Statistic</h2>
+          <button>All Transaction</button>
+        </div>
+        <p>Top Contributor: Top half-year Earning and Expenses source</p>
+        <div class="line-graph">[Line Graph Placeholder]</div>
+      </div>
+
+      <div class="glass-card goals">
+        <div class="goal">
+          <div class="goal-circle">60%</div>
+          <p>Travel Abroad</p>
+        </div>
+        <div class="goal">
+          <div class="goal-circle">89%</div>
+          <p>Real Estate</p>
+        </div>
+      </div>
+
+      <div class="glass-card business">
+        <h2>Business</h2>
+        <p>Target Savings: $1,000,000.00</p>
+        <p>Total Savings: $700,345.98</p>
+        <div class="progress-ring">65%</div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div>
+      <div class="glass-card profile">
+        <img src="emmanuella.jpg" alt="Profile">
+        <h3>Emmanuella Takureea</h3>
+        <p>Exclusive Card</p>
+      </div>
+
+      <div class="glass-card actions">
+        <div>🔄<br>Transfer</div>
+        <div>⬇️<br>Receive</div>
+        <div>📑<br>Bill</div>
+        <div>➕<br>Top up</div>
+      </div>
+
+      <div class="credit-card">
+        <h3>Visa</h3>
+        <p>Name: Oluwakemi</p>
+        <p>Exp: 09/27</p>
+        <p>Total Balance: $74,330</p>
+      </div>
+
+      <div class="glass-card">
+        <h2>Month Transaction</h2>
+        <div class="transaction">
+          <img src="akeem.jpg" alt="Akeem">
+          <div class="transaction-details">
+            <strong>Akeem Jamiu</strong><br>
+            15.01.2024 13:30PM<br>
+            January Salary
+          </div>
+          <div class="transaction-amount">$2,000.99</div>
+        </div>
+        <div class="see-all">
+          <button>See all transactions →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
