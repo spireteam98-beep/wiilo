@@ -561,7 +561,7 @@
 
 .articleContent blockquote::before,
 .articleContent .article-quote::before {
-  content: "";
+  content: "PRINCIPLE OF THE DAY";
   position: absolute;
   left: max(28px, calc((100vw - 780px) / 2 + 28px));
   right: max(28px, calc((100vw - 780px) / 2 + 28px));
@@ -574,13 +574,18 @@
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.02em;
-  background: #ff3434;
+  color: transparent;
+  background:
+    linear-gradient(90deg, #ff3434 0 36%, #fff 36% 100%) left center / min(435px, 47vw) 100% no-repeat,
+    linear-gradient(#ff3434, #ff3434) right center / calc(100% - min(445px, 46vw)) 4px no-repeat;
+  -webkit-background-clip: text, border-box;
+  background-clip: text, border-box;
   text-align: left;
 }
 
 .articleContent blockquote::after,
 .articleContent .article-quote::after {
-  content: "MohamaddRoyal.com";
+  content: "@RAYDALIO";
   position: absolute;
   left: max(28px, calc((100vw - 780px) / 2 + 28px));
   right: max(28px, calc((100vw - 780px) / 2 + 28px));
