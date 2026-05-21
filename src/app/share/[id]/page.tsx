@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getAdminDb } from "@/lib/firebase-admin";
+import { getAdminDb, hasExplicitFirebaseAdminCredentials } from "@/lib/firebase-admin";
 import ShareRedirectClient from "./redirect-client";
 import { unstable_cache } from "next/cache";
 import { headers } from "next/headers";
@@ -14,6 +14,28 @@ type SharePost = {
 };
 
 const COLLECTIONS = ["myblog_posts", "content"];
+const LIVE_POSTS_API = "https://mohamedroyal.com/api/myblog-posts";
+
+async function findLivePost(id: string): Promise<SharePost | null> {
+  const response = await fetch(LIVE_POSTS_API, {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) return null;
+
+  const posts = await response.json();
+  if (!Array.isArray(posts)) return null;
+  const post = posts.find((item: any) => String(item?.id || "") === id);
+  if (!post) return null;
+
+  return {
+    id,
+    title: String(post?.title || ""),
+    excerpt: String(post?.excerpt || ""),
+    body: String(post?.body || post?.fullBodyContent || ""),
+    featuredImageUrl: String(post?.featuredImageUrl || post?.imageUrl || ""),
+  };
+}
 
 const findPostCached = unstable_cache(
   async (id: string): Promise<SharePost | null> => {
@@ -42,31 +64,14 @@ const findPostCached = unstable_cache(
 
 async function findPost(id: string): Promise<SharePost | null> {
   if (id.startsWith("http://") || id.startsWith("https://")) return null;
-  return findPostCached(id);
-}
-
-async function resolveShareImage(featuredImage: string | undefined, fallbackImage: string): Promise<string> {
-  if (!featuredImage) return fallbackImage;
+  if (process.env.NODE_ENV !== "production" && !hasExplicitFirebaseAdminCredentials()) {
+    return findLivePost(id);
+  }
 
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2500);
-    const response = await fetch(featuredImage, {
-      method: "HEAD",
-      signal: controller.signal,
-      cache: "no-store",
-    });
-    clearTimeout(timer);
-
-    if (!response.ok) return fallbackImage;
-    const type = (response.headers.get("content-type") || "").toLowerCase();
-    if (!type.startsWith("image/")) return fallbackImage;
-
-    const length = Number(response.headers.get("content-length") || "0");
-    if (length > 0 && length < 8000) return fallbackImage; // likely tiny image
-    return featuredImage;
+    return await findPostCached(id);
   } catch {
-    return fallbackImage;
+    return findLivePost(id);
   }
 }
 
@@ -81,7 +86,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const runtimeSiteUrl = host ? `${proto}://${host}` : "";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || runtimeSiteUrl || "https://mohamedroyal.com";
   const fallbackImage = `${siteUrl}/api/og/${encodeURIComponent(id)}?t=${encodeURIComponent(title)}&e=${encodeURIComponent(description)}`;
-  const image = await resolveShareImage(post?.featuredImageUrl, fallbackImage);
+  const image = post?.featuredImageUrl
+    ? `${siteUrl}/api/share-image/${encodeURIComponent(id)}`
+    : fallbackImage;
   const absoluteUrl = `${siteUrl}/share/${encodeURIComponent(id)}`;
 
   return {
@@ -97,14 +104,28 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       url: absoluteUrl,
       type: "article",
       siteName: "mohamedroyal.com",
-      images: [{ url: image, secureUrl: image, alt: title }],
+      images: [
+        {
+          url: image,
+          secureUrl: image,
+          alt: title,
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [{ url: image, alt: title }],
+      images: [image],
       creator: "@mohamedroyal",
+    },
+    other: {
+      "og:image:width": "1200",
+      "og:image:height": "630",
+      "og:image:alt": title,
+      "twitter:image:alt": title,
     },
   };
 }

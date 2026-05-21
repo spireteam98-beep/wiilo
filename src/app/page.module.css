@@ -239,6 +239,30 @@
   padding-top: 16px;
 }
 
+.cardImageButton {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0 0 14px;
+  background: #f7f3ec;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 180ms ease;
+}
+
+.cardImageButton:hover .cardImage {
+  transform: scale(1.025);
+}
+
 .cardTitle {
   font-size: clamp(30px, 3.2vw, 42px);
 }
@@ -652,13 +676,15 @@
 .previewGate {
   position: relative;
   margin: 24px 0 28px;
-  padding: 26px 24px 24px;
-  border-top: 4px solid #e7131a;
-  border-bottom: 1px solid #111;
+  padding: 28px 24px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.85), #fff 18%),
-    #fff;
+    radial-gradient(circle at 15% 0%, rgba(231, 19, 26, 0.26), transparent 32%),
+    #0c0c0c;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
   text-align: center;
+  overflow: hidden;
 }
 
 .previewGate::before {
@@ -680,7 +706,7 @@
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #e7131a;
+  color: rgba(255, 255, 255, 0.42);
 }
 
 .previewGateTitle {
@@ -689,7 +715,7 @@
   font-size: clamp(28px, 4vw, 42px);
   line-height: 1.04;
   font-weight: 700;
-  color: #111;
+  color: #fff;
   text-wrap: pretty;
 }
 
@@ -699,30 +725,56 @@
   font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
   font-size: 20px;
   line-height: 1.38;
-  color: #333;
+  color: rgba(255, 255, 255, 0.68);
 }
 
 .previewGateButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   min-height: 44px;
   padding: 0 18px;
-  border: 1px solid #111;
-  background: #111;
-  color: #fff;
-  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: #fff;
+  color: #111;
   font-family: "Logic Monospace", monospace;
   font-size: 12px;
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, opacity 140ms ease;
 }
 
 .previewGateButton:hover {
-  background: #e7131a;
-  border-color: #e7131a;
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.previewGateButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+}
+
+.previewGateButtonIcon,
+.googleIcon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.previewGateButtonIcon {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .modalAuthor {
