@@ -40,7 +40,10 @@ export default function SignUpPage() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      await ensureUserWalletProfile(firestore, result.user.uid, result.user.email);
+      await ensureUserWalletProfile(firestore, result.user.uid, result.user.email, {
+        displayName: result.user.displayName,
+        photoURL: result.user.photoURL,
+      });
       toast({
         title: "Welcome to Wiillo",
         description: "Your streaming account is ready. Start exploring now!"

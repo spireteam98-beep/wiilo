@@ -5,6 +5,7 @@ import {
   runTransaction,
   serverTimestamp,
   setDoc,
+  updateDoc,
 } from 'firebase/firestore';
 
 export const CONTENT_COST_COINS = 10;
@@ -12,6 +13,12 @@ export const CONTENT_COST_COINS = 10;
 export interface WalletProfile {
   coins: number;
   consumedContentIds: string[];
+}
+
+export interface WalletProfileOptions {
+  displayName?: string | null;
+  photoURL?: string | null;
+  failSilently?: boolean;
 }
 
 export interface ContentAccessResult {
@@ -31,21 +38,39 @@ function normalizeWalletProfile(raw: any): WalletProfile {
 export async function ensureUserWalletProfile(
   firestore: Firestore,
   userId: string,
-  userEmail?: string | null
+  userEmail?: string | null,
+  options: WalletProfileOptions = {}
 ): Promise<WalletProfile> {
   try {
     const userRef = doc(firestore, 'users', userId);
     const snapshot = await getDoc(userRef);
+    const nameParts = options.displayName?.split(' ').filter(Boolean) || [];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ');
 
     if (!snapshot.exists()) {
       await setDoc(
         userRef,
         {
           uid: userId,
+          name: options.displayName || [firstName, lastName].filter(Boolean).join(' ') || null,
           email: userEmail || null,
+          photoURL: options.photoURL || null,
+          firstName,
+          lastName,
+          country: '',
+          mobile: '',
+          profileComplete: false,
+          preferredCategories: [],
+          isAdmin: false,
           coins: 0,
+          freeContentConsumedCount: 0,
           consumedContentIds: [],
+          freeArticleReads: [],
+          likedContentIds: [],
+          savedContentIds: [],
           paymentHistory: [],
+          lastLogin: serverTimestamp(),
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         },
@@ -54,9 +79,40 @@ export async function ensureUserWalletProfile(
       return { coins: 0, consumedContentIds: [] };
     }
 
-    return normalizeWalletProfile(snapshot.data());
+    const userData = snapshot.data();
+    const updates: Record<string, unknown> = {
+      lastLogin: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+
+    if (typeof userData.uid === 'undefined') updates.uid = userId;
+    if (typeof userData.email === 'undefined') updates.email = userEmail || null;
+    if (typeof userData.name === 'undefined') updates.name = options.displayName || null;
+    if (typeof userData.photoURL === 'undefined') updates.photoURL = options.photoURL || null;
+    if (typeof userData.firstName === 'undefined') updates.firstName = firstName;
+    if (typeof userData.lastName === 'undefined') updates.lastName = lastName;
+    if (typeof userData.country === 'undefined') updates.country = '';
+    if (typeof userData.mobile === 'undefined') updates.mobile = '';
+    if (typeof userData.profileComplete === 'undefined') updates.profileComplete = false;
+    if (typeof userData.preferredCategories === 'undefined') updates.preferredCategories = [];
+    if (typeof userData.isAdmin === 'undefined') updates.isAdmin = false;
+    if (typeof userData.coins === 'undefined') updates.coins = 0;
+    if (typeof userData.freeContentConsumedCount === 'undefined') updates.freeContentConsumedCount = 0;
+    if (typeof userData.consumedContentIds === 'undefined') updates.consumedContentIds = [];
+    if (typeof userData.freeArticleReads === 'undefined') updates.freeArticleReads = [];
+    if (typeof userData.likedContentIds === 'undefined') updates.likedContentIds = [];
+    if (typeof userData.savedContentIds === 'undefined') updates.savedContentIds = [];
+    if (typeof userData.paymentHistory === 'undefined') updates.paymentHistory = [];
+
+    await updateDoc(userRef, updates);
+
+    const refreshed = await getDoc(userRef);
+    return normalizeWalletProfile(refreshed.data());
   } catch (error: any) {
     console.error('[content-access] ensureUserWalletProfile failed:', error?.message || error);
+    if (options.failSilently === false) {
+      throw error;
+    }
     return { coins: 0, consumedContentIds: [] };
   }
 }

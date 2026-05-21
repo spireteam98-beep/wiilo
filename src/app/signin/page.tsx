@@ -39,7 +39,10 @@ export default function SignInPage() {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      await ensureUserWalletProfile(firestore, result.user.uid, result.user.email);
+      await ensureUserWalletProfile(firestore, result.user.uid, result.user.email, {
+        displayName: result.user.displayName,
+        photoURL: result.user.photoURL,
+      });
       toast({ title: "Welcome back", description: "Successfully signed in to wiillo." });
       router.push('/');
     } catch (error: any) {

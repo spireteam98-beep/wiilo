@@ -36,6 +36,8 @@ interface TopUpDialogProps {
   onOpenChange: (open: boolean) => void;
   userId: string;
   userEmail: string | null;
+  userDisplayName?: string | null;
+  userPhotoURL?: string | null;
   currentCoins?: number;
   onSuccess?: () => void;
   onCoinsUpdated?: (coins: number) => void;
@@ -48,6 +50,8 @@ function StripeInlineCheckout({
   amount,
   userId,
   userEmail,
+  userDisplayName,
+  userPhotoURL,
   coins,
   packageName,
   backendUrl,
@@ -56,6 +60,8 @@ function StripeInlineCheckout({
   amount: number;
   userId: string;
   userEmail: string;
+  userDisplayName?: string | null;
+  userPhotoURL?: string | null;
   coins: number;
   packageName: string;
   backendUrl: string;
@@ -80,7 +86,11 @@ function StripeInlineCheckout({
 
     setIsProcessing(true);
     try {
-      await ensureUserWalletProfile(firestore, userId, userEmail);
+      await ensureUserWalletProfile(firestore, userId, userEmail, {
+        displayName: userDisplayName,
+        photoURL: userPhotoURL,
+        failSilently: false,
+      });
 
       const intentRes = await fetch(`${backendUrl}/stripe/create-intent`, {
         method: 'POST',
@@ -180,6 +190,8 @@ export default function TopUpDialog({
   onOpenChange,
   userId,
   userEmail,
+  userDisplayName,
+  userPhotoURL,
   currentCoins = 0,
   onSuccess,
   onCoinsUpdated,
@@ -455,6 +467,8 @@ export default function TopUpDialog({
                       amount={selectedPkg.amount}
                       userId={userId}
                       userEmail={userEmail}
+                      userDisplayName={userDisplayName}
+                      userPhotoURL={userPhotoURL}
                       coins={selectedPkg.coins}
                       packageName={selectedPkg.label}
                       backendUrl={backendUrl}

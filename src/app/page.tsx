@@ -534,6 +534,8 @@ export default function HomePage() {
         }}
         userId={user?.uid || ""}
         userEmail={user?.email || null}
+        userDisplayName={user?.displayName || null}
+        userPhotoURL={user?.photoURL || null}
         currentCoins={coinBalance}
         onCoinsUpdated={(nextCoins) => setCoinBalance(nextCoins)}
         onSuccess={() => {
