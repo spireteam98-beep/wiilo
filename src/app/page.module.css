@@ -550,7 +550,7 @@
   padding: clamp(72px, 9vw, 104px) max(28px, calc((100vw - 780px) / 2 + 28px)) clamp(70px, 8vw, 96px);
   background: #000;
   border: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
   font-size: clamp(28px, 4.8vw, 56px);
   line-height: 1.24;
   font-weight: 800;
@@ -569,7 +569,7 @@
   display: flex;
   align-items: center;
   gap: 18px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Logic Monospace", monospace;
   font-size: clamp(18px, 2.8vw, 38px);
   line-height: 1;
   font-weight: 800;
@@ -592,7 +592,7 @@
   bottom: 28px;
   border-top: 4px solid #ff3434;
   padding-top: 12px;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Logic Monospace", monospace;
   font-size: clamp(18px, 2.6vw, 34px);
   line-height: 1;
   font-weight: 800;
