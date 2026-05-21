@@ -30,6 +30,8 @@ type ApiPost = {
   featuredImageUrl?: string;
 };
 
+const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
+
 function mapApiPost(post: ApiPost): Entry {
   const bodyHtml = String(post.body || post.excerpt || "").trim();
 
@@ -42,6 +44,20 @@ function mapApiPost(post: ApiPost): Entry {
     bodyHtml,
     featuredImageUrl: post.featuredImageUrl || "",
   };
+}
+
+function getCachedEntries(): Entry[] {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const cachedRaw = window.localStorage.getItem(POSTS_CACHE_KEY);
+    if (!cachedRaw) return [];
+
+    const cached = JSON.parse(cachedRaw) as ApiPost[];
+    return Array.isArray(cached) && cached.length > 0 ? cached.map(mapApiPost) : [];
+  } catch {
+    return [];
+  }
 }
 
 function escapeHtml(value: string): string {
@@ -85,8 +101,8 @@ export default function HomePage() {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingArticleId, setPendingArticleId] = useState<string | null>(null);
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [loaded, setLoaded] = useState(false);
+  const [entries, setEntries] = useState<Entry[]>(getCachedEntries);
+  const [loaded, setLoaded] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
@@ -97,7 +113,6 @@ export default function HomePage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mohamedroyal.com";
-  const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
 
   const trackEvent = async (
     articleId: string | null,
@@ -166,12 +181,12 @@ export default function HomePage() {
           } catch {
             // ignore cache write errors
           }
-        } else {
+        } else if (entries.length === 0) {
           setEntries([]);
         }
       })
       .catch(() => {
-        setEntries([]);
+        // Keep cached posts on screen if a refresh has a temporary API/server issue.
       })
       .finally(() => {
         clearTimeout(timeout);
@@ -301,20 +316,6 @@ export default function HomePage() {
 
   return (
     <main className={styles.page}>
-      {!loaded ? (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "#fff",
-            display: "grid",
-            placeItems: "center",
-            zIndex: 120,
-          }}
-        >
-          <p style={{ fontFamily: "AGaramondPro, serif", fontSize: 24, margin: 0 }}>Loading posts...</p>
-        </div>
-      ) : null}
       <header className={styles.header}>
         <div className={styles.statusRow}>
           <span className={styles.statusPill}>
@@ -359,7 +360,7 @@ export default function HomePage() {
       </header>
 
       {!lead ? (
-        <p className={styles.emptyState}>{loaded ? "No posts found yet." : "Loading posts..."}</p>
+        <p className={styles.emptyState}>{loaded ? "Posts will appear shortly." : "Loading posts..."}</p>
       ) : (
         <>
           <section className={styles.leadSection}>

@@ -32,6 +32,12 @@ function jsonPosts(posts: PostRecord[]) {
   });
 }
 
+function jsonEmptyFallback() {
+  return NextResponse.json([], {
+    headers: { "Cache-Control": "no-store, max-age=0" },
+  });
+}
+
 async function readLivePostsFallback() {
   const response = await fetch(LIVE_POSTS_API, {
     cache: "no-store",
@@ -113,10 +119,8 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json(
-      { message: "Failed to load posts", error: String(error?.message || error) },
-      { status: 500 }
-    );
+    console.error("[myblog-posts] Failed to load posts:", error);
+    return jsonEmptyFallback();
   }
 }
 
