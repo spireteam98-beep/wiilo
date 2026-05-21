@@ -649,6 +649,82 @@
   text-underline-offset: 0.15em;
 }
 
+.previewGate {
+  position: relative;
+  margin: 24px 0 28px;
+  padding: 26px 24px 24px;
+  border-top: 4px solid #e7131a;
+  border-bottom: 1px solid #111;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85), #fff 18%),
+    #fff;
+  text-align: center;
+}
+
+.previewGate::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -92px;
+  height: 92px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 82%);
+}
+
+.previewGateKicker {
+  margin: 0 0 8px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e7131a;
+}
+
+.previewGateTitle {
+  margin: 0;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.04;
+  font-weight: 700;
+  color: #111;
+  text-wrap: pretty;
+}
+
+.previewGateText {
+  margin: 10px auto 18px;
+  max-width: 520px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-size: 20px;
+  line-height: 1.38;
+  color: #333;
+}
+
+.previewGateButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  text-decoration: none;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.previewGateButton:hover {
+  background: #e7131a;
+  border-color: #e7131a;
+}
+
 .modalAuthor {
   margin: 8px 0 18px;
   font-family: "Logic Monospace", monospace;

@@ -6,7 +6,6 @@ import styles from "./page.module.css";
 import Link from "next/link";
 import { useAuth, useFirestore, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
-import { useRouter } from "next/navigation";
 import { arrayUnion, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import TopUpDialog from "@/components/TopUpDialog";
 
@@ -97,8 +96,17 @@ function normalizeArticleHtml(value: string): string {
     .join("\n");
 }
 
+function getArticlePreviewHtml(normalizedHtml: string): string {
+  const paragraphMatches = normalizedHtml.match(/<p\b[\s\S]*?<\/p>/gi);
+  if (paragraphMatches?.length) {
+    return paragraphMatches.slice(0, 2).join("\n");
+  }
+
+  const textOnly = normalizedHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return textOnly ? `<p>${escapeHtml(textOnly.slice(0, 700))}</p>` : "";
+}
+
 export default function HomePage() {
-  const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingArticleId, setPendingArticleId] = useState<string | null>(null);
   const [entries, setEntries] = useState<Entry[]>(getCachedEntries);
@@ -268,6 +276,11 @@ export default function HomePage() {
     () => (selected ? normalizeArticleHtml(selected.bodyHtml) : ""),
     [selected]
   );
+  const selectedPreviewHtml = useMemo(
+    () => getArticlePreviewHtml(selectedArticleHtml),
+    [selectedArticleHtml]
+  );
+  const visibleArticleHtml = user ? selectedArticleHtml : selectedPreviewHtml;
   const shareUrl = useMemo(() => {
     if (!selected) return "";
     const base = publicSiteUrl || origin;
@@ -292,8 +305,8 @@ export default function HomePage() {
 
   const openArticle = (articleId: string) => {
     if (!user) {
-      const returnTo = `/?post=${encodeURIComponent(articleId)}`;
-      router.push(`/signin?returnTo=${encodeURIComponent(returnTo)}`);
+      setSelectedId(articleId);
+      void trackEvent(articleId, "open_modal");
       return;
     }
     const hasFreeRead = freeReadIds.includes(articleId);
@@ -478,8 +491,23 @@ export default function HomePage() {
               <div className={styles.modalBody}>
                 <div
                   className={styles.articleContent}
-                  dangerouslySetInnerHTML={{ __html: selectedArticleHtml }}
+                  dangerouslySetInnerHTML={{ __html: visibleArticleHtml }}
                 />
+                {!user ? (
+                  <div className={styles.previewGate}>
+                    <p className={styles.previewGateKicker}>Continue Reading</p>
+                    <h3 className={styles.previewGateTitle}>Sign in to access the full article.</h3>
+                    <p className={styles.previewGateText}>
+                      Preview is available for guests. Use Google sign-in to continue reading the full story.
+                    </p>
+                    <Link
+                      href={`/signin?returnTo=${encodeURIComponent(`/?post=${encodeURIComponent(selected.id)}`)}`}
+                      className={styles.previewGateButton}
+                    >
+                      Sign in with Gmail
+                    </Link>
+                  </div>
+                ) : null}
                 <p className={styles.modalAuthor}>Royal Notes</p>
                 <div className={styles.shareRow}>
                   <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
