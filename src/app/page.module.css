@@ -561,7 +561,7 @@
 
 .articleContent blockquote::before,
 .articleContent .article-quote::before {
-  content: "PRINCIPLE OF THE DAY";
+  content: "Royal";
   position: absolute;
   left: max(28px, calc((100vw - 780px) / 2 + 28px));
   right: max(28px, calc((100vw - 780px) / 2 + 28px));
@@ -585,7 +585,7 @@
 
 .articleContent blockquote::after,
 .articleContent .article-quote::after {
-  content: "@RAYDALIO";
+  content: "Notes";
   position: absolute;
   left: max(28px, calc((100vw - 780px) / 2 + 28px));
   right: max(28px, calc((100vw - 780px) / 2 + 28px));
