@@ -11,6 +11,8 @@ import { loadStripe } from '@stripe/stripe-js';
 import { CardElement, Elements, useElements, useStripe } from '@stripe/react-stripe-js';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useFirestore } from '@/firebase';
+import { ensureUserWalletProfile } from '@/lib/content-access';
 
 interface CoinPackage {
   id: string;
@@ -48,6 +50,7 @@ function StripeInlineCheckout({
   userEmail,
   coins,
   packageName,
+  backendUrl,
   onSuccess,
 }: {
   amount: number;
@@ -55,19 +58,31 @@ function StripeInlineCheckout({
   userEmail: string;
   coins: number;
   packageName: string;
+  backendUrl: string;
   onSuccess: () => void;
 }) {
   const stripe = useStripe();
   const elements = useElements();
+  const firestore = useFirestore();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
+    if (!userId) {
+      toast({
+        title: 'Sign in required',
+        description: 'Please sign in before buying coins.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setIsProcessing(true);
     try {
-      const intentRes = await fetch('/api/stripe/create-intent', {
+      await ensureUserWalletProfile(firestore, userId, userEmail);
+
+      const intentRes = await fetch(`${backendUrl}/stripe/create-intent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -99,7 +114,7 @@ function StripeInlineCheckout({
         throw new Error('Payment was not completed. Please try again.');
       }
 
-      const verifyRes = await fetch(`/api/stripe/verify/${result.paymentIntent.id}`, {
+      const verifyRes = await fetch(`${backendUrl}/stripe/verify/${result.paymentIntent.id}`, {
         method: 'POST',
       });
       const verifyData = await verifyRes.json();
@@ -442,6 +457,7 @@ export default function TopUpDialog({
                       userEmail={userEmail}
                       coins={selectedPkg.coins}
                       packageName={selectedPkg.label}
+                      backendUrl={backendUrl}
                       onSuccess={() => {
                         if (onCoinsUpdated) {
                           onCoinsUpdated(currentCoins + selectedPkg.coins);
