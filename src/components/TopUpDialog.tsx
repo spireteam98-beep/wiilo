@@ -48,7 +48,6 @@ function StripeInlineCheckout({
   userEmail,
   coins,
   packageName,
-  backendUrl,
   onSuccess,
 }: {
   amount: number;
@@ -56,7 +55,6 @@ function StripeInlineCheckout({
   userEmail: string;
   coins: number;
   packageName: string;
-  backendUrl: string;
   onSuccess: () => void;
 }) {
   const stripe = useStripe();
@@ -69,7 +67,7 @@ function StripeInlineCheckout({
 
     setIsProcessing(true);
     try {
-      const intentRes = await fetch(`${backendUrl}/stripe/create-intent`, {
+      const intentRes = await fetch('/api/stripe/create-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -101,7 +99,7 @@ function StripeInlineCheckout({
         throw new Error('Payment was not completed. Please try again.');
       }
 
-      const verifyRes = await fetch(`${backendUrl}/stripe/verify/${result.paymentIntent.id}`, {
+      const verifyRes = await fetch(`/api/stripe/verify/${result.paymentIntent.id}`, {
         method: 'POST',
       });
       const verifyData = await verifyRes.json();
@@ -444,7 +442,6 @@ export default function TopUpDialog({
                       userEmail={userEmail}
                       coins={selectedPkg.coins}
                       packageName={selectedPkg.label}
-                      backendUrl={backendUrl}
                       onSuccess={() => {
                         if (onCoinsUpdated) {
                           onCoinsUpdated(currentCoins + selectedPkg.coins);
