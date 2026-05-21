@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET;
 const stripe = stripeSecretKey ? new Stripe(stripeSecretKey) : null;
 
 export async function POST(request: Request) {
   if (!stripe) {
     return NextResponse.json(
-      { success: false, message: "Stripe server configuration error." },
+      {
+        success: false,
+        message:
+          "Stripe server configuration error. Add STRIPE_SECRET_KEY to this app's server environment.",
+        missingEnv: "STRIPE_SECRET_KEY",
+      },
       { status: 500 }
     );
   }
