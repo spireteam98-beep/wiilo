@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Copy, Lock, ShieldCheck, UserRound, X } from "lucide-react";
+import { Coins, Copy, Lock, ShieldCheck, UserRound, X } from "lucide-react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { useAuth, useFirestore, useUser } from "@/firebase";
@@ -327,9 +327,26 @@ export default function HomePage() {
             {user ? "Signed in" : "Guest"}
           </span>
           {user ? (
-            <span className={styles.statusPill}>
-              Free reads left: {Math.max(0, 3 - freeReadIds.length)}
-            </span>
+            <>
+              <span className={styles.statusPill}>
+                <Coins className={styles.statusIcon} />
+                Coins: {coinBalance}
+              </span>
+              <span className={styles.statusPill}>
+                Free reads left: {Math.max(0, 3 - freeReadIds.length)}
+              </span>
+              <button
+                type="button"
+                className={styles.topUpStatusButton}
+                onClick={() => {
+                  setPendingArticleId(null);
+                  setPaywallOpen(true);
+                }}
+              >
+                <Coins className={styles.statusIcon} />
+                Top up
+              </button>
+            </>
           ) : null}
         </div>
         <div className={styles.authBar}>

@@ -48,6 +48,26 @@
   letter-spacing: 0.06em;
 }
 
+.topUpStatusButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid #e7131a;
+  background: #e7131a;
+  color: #fff;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.topUpStatusButton:hover {
+  background: #c90f15;
+  border-color: #c90f15;
+}
+
 .statusIcon {
   width: 13px;
   height: 13px;
