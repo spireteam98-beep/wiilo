@@ -545,14 +545,60 @@
 
 .articleContent blockquote,
 .articleContent .article-quote {
-  margin: 30px 0;
-  border-left: 4px solid #e7131a;
-  padding: 8px 0 8px 22px;
-  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
-  font-size: clamp(26px, 3vw, 38px);
+  position: relative;
+  margin: 36px calc(50% - 50vw);
+  padding: clamp(86px, 11vw, 126px) max(28px, calc((100vw - 780px) / 2 + 28px)) clamp(82px, 10vw, 116px);
+  background: #000;
+  border: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(40px, 7.2vw, 84px);
   line-height: 1.18;
-  font-weight: 700;
-  color: #111;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: #fff;
+  text-align: center;
+}
+
+.articleContent blockquote::before,
+.articleContent .article-quote::before {
+  content: "PRINCIPLE OF THE DAY";
+  position: absolute;
+  left: max(28px, calc((100vw - 780px) / 2 + 28px));
+  right: max(28px, calc((100vw - 780px) / 2 + 28px));
+  top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(18px, 2.8vw, 38px);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: transparent;
+  background:
+    linear-gradient(90deg, #ff3434 0 36%, #fff 36% 100%) left center / min(435px, 47vw) 100% no-repeat,
+    linear-gradient(#ff3434, #ff3434) right center / calc(100% - min(445px, 46vw)) 4px no-repeat;
+  -webkit-background-clip: text, border-box;
+  background-clip: text, border-box;
+  text-align: left;
+}
+
+.articleContent blockquote::after,
+.articleContent .article-quote::after {
+  content: "@RAYDALIO";
+  position: absolute;
+  left: max(28px, calc((100vw - 780px) / 2 + 28px));
+  right: max(28px, calc((100vw - 780px) / 2 + 28px));
+  bottom: 28px;
+  border-top: 4px solid #ff3434;
+  padding-top: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(18px, 2.6vw, 34px);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-align: right;
 }
 
 .articleContent blockquote p {
