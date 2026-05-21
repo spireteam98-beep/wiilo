@@ -16,7 +16,7 @@ type Entry = {
   subtitle: string;
   author: string;
   credit: string;
-  body: string[];
+  bodyHtml: string;
   featuredImageUrl?: string;
 };
 
@@ -31,10 +31,7 @@ type ApiPost = {
 };
 
 function mapApiPost(post: ApiPost): Entry {
-  const bodyParts = String(post.body || "")
-    .split(/\n{2,}/)
-    .map((text) => text.trim())
-    .filter(Boolean);
+  const bodyHtml = String(post.body || post.excerpt || "").trim();
 
   return {
     id: post.id,
@@ -42,9 +39,46 @@ function mapApiPost(post: ApiPost): Entry {
     subtitle: post.excerpt,
     author: post.author || "Mohamed Royal",
     credit: post.credit || "",
-    body: bodyParts.length > 0 ? bodyParts : [post.excerpt],
+    bodyHtml,
     featuredImageUrl: post.featuredImageUrl || "",
   };
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function normalizeArticleHtml(value: string): string {
+  const cleaned = value
+    .replace(/\r\n/g, "\n")
+    .replace(/\bclassName=/g, "class=")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<\/?(?:iframe|object|embed|form|input|button|link|meta)[^>]*>/gi, "")
+    .replace(/\son\w+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+    .replace(/\s(?:href|src)=["']\s*javascript:[^"']*["']/gi, "");
+  const preserveInnerSpacing = cleaned.replace(
+    /<(blockquote|div|p|h[1-6])\b([^>]*)>([\s\S]*?)<\/\1>/gi,
+    (_match, tag, attrs, content) => `<${tag}${attrs}>${content.trim().replace(/\n{2,}/g, "\n")}</${tag}>`
+  );
+
+  return preserveInnerSpacing
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean)
+    .map((block) => {
+      if (/^<\/?(?:div|p|h[1-6]|blockquote|ul|ol|li|span|strong|em|br|a|img)\b/i.test(block)) {
+        return block;
+      }
+
+      return `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`;
+    })
+    .join("\n");
 }
 
 export default function HomePage() {
@@ -214,6 +248,10 @@ export default function HomePage() {
   const selected = useMemo(
     () => entries.find((item) => item.id === selectedId) ?? null,
     [entries, selectedId]
+  );
+  const selectedArticleHtml = useMemo(
+    () => (selected ? normalizeArticleHtml(selected.bodyHtml) : ""),
+    [selected]
   );
   const shareUrl = useMemo(() => {
     if (!selected) return "";
@@ -420,11 +458,10 @@ export default function HomePage() {
                 <div className={styles.modalBottomRule} />
               </header>
               <div className={styles.modalBody}>
-                {selected.body.map((paragraph, idx) => (
-                  <p key={`${selected.id}-p-${idx}`} className={styles.modalParagraph}>
-                    {paragraph}
-                  </p>
-                ))}
+                <div
+                  className={styles.articleContent}
+                  dangerouslySetInnerHTML={{ __html: selectedArticleHtml }}
+                />
                 <p className={styles.modalAuthor}>Royal Notes</p>
                 <div className={styles.shareRow}>
                   <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">

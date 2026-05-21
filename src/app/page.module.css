@@ -508,12 +508,79 @@
   letter-spacing: 0.06em;
 }
 
+.articleContent {
+  font-family: "AGaramondPro", serif;
+  color: #171717;
+}
+
+.articleContent div {
+  display: contents;
+}
+
+.articleContent p,
 .modalParagraph {
   margin: 0 0 16px;
   font-family: "AGaramondPro", serif;
   font-size: clamp(21px, 2.2vw, 27px);
   line-height: 1.52;
   color: #171717;
+}
+
+.articleContent h2,
+.articleContent .article-subtitle {
+  margin: 34px 0 12px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-size: clamp(30px, 3.2vw, 42px);
+  line-height: 1.08;
+  font-weight: 700;
+  color: #111;
+  text-wrap: pretty;
+}
+
+.articleContent h2:first-child,
+.articleContent p:first-child,
+.articleContent blockquote:first-child {
+  margin-top: 0;
+}
+
+.articleContent blockquote,
+.articleContent .article-quote {
+  margin: 30px 0;
+  border-left: 4px solid #e7131a;
+  padding: 8px 0 8px 22px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.18;
+  font-weight: 700;
+  color: #111;
+}
+
+.articleContent blockquote p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: inherit;
+}
+
+.articleContent .inline-highlight {
+  background: #ffe36d;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.12em;
+}
+
+.articleContent strong {
+  font-weight: 700;
+}
+
+.articleContent em {
+  font-style: italic;
+}
+
+.articleContent a {
+  color: #b02a2a;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
 }
 
 .modalAuthor {

@@ -3,6 +3,14 @@ import * as admin from 'firebase-admin';
 import { firebaseConfig } from '@/firebase/config';
 import fs from 'node:fs';
 
+export const hasExplicitFirebaseAdminCredentials = () =>
+  Boolean(
+    process.env.FIREBASE_SERVICE_ACCOUNT_KEY ||
+      process.env.FIREBASE_SERVICE_ACCOUNT_KEY_FILE ||
+      (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) ||
+      process.env.GOOGLE_APPLICATION_CREDENTIALS
+  );
+
 if (!admin.apps.length) {
   try {
     const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
@@ -42,10 +50,14 @@ if (!admin.apps.length) {
         projectId,
       });
       console.log('[FirebaseAdmin] Initialized with split env credentials');
-    } else {
+    } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.NODE_ENV === "production") {
       // Last fallback: Application Default Credentials
       admin.initializeApp({ projectId });
       console.log('[FirebaseAdmin] Initialized with default credentials');
+    } else {
+      console.warn(
+        '[FirebaseAdmin] Skipped initialization: local Firebase Admin credentials are not configured.'
+      );
     }
   } catch (error: any) {
     console.error('[FirebaseAdmin] Initialization error:', error.message);

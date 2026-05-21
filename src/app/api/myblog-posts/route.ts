@@ -1,42 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminDb } from "@/lib/firebase-admin";
+import { getAdminDb, hasExplicitFirebaseAdminCredentials } from "@/lib/firebase-admin";
 
 const COLLECTION = "myblog_posts";
+const LIVE_POSTS_API = "https://mohamedroyal.com/api/myblog-posts";
 
-function toSlug(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+type PostRecord = Record<string, unknown> & { id: string };
+
+function toMillis(value: any): number {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : Date.parse(value) || 0;
+  }
+  if (value && typeof value.toMillis === "function") return value.toMillis();
+  if (value && typeof value._seconds === "number") return value._seconds * 1000;
+  if (value && typeof value.seconds === "number") return value.seconds * 1000;
+  return 0;
 }
 
-export async function GET() {
-  try {
-    const db = getAdminDb();
-    const snapshot = await db.collection(COLLECTION).orderBy("createdAt", "desc").limit(50).get();
-    const posts = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+function normalizePost(post: PostRecord): PostRecord {
+  return {
+    ...post,
+    createdAt: toMillis((post as any).createdAt),
+    updatedAt: toMillis((post as any).updatedAt),
+  };
+}
 
-    // If custom myblog posts are empty, fallback to existing "content" collection
-    if (posts.length === 0) {
-      const contentSnapshot = await db
-        .collection("content")
-        .orderBy("createdAt", "desc")
-        .limit(200)
-        .get();
+function jsonPosts(posts: PostRecord[]) {
+  return NextResponse.json(posts, {
+    headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
+  });
+}
 
-      const mapped = contentSnapshot.docs
-        .filter((doc) => {
-          const data = doc.data() as any;
-          return data?.category === "Culture" && data?.contentType === "article";
-        })
-        .slice(0, 50)
-        .map((doc) => {
+async function readLivePostsFallback() {
+  const response = await fetch(LIVE_POSTS_API, {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Live posts fallback failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return Array.isArray(data) ? data.map(normalizePost) : [];
+}
+
+async function readLocalFirestorePosts() {
+  const db = getAdminDb();
+  const snapshot = await db.collection(COLLECTION).orderBy("createdAt", "desc").limit(200).get();
+  const posts = snapshot.docs.map((doc) => normalizePost({ id: doc.id, ...doc.data() }));
+
+  // If custom myblog posts are empty, fallback to existing "content" collection
+  if (posts.length === 0) {
+    const contentSnapshot = await db
+      .collection("content")
+      .orderBy("createdAt", "desc")
+      .limit(200)
+      .get();
+
+    return contentSnapshot.docs
+      .filter((doc) => {
         const data = doc.data() as any;
-        const createdAt =
-          data?.createdAt && typeof data.createdAt?.toMillis === "function"
-            ? data.createdAt.toMillis()
-            : Date.now();
+        return data?.category === "Culture" && data?.contentType === "article";
+      })
+      .slice(0, 200)
+      .map((doc) => {
+        const data = doc.data() as any;
+        const createdAt = toMillis(data?.createdAt) || Date.now();
 
         return {
           id: doc.id,
@@ -53,16 +84,35 @@ export async function GET() {
           updatedAt: createdAt,
         };
       });
+  }
 
-      return NextResponse.json(mapped, {
-        headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
-      });
+  return posts;
+}
+
+function toSlug(input: string): string {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+export async function GET() {
+  try {
+    if (process.env.NODE_ENV !== "production" && !hasExplicitFirebaseAdminCredentials()) {
+      return jsonPosts(await readLivePostsFallback());
     }
 
-    return NextResponse.json(posts, {
-      headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
-    });
+    return jsonPosts(await readLocalFirestorePosts());
   } catch (error: any) {
+    if (process.env.NODE_ENV !== "production") {
+      try {
+        return jsonPosts(await readLivePostsFallback());
+      } catch {
+        // Return the original local Firestore error below.
+      }
+    }
+
     return NextResponse.json(
       { message: "Failed to load posts", error: String(error?.message || error) },
       { status: 500 }
