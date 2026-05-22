@@ -111,6 +111,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
           alt: title,
           width: 1200,
           height: 630,
+          type: "image/jpeg",
         },
       ],
     },
@@ -124,7 +125,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     other: {
       "og:image:width": "1200",
       "og:image:height": "630",
+      "og:image:type": "image/jpeg",
       "og:image:alt": title,
+      "twitter:site": "@mohamedroyal",
+      "twitter:image": image,
+      "twitter:image:src": image,
       "twitter:image:alt": title,
     },
   };
