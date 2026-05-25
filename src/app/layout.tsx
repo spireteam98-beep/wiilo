@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { Analytics } from '@vercel/analytics/next';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
@@ -65,6 +66,19 @@ export default function RootLayout({
           href="https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Regular.woff2"
           crossOrigin="anonymous"
         />
+        <Script
+          id="google-analytics-loader"
+          src="https://www.googletagmanager.com/gtag/js?id=G-4YSMFG9FPL"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics-config" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-4YSMFG9FPL');
+          `}
+        </Script>
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
