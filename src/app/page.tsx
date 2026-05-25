@@ -61,26 +61,40 @@ function normalizeArticleHtml(value: string): string {
     .replace(/\bclassName=/g, "class=")
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<gpt-ad[\s\S]*?<\/gpt-ad>/gi, "")
     .replace(/<\/?(?:iframe|object|embed|form|input|button|link|meta)[^>]*>/gi, "")
     .replace(/\son\w+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
     .replace(/\s(?:href|src)=["']\s*javascript:[^"']*["']/gi, "");
   const preserveInnerSpacing = cleaned.replace(
-    /<(blockquote|div|p|h[1-6])\b([^>]*)>([\s\S]*?)<\/\1>/gi,
+    /<(blockquote|div|p|section|h[1-6])\b([^>]*)>([\s\S]*?)<\/\1>/gi,
     (_match, tag, attrs, content) => `<${tag}${attrs}>${content.trim().replace(/\n{2,}/g, "\n")}</${tag}>`
   );
 
-  return preserveInnerSpacing
+  const normalized = preserveInnerSpacing
     .split(/\n{2,}/)
     .map((block) => block.trim())
     .filter(Boolean)
     .map((block) => {
-      if (/^<\/?(?:div|p|h[1-6]|blockquote|ul|ol|li|span|strong|em|br|a|img)\b/i.test(block)) {
+      if (/^<\/?(?:section|div|p|h[1-6]|blockquote|ul|ol|li|span|strong|em|i|small|hr|br|a|img|figure|figcaption|picture|source)\b/i.test(block)) {
         return block;
       }
 
       return `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`;
     })
     .join("\n");
+
+  const bodyInnerHtml = normalized
+    .trim()
+    .replace(/^<section\b[^>]*ArticleBody_root__2gF81[^>]*>([\s\S]*)<\/section>$/i, "$1")
+    .replace(/^<section\b[^>]*>([\s\S]*)<\/section>$/i, "$1");
+
+  return bodyInnerHtml
+    .replace(/<p\b(?![^>]*\bclass=)([^>]*)>/gi, '<p class="ArticleParagraph_root__4mszW" data-flatplan-paragraph="true"$1>')
+    .replace(/<p\b([^>]*\bclass=["'][^"']*ArticleParagraph_root__4mszW[^"']*["'][^>]*)>/gi, (match) =>
+      /\bdata-flatplan-paragraph=/.test(match)
+        ? match
+        : match.replace(/>$/, ' data-flatplan-paragraph="true">')
+    );
 }
 
 function getArticlePreviewHtml(normalizedHtml: string): string {
@@ -576,31 +590,72 @@ export default function HomePage() {
           </button>
 
           {selected ? (
-            <article className={styles.modalArticle} ref={modalArticleRef}>
-              <header
-                className={styles.modalHeader}
-                style={
-                  selected.featuredImageUrl
-                    ? { backgroundImage: `url("${selected.featuredImageUrl}")` }
-                    : undefined
-                }
-              >
-                <div className={styles.modalTopRule}>
-                  <span className={styles.modalKicker}>Gift Notes</span>
+            <article className={`${styles.modalArticle} ArticleLayout_article__RHFMN article-content-body`} ref={modalArticleRef}>
+              <header className={`${styles.modalHeader} ArticleHero_root__3w7kV ArticleHero_articleStandard__2tcdv`} data-event-module="hero">
+                <div className="ArticleHero_defaultArticleLockup__vb8lz">
+                <div className={styles.articleLockup}>
+                  <div className={`${styles.modalRubric} ArticleHero_rubric__e4rjD`}>
+                    <div className="ArticleRubric_root__HNhbf" id="rubric" data-flatplan-rubric="true">
+                      <span className={`${styles.modalRubricLink} ArticleRubric_link__nl9hy`}>Ideas</span>
+                    </div>
+                  </div>
+                  <div className={`${styles.modalTitleWrap} ArticleHero_title__PQ4pC`}>
+                    <h1 className={`${styles.modalTitle} ArticleTitle_root__VrZaG`} data-flatplan-title="true">{selected.title}</h1>
+                  </div>
+                  <div className={`${styles.modalDek} ArticleHero_dek__EqdkK WritersWayArticleHero_dek__slScP`} data-flatplan-description="true">
+                    <p className={`${styles.modalSubtitle} ArticleDek_root__P3leE WritersWayArticleHero_dek__slScP`}>{selected.subtitle}</p>
+                  </div>
+                  <div className={`${styles.modalByline} ArticleHero_byline__iFT6A`}>
+                    <div className="ArticleBylines_root__IBR5V">
+                      <address id="byline">By <span className="ArticleBylines_link__kNP4C" data-flatplan-author-link="true">{selected.author || "Mohamed Royal"}</span></address>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.modalTitleWrap}>
-                  <h2 className={styles.modalTitle}>{selected.title}</h2>
-                  <span className={styles.modalTitleDot} aria-hidden="true" />
-                  <p className={styles.modalSubtitle}>{selected.subtitle}</p>
+
+                {selected.featuredImageUrl ? (
+                  <div className={`${styles.articleLeadArt} ArticleLeadArt_root__nRSLU`}>
+                    <figure className={`${styles.articleLeadFigure} ArticleLeadFigure_root__Bj81R ArticleLeadFigure_standard__20Izv`}>
+                      <div className={`${styles.articleLeadFigureMedia} ArticleLeadFigure_media__R1npW`} data-flatplan-lead_figure_media="true">
+                        <picture>
+                          <img
+                            src={selected.featuredImageUrl}
+                            alt={selected.title}
+                            className={`${styles.articleLeadImage} Image_root__XxsOp ArticleLeadArt_image__HZS4B`}
+                            width={960}
+                            height={540}
+                            sizes="(min-width: 976px) 976px, 100vw"
+                            id="article-lead-image"
+                          />
+                        </picture>
+                      </div>
+                      {selected.credit ? (
+                        <figcaption className={`${styles.articleLeadCaption} ArticleLeadFigure_caption__Byu7W ArticleLeadFigure_standardCaption__PsDkd`} data-flatplan-lead_figure_caption="true">{selected.credit}</figcaption>
+                      ) : null}
+                    </figure>
+                  </div>
+                ) : null}
                 </div>
-                <div className={styles.modalBottomRule} />
+
+                <div className={`${styles.articleUtilityBar} ArticleHero_articleUtilityBar__JbQFj`}>
+                  <div className={`${styles.articleTimestamp} ArticleHero_timestamp__bKhcB`}>
+                    <time className="ArticleTimestamp_root__b3bL6" dateTime={new Date().toISOString()} data-flatplan-timestamp="true">Gift Notes</time>
+                  </div>
+                  <div className={`${styles.articleUtilityTools} ArticleHero_articleUtilityBarTools__ZHw8s`}>
+                    <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
+                      <Copy className={styles.shareIcon} />
+                      {copied ? "Copied" : "Share"}
+                    </button>
+                  </div>
+                </div>
               </header>
               <div className={styles.modalBody}>
-                <div
-                  className={styles.articleContent}
+                <section
+                  className={`${styles.articleContent} ArticleBody_root__2gF81`}
+                  data-event-module="article body"
+                  data-flatplan-body="true"
+                  data-cmd="true"
                   dangerouslySetInnerHTML={{ __html: visibleArticleHtml }}
                 />
-                <p className={styles.modalAuthor}>Gift Notes</p>
                 <div className={styles.shareRow}>
                   <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
                     <Copy className={styles.shareIcon} />

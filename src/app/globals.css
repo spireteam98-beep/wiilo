@@ -69,6 +69,22 @@
 }
 @font-face {
   font-display: swap;
+  font-family: Graphik;
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://www.theatlantic.com/packages/fonts/graphik/Graphik-Regular-Web.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/graphik/Graphik-Regular-Web.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: Graphik;
+  font-style: normal;
+  font-weight: 600;
+  src: url(https://www.theatlantic.com/packages/fonts/graphik/Graphik-Semibold-Web.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/graphik/Graphik-Semibold-Web.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
   font-family: "Atlantic Serif";
   font-style: normal;
   font-weight: 400;
@@ -98,6 +114,169 @@
   font-weight: 300;
   src: url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Regular.woff2) format("woff2"),
        url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Regular.woff) format("woff");
+}
+
+/* Atlantic global helpers used by pasted article markup */
+@font-face {
+  font-display: swap;
+  font-family: AGaramondPro;
+  font-style: italic;
+  font-weight: 600;
+  src: local("Adobe Garamond Pro SemiboldItalic"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-SemiboldItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-SemiboldItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: AGaramondPro;
+  font-style: normal;
+  font-weight: 700;
+  src: local("Adobe Garamond Pro Bold"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Bold.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Bold.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: AGaramondPro;
+  font-style: italic;
+  font-weight: 700;
+  src: local("Adobe Garamond Pro BoldItalic"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-BoldItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-BoldItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: italic;
+  font-weight: 400;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-RegularItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-RegularItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: normal;
+  font-weight: 500;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Medium.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Medium.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: italic;
+  font-weight: 500;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-MediumItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-MediumItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: italic;
+  font-weight: 600;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-BoldItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-BoldItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: normal;
+  font-weight: 300;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Light.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-Light.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-style: italic;
+  font-weight: 300;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-LightItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticCondensed-LightItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-stretch: ultra-condensed;
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticXNarrow-Regular.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticXNarrow-Regular.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Atlantic Serif";
+  font-stretch: ultra-condensed;
+  font-style: italic;
+  font-weight: 400;
+  src: url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticXNarrow-RegularItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/atlantic/AtlanticXNarrow-RegularItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Logic Monospace";
+  font-style: italic;
+  font-weight: 300;
+  src: url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-RegularItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-RegularItalic.woff) format("woff");
+}
+@font-face {
+  font-display: swap;
+  font-family: "Logic Monospace";
+  font-style: italic;
+  font-weight: 400;
+  src: url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-MediumItalic.woff2) format("woff2"),
+       url(https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-MediumItalic.woff) format("woff");
+}
+
+html.ZephrTransformation_noScroll___Renv {
+  overflow: hidden;
+}
+
+.Image_root__XxsOp {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.Image_lazy__hYWHV {
+  opacity: 0;
+}
+
+.Image_loaded__zmzJ7 {
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.SearchInput_visuallyHidden__pPCYr,
+.VisuallyHidden_root__yoK4r {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  border: 0;
+  white-space: nowrap;
+  word-wrap: normal;
+}
+
+picture {
+  display: block;
+}
+
+address {
+  font-style: normal;
+}
+
+:root {
+  --nav-collapsed-background: #fff;
+  --nav-expanded-background: #f7f7f7;
+  --nav-expanded-background-accent: #fff;
+  --nav-border-color-dark: #9b9b9b;
+  --nav-border-color-light: #c1c1c1;
+  --paywall-background: #fff;
+  --article-image-loading-placeholder-color: #c0ccda;
+  --article-sharekit-background: #f7f7f7;
 }
 
 @layer base {

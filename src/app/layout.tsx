@@ -56,6 +56,20 @@ export default function RootLayout({
           rel="preload"
           as="font"
           type="font/woff2"
+          href="https://www.theatlantic.com/packages/fonts/graphik/Graphik-Regular-Web.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://www.theatlantic.com/packages/fonts/graphik/Graphik-Semibold-Web.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
           href="https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Medium.woff2"
           crossOrigin="anonymous"
         />
