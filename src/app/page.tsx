@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Coins, Copy, Loader2, Lock, ShieldCheck, Sparkles, UserRound, X } from "lucide-react";
+import { Coins, Copy, Lock, ShieldCheck, Sparkles, UserRound, X } from "lucide-react";
 import styles from "./page.module.css";
 import Link from "next/link";
 import { useAuth, useFirestore, useUser } from "@/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { arrayUnion, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
 import TopUpDialog from "@/components/TopUpDialog";
 import { toast } from "@/hooks/use-toast";
-import { ensureUserWalletProfile } from "@/lib/content-access";
 
 type Entry = {
   id: string;
@@ -94,24 +93,12 @@ function getArticlePreviewHtml(normalizedHtml: string): string {
   return textOnly ? `<p>${escapeHtml(textOnly.slice(0, 700))}</p>` : "";
 }
 
-function GoogleIcon() {
-  return (
-    <svg className={styles.googleIcon} viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-.97 2.48-1.94 3.21v2.75h3.57c2.08-1.92 3.28-4.74 3.28-7.97z" />
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.75c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-    </svg>
-  );
-}
-
 export default function HomePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pendingArticleId, setPendingArticleId] = useState<string | null>(null);
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
-  const [signingIn, setSigningIn] = useState(false);
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState(false);
   const [coinBalance, setCoinBalance] = useState(0);
@@ -297,7 +284,7 @@ export default function HomePage() {
     () => getArticlePreviewHtml(selectedArticleHtml),
     [selectedArticleHtml]
   );
-  const visibleArticleHtml = user ? selectedArticleHtml : selectedPreviewHtml;
+  const visibleArticleHtml = selectedArticleHtml || selectedPreviewHtml;
   const shareUrl = useMemo(() => {
     if (!selected) return "";
     const base = publicSiteUrl || origin;
@@ -327,30 +314,6 @@ export default function HomePage() {
   const handleInstagramShare = async () => {
     await handleCopyLink();
     window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
-  };
-
-  const handleGoogleSignIn = async () => {
-    if (!auth) return;
-    setSigningIn(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      await ensureUserWalletProfile(firestore, result.user.uid, result.user.email, {
-        displayName: result.user.displayName,
-        photoURL: result.user.photoURL,
-      });
-      toast({ title: "Welcome back", description: "You can continue reading now." });
-    } catch (error: any) {
-      if (error?.code !== "auth/popup-closed-by-user") {
-        toast({
-          title: "Sign in failed",
-          description: error?.message || "Could not sign in. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setSigningIn(false);
-    }
   };
 
   const openArticle = (articleId: string) => {
@@ -415,7 +378,10 @@ export default function HomePage() {
     setReaderPromptDismissed(true);
     setReaderPromptVisible(false);
     if (!user) {
-      void handleGoogleSignIn();
+      toast({
+        title: "Email access coming soon",
+        description: "We are replacing Google sign-in with an email code flow for easier social browser access.",
+      });
       return;
     }
     setPendingArticleId(null);
@@ -634,24 +600,6 @@ export default function HomePage() {
                   className={styles.articleContent}
                   dangerouslySetInnerHTML={{ __html: visibleArticleHtml }}
                 />
-                {!user ? (
-                  <div className={styles.previewGate}>
-                    <p className={styles.previewGateKicker}>Continue Reading</p>
-                    <h3 className={styles.previewGateTitle}>Sign in to access the full article.</h3>
-                    <p className={styles.previewGateText}>
-                      Preview is available for guests. Use Google sign-in to continue reading the full story.
-                    </p>
-                    <button
-                      type="button"
-                      className={styles.previewGateButton}
-                      onClick={handleGoogleSignIn}
-                      disabled={signingIn}
-                    >
-                      {signingIn ? <Loader2 className={styles.previewGateButtonIcon} /> : <GoogleIcon />}
-                      {signingIn ? "Signing in..." : "Sign in with Gmail"}
-                    </button>
-                  </div>
-                ) : null}
                 <p className={styles.modalAuthor}>Gift Notes</p>
                 <div className={styles.shareRow}>
                   <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
@@ -740,9 +688,8 @@ export default function HomePage() {
                       type="button"
                       className={styles.readerPromptButton}
                       onClick={handleReaderPromptTopUp}
-                      disabled={signingIn}
                     >
-                      {signingIn ? "Opening..." : "Subscribe"}
+                      Subscribe
                     </button>
                   </div>
                 </aside>
