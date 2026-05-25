@@ -1,652 +1,1367 @@
-"use client";
-
-import { useEffect, useMemo, useState } from "react";
-import { Coins, Copy, Loader2, Lock, ShieldCheck, UserRound, X } from "lucide-react";
-import styles from "./page.module.css";
-import Link from "next/link";
-import { useAuth, useFirestore, useUser } from "@/firebase";
-import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
-import { arrayUnion, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
-import TopUpDialog from "@/components/TopUpDialog";
-import { toast } from "@/hooks/use-toast";
-import { ensureUserWalletProfile } from "@/lib/content-access";
-
-type Entry = {
-  id: string;
-  title: string;
-  subtitle: string;
-  author: string;
-  credit: string;
-  bodyHtml: string;
-  featuredImageUrl?: string;
-};
-
-type ApiPost = {
-  id: string;
-  title: string;
-  excerpt: string;
-  body: string;
-  author?: string;
-  credit?: string;
-  featuredImageUrl?: string;
-};
-
-const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
-
-function mapApiPost(post: ApiPost): Entry {
-  const bodyHtml = String(post.body || post.excerpt || "").trim();
-
-  return {
-    id: post.id,
-    title: post.title,
-    subtitle: post.excerpt,
-    author: post.author || "Mohamed Royal",
-    credit: post.credit || "",
-    bodyHtml,
-    featuredImageUrl: post.featuredImageUrl || "",
-  };
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 10px 18px 64px;
+  color: #121212;
+  background: #fff;
+  text-rendering: optimizeLegibility;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+.header {
+  border-bottom: 1px solid #d7d7d7;
+  padding-bottom: 10px;
 }
 
-function normalizeArticleHtml(value: string): string {
-  const cleaned = value
-    .replace(/\r\n/g, "\n")
-    .replace(/\bclassName=/g, "class=")
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<\/?(?:iframe|object|embed|form|input|button|link|meta)[^>]*>/gi, "")
-    .replace(/\son\w+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-    .replace(/\s(?:href|src)=["']\s*javascript:[^"']*["']/gi, "");
-  const preserveInnerSpacing = cleaned.replace(
-    /<(blockquote|div|p|h[1-6])\b([^>]*)>([\s\S]*?)<\/\1>/gi,
-    (_match, tag, attrs, content) => `<${tag}${attrs}>${content.trim().replace(/\n{2,}/g, "\n")}</${tag}>`
-  );
-
-  return preserveInnerSpacing
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean)
-    .map((block) => {
-      if (/^<\/?(?:div|p|h[1-6]|blockquote|ul|ol|li|span|strong|em|br|a|img)\b/i.test(block)) {
-        return block;
-      }
-
-      return `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`;
-    })
-    .join("\n");
+.utilityRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-bottom: 10px;
 }
 
-function getArticlePreviewHtml(normalizedHtml: string): string {
-  const paragraphMatches = normalizedHtml.match(/<p\b[\s\S]*?<\/p>/gi);
-  if (paragraphMatches?.length) {
-    return paragraphMatches.slice(0, 2).join("\n");
+.utilityLink {
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #595959;
+  text-decoration: none;
+}
+
+.statusRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid #ddd;
+  background: #f8f8f8;
+  color: #414141;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.topUpStatusButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid #e7131a;
+  background: #e7131a;
+  color: #fff;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.topUpStatusButton:hover {
+  background: #c90f15;
+  border-color: #c90f15;
+}
+
+.statusIcon {
+  width: 13px;
+  height: 13px;
+}
+
+.authBar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.headerMenu {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerMenuLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 31px;
+  border: 1px solid #d7d7d7;
+  padding: 7px 12px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #171717;
+  background: #fff;
+  text-decoration: none;
+}
+
+.headerMenuLink:hover {
+  border-color: #e7131a;
+  color: #e7131a;
+}
+
+.brand {
+  margin: 0;
+  font-family: "Atlantic Serif", serif;
+  font-size: clamp(34px, 6.2vw, 64px);
+  line-height: 0.95;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.authText {
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  color: #666;
+}
+
+.authBtn,
+.authBtnLink {
+  border: 1px solid #e7131a;
+  border-radius: 0;
+  padding: 7px 12px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #e7131a;
+  color: #fff;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.authBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.authBtn:focus-visible,
+.authBtnLink:focus-visible,
+.headerMenuLink:focus-visible,
+.leadTitle:focus-visible,
+.cardTitle:focus-visible,
+.readMore:focus-visible,
+.cardImageButton:focus-visible,
+.close:focus-visible,
+.shareBtn:focus-visible,
+.previewGateButton:focus-visible,
+.readerPromptButton:focus-visible,
+.readerPromptCancel:focus-visible,
+.readerPromptClose:focus-visible {
+  outline: 2px solid rgb(29, 155, 240);
+  outline-offset: 3px;
+}
+
+.emptyState {
+  margin: 28px 0 18px;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(22px, 4vw, 28px);
+  line-height: 1.22;
+}
+
+.loadingShell {
+  margin-top: 24px;
+  border-top: 2px solid #171717;
+  border-bottom: 1px solid #d7d7d7;
+  padding: 26px 0 30px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 34px;
+  align-items: start;
+}
+
+.loadingImage,
+.loadingLineWide,
+.loadingLine,
+.loadingLineShort {
+  display: block;
+  background: linear-gradient(90deg, #f0f0f0 0%, #fafafa 48%, #eeeeee 100%);
+  background-size: 220% 100%;
+  animation: shimmer 1.1s ease-in-out infinite;
+}
+
+.loadingImage {
+  min-height: 300px;
+}
+
+.loadingCopy {
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.loadingLineWide {
+  height: 44px;
+  width: 94%;
+}
+
+.loadingLine {
+  height: 26px;
+  width: 78%;
+}
+
+.loadingLineShort {
+  height: 18px;
+  width: 42%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}
+
+.leadSection {
+  margin-top: 24px;
+  border-top: 2px solid #171717;
+  border-bottom: 1px solid #d7d7d7;
+  padding: 26px 0 30px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 34px;
+  align-items: start;
+}
+
+.creditPanel {
+  min-height: 300px;
+  background: #f7f3ec;
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.featureImage {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.credit {
+  margin: 0;
+  padding: 16px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #696969;
+}
+
+.sectionLabel {
+  margin: 0 0 8px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: #b02a2a;
+}
+
+.leadTitle,
+.cardTitle {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #111;
+  text-align: left;
+  cursor: pointer;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-weight: 400;
+  font-size: clamp(34px, 4.2vw, 50px);
+  line-height: 1.08;
+  margin: 0 0 12px;
+  text-wrap: pretty;
+  transition: color 120ms ease;
+}
+
+.leadTitle:hover,
+.cardTitle:hover {
+  color: #b02a2a;
+}
+
+.leadSubtitle {
+  margin: 12px 0 0;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(22px, 2.7vw, 27px);
+  line-height: 1.3;
+  color: #1e1e1e;
+  max-width: 62ch;
+}
+
+.author {
+  margin: 14px 0 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  color: #555;
+}
+
+.readMore {
+  margin-top: 16px;
+  border: 1px solid #e7131a;
+  background: #e7131a;
+  border-radius: 999px;
+  padding: 9px 15px;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.readMore:hover {
+  background: #c90f15;
+  border-color: #c90f15;
+  transform: translateY(-1px);
+}
+
+.readMore:active {
+  transform: translateY(0);
+}
+
+.gateHint {
+  margin: 10px 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #b02a2a;
+}
+
+.gateHintIcon {
+  width: 12px;
+  height: 12px;
+}
+
+.river {
+  margin-top: 28px;
+  display: grid;
+  gap: 38px 42px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.card {
+  border-top: 1px solid #d8d8d8;
+  padding-top: 16px;
+  contain: content;
+  content-visibility: auto;
+  contain-intrinsic-size: 420px;
+}
+
+.cardImageButton {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  display: block;
+  border: 0;
+  padding: 0;
+  margin: 0 0 14px;
+  background: #f7f3ec;
+  overflow: hidden;
+  cursor: pointer;
+  contain: layout paint;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 180ms ease;
+}
+
+.cardImageButton:hover .cardImage {
+  transform: scale(1.025);
+}
+
+.cardTitle {
+  font-size: clamp(30px, 3.2vw, 42px);
+}
+
+.cardSubtitle {
+  margin: 10px 0 0;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(19px, 2.2vw, 23px);
+  line-height: 1.3;
+  color: #1f1f1f;
+  max-width: 58ch;
+}
+
+.modalRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.modalOpen {
+  pointer-events: auto;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.modalOpen .backdrop {
+  opacity: 1;
+}
+
+.modal {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  transform: translateY(10px);
+  background: #fff;
+  color: rgb(15, 20, 25);
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 0;
+  opacity: 0;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+  overflow: hidden;
+}
+
+.modalOpen .modal {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.close {
+  position: fixed;
+  right: 16px;
+  top: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+  border-radius: 999px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  z-index: 5;
+}
+
+.closeIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.modalArticle {
+  height: 100vh;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-color: rgb(185, 202, 211) rgb(247, 249, 249);
+}
+
+.modalHeader {
+  position: relative;
+  min-height: min(520px, 58vh);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
+  background: #020202;
+  background-size: cover;
+  background-position: center;
+}
+
+.modalHeader::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.56) 38%, rgba(0, 0, 0, 0.72) 100%),
+    radial-gradient(circle at 50% 20%, rgba(231, 19, 26, 0.16), transparent 45%);
+  z-index: 1;
+}
+
+.modalTitleWrap {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding: 14vh 16px 26px;
+  max-width: 600px;
+  margin: 0 auto;
+  align-self: start;
+  text-align: left;
+}
+
+.modalCredit {
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.modalTitle {
+  margin: 0;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: clamp(20px, 3.4vw, 31px);
+  line-height: 1.18;
+  text-transform: none;
+  letter-spacing: 0;
+  text-wrap: pretty;
+  color: #fff;
+}
+
+.modalTitleDot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #ff3030;
+  margin-top: 10px;
+}
+
+.modalSubtitle {
+  margin: 10px 0 0;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 100%;
+}
+
+.modalTopRule,
+.modalBottomRule {
+  width: min(920px, calc(100% - 44px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.modalTopRule::after,
+.modalBottomRule::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  border-top: 3px solid #e7131a;
+  opacity: 1;
+}
+
+.modalTopRule {
+  padding-top: 24px;
+}
+
+.modalBottomRule {
+  padding-bottom: 24px;
+}
+
+.modalKicker {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  background: #020202;
+  padding-right: 12px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #fff;
+}
+
+.modalBody {
+  margin: 0 auto;
+  max-width: 640px;
+  padding: 18px 18px 34px;
+  border-left: 1px solid rgb(239, 243, 244);
+  border-right: 1px solid rgb(239, 243, 244);
+  font-family: inherit;
+}
+
+.paywallModal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, calc(100% - 24px));
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  padding: 22px 16px 16px;
+}
+
+.paywallTitle {
+  margin: 0 0 6px;
+  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
+  font-weight: 400;
+  font-size: clamp(30px, 4vw, 40px);
+  line-height: 1.05;
+  color: #151515;
+}
+
+.paywallSubtitle {
+  margin: 0;
+  font-family: "AGaramondPro", serif;
+  font-size: clamp(18px, 2.3vw, 24px);
+  line-height: 1.35;
+  color: #2a2a2a;
+}
+
+.paywallMethods {
+  margin: 10px 0 14px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #666;
+}
+
+.packageGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.packageBtn {
+  border: 1px solid #e7131a;
+  background: #fff;
+  color: #181818;
+  text-align: left;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+}
+
+.packageBtn:hover {
+  background: #fff4f4;
+}
+
+.packageBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.packageName {
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.packageCoins {
+  font-family: "AGaramondPro", serif;
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.packagePrice {
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  color: #333;
+}
+
+.paywallError {
+  margin: 12px 0 0;
+  color: #b02a2a;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+}
+
+.paywallHint {
+  margin: 12px 0 0;
+  color: #555;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.articleContent {
+  position: relative;
+  min-width: 0;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: rgb(0, 0, 0);
+  font-feature-settings: "ss01" on;
+  text-align: inherit;
+  word-wrap: break-word;
+}
+
+.articleContent div {
+  display: contents;
+}
+
+.articleContent p,
+.modalParagraph {
+  position: relative;
+  min-width: 0;
+  margin: 0 0 12px;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: rgb(0, 0, 0);
+  text-align: inherit;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.articleContent h1,
+.articleContent h2,
+.articleContent h3,
+.articleContent .article-subtitle {
+  margin: 24px 0 10px;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: rgb(0, 0, 0);
+  text-wrap: pretty;
+}
+
+.articleContent h1 {
+  font-size: clamp(26px, 3.4vw, 36px);
+  line-height: 1.16;
+  font-weight: 800;
+}
+
+.articleContent h2,
+.articleContent .article-subtitle {
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.22;
+}
+
+.articleContent h3 {
+  font-size: clamp(20px, 2vw, 24px);
+  line-height: 1.28;
+}
+
+.articleContent h2:first-child,
+.articleContent h3:first-child,
+.articleContent p:first-child,
+.articleContent blockquote:first-child {
+  margin-top: 0;
+}
+
+.articleContent ul,
+.articleContent ol {
+  margin: 14px 0 18px;
+  padding-left: 1.35em;
+  font-size: 18px;
+  line-height: 26px;
+  color: rgb(0, 0, 0);
+}
+
+.articleContent li {
+  margin: 6px 0;
+  padding-left: 0.15em;
+}
+
+.articleContent li::marker {
+  color: rgb(83, 100, 113);
+  font-weight: 700;
+}
+
+.articleContent blockquote,
+.articleContent .article-quote {
+  position: relative;
+  min-width: 0;
+  margin: 28px calc(50% - 50vw);
+  padding: 82px max(26px, calc((100vw - 760px) / 2 + 26px)) 76px;
+  background: #000;
+  border: 0;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: clamp(22px, 2.8vw, 30px);
+  line-height: 1.32;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: #fff;
+  text-align: center;
+  text-transform: none;
+  word-wrap: break-word;
+}
+
+.articleContent blockquote::before,
+.articleContent .article-quote::before {
+  content: "Mohamed Royal";
+  position: absolute;
+  top: 28px;
+  left: max(26px, calc((100vw - 760px) / 2 + 26px));
+  right: max(26px, calc((100vw - 760px) / 2 + 26px));
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: clamp(18px, 3vw, 36px);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-align: left;
+  text-transform: uppercase;
+  color: transparent;
+  background:
+    linear-gradient(90deg, #ff3434 0 38%, #fff 38% 100%) left center / min(430px, 48vw) 100% no-repeat,
+    linear-gradient(#ff3434, #ff3434) right center / calc(100% - min(445px, 49vw)) 4px no-repeat;
+  -webkit-background-clip: text, border-box;
+  background-clip: text, border-box;
+}
+
+.articleContent blockquote::after,
+.articleContent .article-quote::after {
+  content: "Gift Notes";
+  position: absolute;
+  left: max(26px, calc((100vw - 760px) / 2 + 26px));
+  right: max(26px, calc((100vw - 760px) / 2 + 26px));
+  bottom: 28px;
+  border-top: 4px solid #ff3434;
+  padding-top: 12px;
+  font-size: clamp(18px, 2.8vw, 34px);
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.articleContent blockquote p {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+.articleContent .inline-highlight {
+  background: #ffe36d;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.12em;
+}
+
+.articleContent strong {
+  font-weight: 700;
+}
+
+.articleContent em {
+  font-style: italic;
+}
+
+.articleContent a {
+  color: rgb(29, 155, 240);
+  text-decoration: none;
+}
+
+.articleContent a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+.previewGate {
+  position: relative;
+  margin: 16px 0 20px;
+  padding: 20px 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(231, 19, 26, 0.26), transparent 32%),
+    #0c0c0c;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  text-align: center;
+  overflow: hidden;
+}
+
+.previewGate::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -92px;
+  height: 92px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 82%);
+}
+
+.previewGateKicker {
+  margin: 0 0 8px;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.previewGateTitle {
+  margin: 0;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+  color: #fff;
+  text-wrap: pretty;
+}
+
+.previewGateText {
+  margin: 10px auto 18px;
+  max-width: 520px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.previewGateButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  background: #fff;
+  color: #111;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  transition: transform 140ms ease, background 140ms ease, opacity 140ms ease;
+}
+
+.previewGateButton:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.previewGateButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+}
+
+.previewGateButtonIcon,
+.googleIcon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.previewGateButtonIcon {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.modalAuthor {
+  margin: 4px 0 12px;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgb(83, 100, 113);
+}
+
+.shareRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid rgb(239, 243, 244);
+}
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgb(207, 217, 222);
+  background: #fff;
+  color: rgb(15, 20, 25);
+  text-decoration: none;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.shareIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.readerPrompt {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 7;
+  width: min(390px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid rgba(15, 20, 25, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 60px rgba(15, 20, 25, 0.18);
+  backdrop-filter: blur(18px);
+  color: rgb(15, 20, 25);
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  animation: promptSlideUp 180ms ease-out both;
+}
+
+.readerPromptClose {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 20, 25, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: rgb(83, 100, 113);
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(15, 20, 25, 0.16);
+}
+
+.readerPromptCloseIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.readerPromptIcon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(231, 19, 26, 0.18), rgba(29, 155, 240, 0.14)),
+    #fff5f5;
+  color: #e7131a;
+}
+
+.readerPromptSparkle {
+  width: 19px;
+  height: 19px;
+}
+
+.readerPromptCopy {
+  min-width: 0;
+}
+
+.readerPromptKicker {
+  margin: 0 0 2px;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 800;
+  color: rgb(15, 20, 25);
+}
+
+.readerPromptText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 17px;
+  font-weight: 400;
+  color: rgb(83, 100, 113);
+}
+
+.readerPromptActions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.readerPromptCancel,
+.readerPromptButton {
+  min-height: 36px;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, opacity 120ms ease;
+}
+
+.readerPromptCancel {
+  border: 1px solid rgb(207, 217, 222);
+  background: #fff;
+  color: rgb(15, 20, 25);
+}
+
+.readerPromptCancel:hover {
+  background: rgb(247, 249, 249);
+}
+
+.readerPromptButton {
+  border: 0;
+  background: rgb(15, 20, 25);
+  color: #fff;
+}
+
+.readerPromptButton:hover {
+  background: #e7131a;
+  transform: translateY(-1px);
+}
+
+.readerPromptButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+}
+
+@keyframes promptSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.footer {
+  margin-top: 42px;
+  background: #0b0b0b;
+  color: #fff;
+  padding: 28px 18px 16px;
+}
+
+.footerSignature {
+  margin: 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  color: #d4d4d4;
+}
+
+.footerTop {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 22px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.footerCol {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.footerHead {
+  margin: 0 0 4px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+}
+
+.footerLink {
+  text-decoration: none;
+  font-family: "AGaramondPro", serif;
+  font-size: 15px;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.footerLink:hover {
+  color: #fff;
+}
+
+.footerBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+  padding-top: 12px;
+}
+
+.footerMeta {
+  margin: 0;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #c4c4c4;
+}
+
+@media (max-width: 1023px) {
+  .loadingShell,
+  .leadSection {
+    grid-template-columns: 1fr;
   }
 
-  const textOnly = normalizedHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  return textOnly ? `<p>${escapeHtml(textOnly.slice(0, 700))}</p>` : "";
+  .river {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footerTop {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-function GoogleIcon() {
-  return (
-    <svg className={styles.googleIcon} viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-.97 2.48-1.94 3.21v2.75h3.57c2.08-1.92 3.28-4.74 3.28-7.97z" />
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.75c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-    </svg>
-  );
+@media (max-width: 640px) {
+  .page {
+    padding: 10px 14px 50px;
+  }
+
+  .loadingShell {
+    gap: 18px;
+    padding: 20px 0 24px;
+  }
+
+  .loadingImage {
+    min-height: 220px;
+  }
+
+  .authBar {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .river {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .footerTop {
+    grid-template-columns: 1fr;
+  }
+
+  .modalTitleWrap {
+    padding: 96px 14px 18px;
+  }
+
+  .modalHeader {
+    min-height: 340px;
+  }
+
+  .modalBody {
+    border-left: 0;
+    border-right: 0;
+    padding: 20px 16px 28px;
+  }
+
+  .articleContent blockquote,
+  .articleContent .article-quote {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 76px 18px 72px;
+    font-size: 21px;
+    line-height: 28px;
+  }
+
+  .articleContent blockquote::before,
+  .articleContent .article-quote::before {
+    left: 18px;
+    right: 18px;
+    top: 24px;
+    gap: 10px;
+    background:
+      linear-gradient(90deg, #ff3434 0 38%, #fff 38% 100%) left center / min(285px, 72vw) 100% no-repeat,
+      linear-gradient(#ff3434, #ff3434) right center / calc(100% - min(298px, 74vw)) 3px no-repeat;
+  }
+
+  .articleContent blockquote::after,
+  .articleContent .article-quote::after {
+    left: 18px;
+    right: 18px;
+    bottom: 24px;
+    border-top-width: 3px;
+  }
+
+  .readerPrompt {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    grid-template-columns: auto 1fr;
+    padding: 12px;
+  }
+
+  .readerPromptActions {
+    width: 100%;
+  }
+
+  .readerPromptCancel,
+  .readerPromptButton {
+    flex: 1;
+  }
 }
 
-export default function HomePage() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [pendingArticleId, setPendingArticleId] = useState<string | null>(null);
-  const [entries, setEntries] = useState<Entry[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  const [signingOut, setSigningOut] = useState(false);
-  const [signingIn, setSigningIn] = useState(false);
-  const [origin, setOrigin] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [coinBalance, setCoinBalance] = useState(0);
-  const [freeReadIds, setFreeReadIds] = useState<string[]>([]);
-  const [walletLoaded, setWalletLoaded] = useState(false);
-  const [paywallOpen, setPaywallOpen] = useState(false);
-  const [shareOpenedId, setShareOpenedId] = useState<string | null>(null);
-  const auth = useAuth();
-  const firestore = useFirestore();
-  const { user, isUserLoading } = useUser();
-  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mohamedroyal.com";
+@media (prefers-reduced-motion: reduce) {
+  .loadingImage,
+  .loadingLineWide,
+  .loadingLine,
+  .loadingLineShort,
+  .previewGateButtonIcon {
+    animation: none;
+  }
 
-  const trackEvent = async (
-    articleId: string | null,
-    eventType: "open_modal" | "share_click" | "open_share_link" | "page_view",
-    options?: { pageUrl?: string; referrer?: string; source?: string }
-  ) => {
-    try {
-      const payload: Record<string, unknown> = {
-        eventType,
-        source: options?.source || "home",
-      };
-      if (articleId) payload.articleId = articleId;
-      if (options?.pageUrl) payload.pageUrl = options.pageUrl;
-      if (options?.referrer) payload.referrer = options.referrer;
-
-      await fetch("/api/analytics/track", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        keepalive: true,
-        body: JSON.stringify(payload),
-      });
-    } catch {
-      // swallow analytics errors so UI remains smooth
-    }
-  };
-
-  useEffect(() => {
-    const pageUrl = window.location.href;
-    const referrer = document.referrer || "";
-    void trackEvent(null, "page_view", {
-      pageUrl,
-      referrer,
-      source: referrer ? "referral" : "direct",
-    });
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-    try {
-      const cachedRaw = localStorage.getItem(POSTS_CACHE_KEY);
-      if (cachedRaw) {
-        const cached = JSON.parse(cachedRaw) as ApiPost[];
-        if (Array.isArray(cached) && cached.length > 0) {
-          setEntries(cached.map(mapApiPost));
-          setLoaded(true);
-        }
-      }
-    } catch {
-      // ignore malformed cache
-    }
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-
-    fetch("/api/myblog-posts", { cache: "no-store", signal: controller.signal })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data: ApiPost[]) => {
-        if (!mounted) return;
-        if (Array.isArray(data) && data.length > 0) {
-          const sorted = [...data].sort(
-            (a: any, b: any) => Number(b?.createdAt || 0) - Number(a?.createdAt || 0)
-          );
-          setEntries(sorted.map(mapApiPost));
-          try {
-            localStorage.setItem(POSTS_CACHE_KEY, JSON.stringify(sorted));
-          } catch {
-            // ignore cache write errors
-          }
-        } else if (entries.length === 0) {
-          setEntries([]);
-        }
-      })
-      .catch(() => {
-        // Keep cached posts on screen if a refresh has a temporary API/server issue.
-      })
-      .finally(() => {
-        clearTimeout(timeout);
-        if (mounted) setLoaded(true);
-      });
-    return () => {
-      mounted = false;
-      clearTimeout(timeout);
-      controller.abort();
-    };
-  }, []);
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  useEffect(() => {
-    if (!user?.uid) {
-      setCoinBalance(0);
-      setFreeReadIds([]);
-      setWalletLoaded(true);
-      return;
-    }
-    setWalletLoaded(false);
-    const userRef = doc(firestore, "users", user.uid);
-    const unsub = onSnapshot(
-      userRef,
-      (snap) => {
-        const data = snap.data() as { coins?: number; freeArticleReads?: unknown } | undefined;
-        setCoinBalance(Number(data?.coins || 0));
-        const reads = Array.isArray(data?.freeArticleReads)
-          ? data.freeArticleReads.filter((v): v is string => typeof v === "string")
-          : [];
-        setFreeReadIds(reads);
-        setWalletLoaded(true);
-      },
-      () => {
-        setCoinBalance(0);
-        setFreeReadIds([]);
-        setWalletLoaded(true);
-      }
-    );
-    return () => unsub();
-  }, [firestore, user?.uid]);
-
-  const markFreeRead = async (articleId: string) => {
-    if (!user?.uid) return;
-    const userRef = doc(firestore, "users", user.uid);
-    try {
-      await updateDoc(userRef, { freeArticleReads: arrayUnion(articleId) });
-    } catch {
-      await setDoc(userRef, { freeArticleReads: [articleId] }, { merge: true });
-    }
-  };
-
-  useEffect(() => {
-    if (!selectedId) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("ref") !== "share") return;
-    const key = `share_open_tracked_${selectedId}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-    void trackEvent(selectedId, "open_share_link");
-  }, [selectedId]);
-
-  const lead = entries[0];
-  const river = entries.slice(1);
-  const selected = useMemo(
-    () => entries.find((item) => item.id === selectedId) ?? null,
-    [entries, selectedId]
-  );
-  const selectedArticleHtml = useMemo(
-    () => (selected ? normalizeArticleHtml(selected.bodyHtml) : ""),
-    [selected]
-  );
-  const selectedPreviewHtml = useMemo(
-    () => getArticlePreviewHtml(selectedArticleHtml),
-    [selectedArticleHtml]
-  );
-  const visibleArticleHtml = user ? selectedArticleHtml : selectedPreviewHtml;
-  const shareUrl = useMemo(() => {
-    if (!selected) return "";
-    const base = publicSiteUrl || origin;
-    if (!base) return "";
-    return `${base.replace(/\/+$/, "")}/share/${encodeURIComponent(selected.id)}`;
-  }, [origin, publicSiteUrl, selected]);
-  const shareText = useMemo(() => (selected ? `${selected.title} - ${selected.subtitle}` : ""), [selected]);
-
-  const handleCopyLink = async () => {
-    if (!shareUrl) return;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      if (selected?.id) {
-        void trackEvent(selected.id, "share_click");
-      }
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    } catch {
-      setCopied(false);
-    }
-  };
-
-  const trackShareClick = () => {
-    if (selected?.id) void trackEvent(selected.id, "share_click");
-  };
-
-  const handleInstagramShare = async () => {
-    await handleCopyLink();
-    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
-  };
-
-  const handleGoogleSignIn = async () => {
-    if (!auth) return;
-    setSigningIn(true);
-    try {
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      await ensureUserWalletProfile(firestore, result.user.uid, result.user.email, {
-        displayName: result.user.displayName,
-        photoURL: result.user.photoURL,
-      });
-      toast({ title: "Welcome back", description: "You can continue reading now." });
-    } catch (error: any) {
-      if (error?.code !== "auth/popup-closed-by-user") {
-        toast({
-          title: "Sign in failed",
-          description: error?.message || "Could not sign in. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setSigningIn(false);
-    }
-  };
-
-  const openArticle = (articleId: string) => {
-    if (!user) {
-      setSelectedId(articleId);
-      void trackEvent(articleId, "open_modal");
-      return;
-    }
-    const hasFreeRead = freeReadIds.includes(articleId);
-    const freeReadsUsed = freeReadIds.length;
-    const hasFreeReadsLeft = freeReadsUsed < 3;
-
-    if (coinBalance <= 0 && !hasFreeRead && !hasFreeReadsLeft) {
-      setPendingArticleId(articleId);
-      setPaywallOpen(true);
-      return;
-    }
-
-    if (coinBalance <= 0 && !hasFreeRead && hasFreeReadsLeft) {
-      void markFreeRead(articleId);
-    }
-
-    setSelectedId(articleId);
-    void trackEvent(articleId, "open_modal");
-  };
-
-  useEffect(() => {
-    if (entries.length === 0 || selectedId || isUserLoading || !walletLoaded) return;
-    const params = new URLSearchParams(window.location.search);
-    const queryPost = params.get("post");
-    if (!queryPost || queryPost === shareOpenedId) return;
-    const match = entries.find((item) => item.id === queryPost);
-    if (match) {
-      setShareOpenedId(match.id);
-      openArticle(match.id);
-    }
-  }, [entries, selectedId, isUserLoading, walletLoaded, shareOpenedId, user, coinBalance, freeReadIds]);
-
-  return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.statusRow}>
-          <span className={styles.statusPill}>
-            <ShieldCheck className={styles.statusIcon} />
-            Protected
-          </span>
-          <span className={styles.statusPill}>
-            <UserRound className={styles.statusIcon} />
-            {user ? "Signed in" : "Guest"}
-          </span>
-          {user ? (
-            <>
-              <span className={styles.statusPill}>
-                <Coins className={styles.statusIcon} />
-                Coins: {coinBalance}
-              </span>
-              <span className={styles.statusPill}>
-                Free reads left: {Math.max(0, 3 - freeReadIds.length)}
-              </span>
-              <button
-                type="button"
-                className={styles.topUpStatusButton}
-                onClick={() => {
-                  setPendingArticleId(null);
-                  setPaywallOpen(true);
-                }}
-              >
-                <Coins className={styles.statusIcon} />
-                Top up
-              </button>
-            </>
-          ) : null}
-        </div>
-        <div className={styles.authBar}>
-          <h1 className={styles.brand}>Mohamed Royal</h1>
-          {isUserLoading ? <span className={styles.authText}>Checking account...</span> : null}
-          {user ? (
-            <button
-              type="button"
-              className={styles.authBtn}
-              disabled={signingOut}
-              onClick={async () => {
-                try {
-                  setSigningOut(true);
-                  await signOut(auth);
-                } finally {
-                  setSigningOut(false);
-                }
-              }}
-            >
-              {signingOut ? "Signing out..." : "Sign out"}
-            </button>
-          ) : (
-            <Link href="/signin" className={styles.authBtnLink}>
-              Sign in
-            </Link>
-          )}
-        </div>
-      </header>
-
-      {!lead ? (
-        <p className={styles.emptyState}>{loaded ? "Posts will appear shortly." : "Loading posts..."}</p>
-      ) : (
-        <>
-          <section className={styles.leadSection}>
-            <div className={styles.creditPanel}>
-              {lead.featuredImageUrl ? (
-                <img src={lead.featuredImageUrl} alt={lead.title} className={styles.featureImage} />
-              ) : (
-                lead.credit ? <p className={styles.credit}>{lead.credit}</p> : null
-              )}
-            </div>
-            <article>
-              <p className={styles.sectionLabel}>Ideas</p>
-              <button
-                type="button"
-                onClick={() => openArticle(lead.id)}
-                className={styles.leadTitle}
-              >
-                {lead.title}
-              </button>
-              <p className={styles.leadSubtitle}>{lead.subtitle}</p>
-              <p className={styles.author}>{lead.author}</p>
-              <button
-                type="button"
-                onClick={() => openArticle(lead.id)}
-                className={styles.readMore}
-              >
-                Read more
-              </button>
-              {!user ? (
-                <p className={styles.gateHint}>
-                  <Lock className={styles.gateHintIcon} />
-                  Sign in to read full article
-                </p>
-              ) : null}
-            </article>
-          </section>
-
-          <section className={styles.river}>
-            {river.map((post) => (
-              <article key={post.id} className={styles.card}>
-                {post.featuredImageUrl ? (
-                  <button
-                    type="button"
-                    onClick={() => openArticle(post.id)}
-                    className={styles.cardImageButton}
-                  >
-                    <img src={post.featuredImageUrl} alt={post.title} className={styles.cardImage} />
-                  </button>
-                ) : (
-                  post.credit ? <p className={styles.credit}>{post.credit}</p> : null
-                )}
-                <p className={styles.sectionLabel}>Notes</p>
-                <button
-                  type="button"
-                  onClick={() => openArticle(post.id)}
-                  className={styles.cardTitle}
-                >
-                  {post.title}
-                </button>
-                <p className={styles.cardSubtitle}>{post.subtitle}</p>
-                {post.author ? <p className={styles.author}>{post.author}</p> : null}
-                <button
-                  type="button"
-                  onClick={() => openArticle(post.id)}
-                  className={styles.readMore}
-                >
-                  Read more
-                </button>
-                {!user ? (
-                  <p className={styles.gateHint}>
-                    <Lock className={styles.gateHintIcon} />
-                    Sign in required
-                  </p>
-                ) : null}
-              </article>
-            ))}
-          </section>
-        </>
-      )}
-
-      <div className={`${styles.modalRoot} ${selected ? styles.modalOpen : ""}`} aria-hidden={!selected}>
-        <div onClick={() => setSelectedId(null)} className={styles.backdrop} />
-        <section role="dialog" aria-modal="true" className={styles.modal}>
-          <button type="button" onClick={() => setSelectedId(null)} className={styles.close} aria-label="Close article">
-            <X className={styles.closeIcon} />
-          </button>
-
-          {selected ? (
-            <article className={styles.modalArticle}>
-              <header
-                className={styles.modalHeader}
-                style={
-                  selected.featuredImageUrl
-                    ? { backgroundImage: `url("${selected.featuredImageUrl}")` }
-                    : undefined
-                }
-              >
-                <div className={styles.modalTopRule}>
-                  <span className={styles.modalKicker}>Royal Notes</span>
-                </div>
-                <div className={styles.modalTitleWrap}>
-                  <h2 className={styles.modalTitle}>{selected.title}</h2>
-                  <span className={styles.modalTitleDot} aria-hidden="true" />
-                  <p className={styles.modalSubtitle}>{selected.subtitle}</p>
-                </div>
-                <div className={styles.modalBottomRule} />
-              </header>
-              <div className={styles.modalBody}>
-                <div
-                  className={styles.articleContent}
-                  dangerouslySetInnerHTML={{ __html: visibleArticleHtml }}
-                />
-                {!user ? (
-                  <div className={styles.previewGate}>
-                    <p className={styles.previewGateKicker}>Continue Reading</p>
-                    <h3 className={styles.previewGateTitle}>Sign in to access the full article.</h3>
-                    <p className={styles.previewGateText}>
-                      Preview is available for guests. Use Google sign-in to continue reading the full story.
-                    </p>
-                    <button
-                      type="button"
-                      className={styles.previewGateButton}
-                      onClick={handleGoogleSignIn}
-                      disabled={signingIn}
-                    >
-                      {signingIn ? <Loader2 className={styles.previewGateButtonIcon} /> : <GoogleIcon />}
-                      {signingIn ? "Signing in..." : "Sign in with Gmail"}
-                    </button>
-                  </div>
-                ) : null}
-                <p className={styles.modalAuthor}>Royal Notes</p>
-                <div className={styles.shareRow}>
-                  <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
-                    <Copy className={styles.shareIcon} />
-                    {copied ? "Copied" : "Copy Link"}
-                  </button>
-                  <a
-                    className={styles.shareBtn}
-                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={trackShareClick}
-                  >
-                    Facebook
-                  </a>
-                  <a
-                    className={styles.shareBtn}
-                    href={`https://wa.me/?text=${encodeURIComponent(`${shareText} ${shareUrl}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={trackShareClick}
-                  >
-                    WhatsApp
-                  </a>
-                  <a
-                    className={styles.shareBtn}
-                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={trackShareClick}
-                  >
-                    Twitter
-                  </a>
-                  <a
-                    className={styles.shareBtn}
-                    href={`https://www.snapchat.com/scan?attachmentUrl=${encodeURIComponent(shareUrl)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={trackShareClick}
-                  >
-                    Snapchat
-                  </a>
-                  <button
-                    type="button"
-                    className={styles.shareBtn}
-                    onClick={handleInstagramShare}
-                  >
-                    Instagram
-                  </button>
-                </div>
-              </div>
-            </article>
-          ) : null}
-        </section>
-      </div>
-
-      <TopUpDialog
-        open={paywallOpen}
-        onOpenChange={(open) => {
-          setPaywallOpen(open);
-          if (!open) setPendingArticleId(null);
-        }}
-        userId={user?.uid || ""}
-        userEmail={user?.email || null}
-        userDisplayName={user?.displayName || null}
-        userPhotoURL={user?.photoURL || null}
-        currentCoins={coinBalance}
-        onCoinsUpdated={(nextCoins) => setCoinBalance(nextCoins)}
-        onSuccess={() => {
-          if (pendingArticleId) {
-            setSelectedId(pendingArticleId);
-            void trackEvent(pendingArticleId, "open_modal");
-            setPendingArticleId(null);
-          }
-        }}
-      />
-
-      <footer className={styles.footer}>
-        <div className={styles.footerBottom}>
-          <p className={styles.footerMeta}>Privacy Policy</p>
-          <p className={styles.footerMeta}>Terms & Conditions</p>
-          <p className={styles.footerMeta}>Site Map</p>
-          <p className={styles.footerSignature}>mohamedroyal.com © 2026 Mohamed Royal</p>
-        </div>
-      </footer>
-    </main>
-  );
+  .featureImage,
+  .cardImage,
+  .readMore,
+  .modal,
+  .backdrop,
+  .readerPrompt,
+  .readerPromptCancel,
+  .readerPromptButton {
+    transition: none;
+    animation: none;
+  }
 }
