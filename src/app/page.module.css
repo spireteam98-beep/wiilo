@@ -110,11 +110,79 @@
   color: #171717;
   background: #fff;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .headerMenuLink:hover {
   border-color: #e7131a;
   color: #e7131a;
+}
+
+.podcastNoticeLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: start end;
+  padding: 84px 24px 24px;
+  background: rgba(15, 20, 25, 0.18);
+  backdrop-filter: blur(2px);
+}
+
+.podcastNotice {
+  position: relative;
+  width: min(320px, calc(100vw - 32px));
+  border: 1px solid rgba(15, 20, 25, 0.12);
+  border-radius: 8px;
+  padding: 18px 42px 18px 18px;
+  background: #fff;
+  box-shadow: 0 18px 42px rgba(15, 20, 25, 0.2);
+  color: rgb(15, 20, 25);
+}
+
+.podcastNoticeKicker {
+  margin: 0 0 6px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #e7131a;
+}
+
+.podcastNoticeTitle {
+  margin: 0;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 800;
+  color: rgb(15, 20, 25);
+}
+
+.podcastNoticeClose {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgb(83, 100, 113);
+  cursor: pointer;
+}
+
+.podcastNoticeClose:hover {
+  background: rgba(15, 20, 25, 0.06);
+  color: rgb(15, 20, 25);
+}
+
+.podcastNoticeCloseIcon {
+  width: 16px;
+  height: 16px;
 }
 
 .brand {

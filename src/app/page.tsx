@@ -121,6 +121,7 @@ export default function HomePage() {
   const [shareOpenedId, setShareOpenedId] = useState<string | null>(null);
   const [readerPromptVisible, setReaderPromptVisible] = useState(false);
   const [readerPromptDismissed, setReaderPromptDismissed] = useState(false);
+  const [podcastNoticeOpen, setPodcastNoticeOpen] = useState(false);
   const modalArticleRef = useRef<HTMLElement | null>(null);
   const auth = useAuth();
   const firestore = useFirestore();
@@ -460,9 +461,13 @@ export default function HomePage() {
           <h1 className={styles.brand}>Mohamed Royal</h1>
           <div className={styles.headerActions}>
             <nav className={styles.headerMenu} aria-label="Primary">
-              <Link href="/sounds" className={styles.headerMenuLink}>
+              <button
+                type="button"
+                className={styles.headerMenuLink}
+                onClick={() => setPodcastNoticeOpen(true)}
+              >
                 Podcast
-              </Link>
+              </button>
             </nav>
             {isUserLoading ? <span className={styles.authText}>Checking account...</span> : null}
             {user ? (
@@ -746,6 +751,31 @@ export default function HomePage() {
           ) : null}
         </section>
       </div>
+
+      {podcastNoticeOpen ? (
+        <div className={styles.podcastNoticeLayer} role="presentation" onClick={() => setPodcastNoticeOpen(false)}>
+          <section
+            className={styles.podcastNotice}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="podcast-notice-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              className={styles.podcastNoticeClose}
+              onClick={() => setPodcastNoticeOpen(false)}
+              aria-label="Close podcast message"
+            >
+              <X className={styles.podcastNoticeCloseIcon} />
+            </button>
+            <p className={styles.podcastNoticeKicker}>Podcast</p>
+            <h2 id="podcast-notice-title" className={styles.podcastNoticeTitle}>
+              Goordhow Filow
+            </h2>
+          </section>
+        </div>
+      ) : null}
 
       <TopUpDialog
         open={paywallOpen}
