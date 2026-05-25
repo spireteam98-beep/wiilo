@@ -602,8 +602,8 @@ export default function HomePage() {
                   <div className={`${styles.modalTitleWrap} ArticleHero_title__PQ4pC`}>
                     <h1 className={`${styles.modalTitle} ArticleTitle_root__VrZaG`} data-flatplan-title="true">{selected.title}</h1>
                   </div>
-                  <div className={`${styles.modalDek} ArticleHero_dek__EqdkK WritersWayArticleHero_dek__slScP`} data-flatplan-description="true">
-                    <p className={`${styles.modalSubtitle} ArticleDek_root__P3leE WritersWayArticleHero_dek__slScP`}>{selected.subtitle}</p>
+                  <div className={`${styles.modalDek} ArticleHero_dek__EqdkK`} data-flatplan-description="true">
+                    <p className={`${styles.modalSubtitle} ArticleDek_root__P3leE`}>{selected.subtitle}</p>
                   </div>
                   <div className={`${styles.modalByline} ArticleHero_byline__iFT6A`}>
                     <div className="ArticleBylines_root__IBR5V">
