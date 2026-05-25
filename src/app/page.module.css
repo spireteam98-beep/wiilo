@@ -4,6 +4,7 @@
   padding: 10px 18px 64px;
   color: #121212;
   background: #fff;
+  text-rendering: optimizeLegibility;
 }
 
 .header {
@@ -80,6 +81,42 @@
   gap: 12px;
 }
 
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: 0;
+}
+
+.headerMenu {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerMenuLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 31px;
+  border: 1px solid #d7d7d7;
+  padding: 7px 12px;
+  font-family: "Logic Monospace", monospace;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #171717;
+  background: #fff;
+  text-decoration: none;
+}
+
+.headerMenuLink:hover {
+  border-color: #e7131a;
+  color: #e7131a;
+}
+
 .brand {
   margin: 0;
   font-family: "Atlantic Serif", serif;
@@ -115,11 +152,83 @@
   cursor: not-allowed;
 }
 
+.authBtn:focus-visible,
+.authBtnLink:focus-visible,
+.headerMenuLink:focus-visible,
+.leadTitle:focus-visible,
+.cardTitle:focus-visible,
+.readMore:focus-visible,
+.cardImageButton:focus-visible,
+.close:focus-visible,
+.shareBtn:focus-visible,
+.previewGateButton:focus-visible,
+.readerPromptButton:focus-visible,
+.readerPromptCancel:focus-visible,
+.readerPromptClose:focus-visible {
+  outline: 2px solid rgb(29, 155, 240);
+  outline-offset: 3px;
+}
+
 .emptyState {
   margin: 28px 0 18px;
   font-family: "AGaramondPro", serif;
   font-size: clamp(22px, 4vw, 28px);
   line-height: 1.22;
+}
+
+.loadingShell {
+  margin-top: 24px;
+  border-top: 2px solid #171717;
+  border-bottom: 1px solid #d7d7d7;
+  padding: 26px 0 30px;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 34px;
+  align-items: start;
+}
+
+.loadingImage,
+.loadingLineWide,
+.loadingLine,
+.loadingLineShort {
+  display: block;
+  background: linear-gradient(90deg, #f0f0f0 0%, #fafafa 48%, #eeeeee 100%);
+  background-size: 220% 100%;
+  animation: shimmer 1.1s ease-in-out infinite;
+}
+
+.loadingImage {
+  min-height: 300px;
+}
+
+.loadingCopy {
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.loadingLineWide {
+  height: 44px;
+  width: 94%;
+}
+
+.loadingLine {
+  height: 26px;
+  width: 78%;
+}
+
+.loadingLineShort {
+  height: 18px;
+  width: 42%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
 }
 
 .leadSection {
@@ -137,6 +246,7 @@
   min-height: 300px;
   background: #f7f3ec;
   overflow: hidden;
+  contain: layout paint;
 }
 
 .featureImage {
@@ -179,6 +289,12 @@
   line-height: 1.08;
   margin: 0 0 12px;
   text-wrap: pretty;
+  transition: color 120ms ease;
+}
+
+.leadTitle:hover,
+.cardTitle:hover {
+  color: #b02a2a;
 }
 
 .leadSubtitle {
@@ -187,6 +303,7 @@
   font-size: clamp(22px, 2.7vw, 27px);
   line-height: 1.3;
   color: #1e1e1e;
+  max-width: 62ch;
 }
 
 .author {
@@ -200,14 +317,27 @@
   margin-top: 16px;
   border: 1px solid #e7131a;
   background: #e7131a;
-  border-radius: 0;
-  padding: 7px 12px;
-  font-family: "Logic Monospace", monospace;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 9px 15px;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
   color: #fff;
   cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.readMore:hover {
+  background: #c90f15;
+  border-color: #c90f15;
+  transform: translateY(-1px);
+}
+
+.readMore:active {
+  transform: translateY(0);
 }
 
 .gateHint {
@@ -230,13 +360,16 @@
 .river {
   margin-top: 28px;
   display: grid;
-  gap: 34px 42px;
+  gap: 38px 42px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .card {
   border-top: 1px solid #d8d8d8;
   padding-top: 16px;
+  contain: content;
+  content-visibility: auto;
+  contain-intrinsic-size: 420px;
 }
 
 .cardImageButton {
@@ -249,6 +382,7 @@
   background: #f7f3ec;
   overflow: hidden;
   cursor: pointer;
+  contain: layout paint;
 }
 
 .cardImage {
@@ -273,6 +407,7 @@
   font-size: clamp(19px, 2.2vw, 23px);
   line-height: 1.3;
   color: #1f1f1f;
+  max-width: 58ch;
 }
 
 .modalRoot {
@@ -304,7 +439,9 @@
   inset: 0;
   width: 100%;
   transform: translateY(10px);
-  background: #fefcf7;
+  background: #fff;
+  color: rgb(15, 20, 25);
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   padding: 0;
   opacity: 0;
   transition: transform 0.12s ease, opacity 0.12s ease;
@@ -336,11 +473,13 @@
 .modalArticle {
   height: 100vh;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-color: rgb(185, 202, 211) rgb(247, 249, 249);
 }
 
 .modalHeader {
   position: relative;
-  min-height: 76vh;
+  min-height: min(520px, 58vh);
   display: grid;
   grid-template-rows: auto 1fr auto;
   overflow: hidden;
@@ -363,27 +502,29 @@
   position: relative;
   z-index: 2;
   width: 100%;
-  padding: 14vh 22px 26px;
-  max-width: 980px;
+  padding: 14vh 16px 26px;
+  max-width: 600px;
   margin: 0 auto;
   align-self: start;
-  text-align: center;
+  text-align: left;
 }
 
 .modalCredit {
   margin: 0;
-  font-family: "Logic Monospace", monospace;
-  font-size: 11px;
-  line-height: 1.5;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
   color: rgba(255, 255, 255, 0.86);
 }
 
 .modalTitle {
   margin: 0;
-  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
-  font-weight: 700;
-  font-size: clamp(24px, 3.8vw, 48px);
-  line-height: 1;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: clamp(20px, 3.4vw, 31px);
+  line-height: 1.18;
   text-transform: none;
   letter-spacing: 0;
   text-wrap: pretty;
@@ -400,12 +541,14 @@
 }
 
 .modalSubtitle {
-  margin: 18px auto 0;
-  font-family: "AGaramondPro", serif;
-  font-size: clamp(18px, 2.4vw, 24px);
-  line-height: 1.3;
+  margin: 10px 0 0;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
   color: rgba(255, 255, 255, 0.85);
-  max-width: 860px;
+  max-width: 100%;
 }
 
 .modalTopRule,
@@ -442,17 +585,22 @@
   display: inline-block;
   background: #020202;
   padding-right: 12px;
-  font-family: "Logic Monospace", monospace;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
   color: #fff;
 }
 
 .modalBody {
   margin: 0 auto;
-  max-width: 780px;
-  padding: 28px 18px 28px;
+  max-width: 640px;
+  padding: 18px 18px 34px;
+  border-left: 1px solid rgb(239, 243, 244);
+  border-right: 1px solid rgb(239, 243, 244);
+  font-family: inherit;
 }
 
 .paywallModal {
@@ -553,8 +701,13 @@
 }
 
 .articleContent {
-  font-family: "AGaramondPro", serif;
-  color: #171717;
+  position: relative;
+  min-width: 0;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: rgb(0, 0, 0);
+  font-feature-settings: "ss01" on;
+  text-align: inherit;
+  word-wrap: break-word;
 }
 
 .articleContent div {
@@ -563,86 +716,135 @@
 
 .articleContent p,
 .modalParagraph {
-  margin: 0 0 16px;
-  font-family: "AGaramondPro", serif;
-  font-size: clamp(21px, 2.2vw, 27px);
-  line-height: 1.52;
-  color: #171717;
+  position: relative;
+  min-width: 0;
+  margin: 0 0 12px;
+  font-family: inherit;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: rgb(0, 0, 0);
+  text-align: inherit;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.articleContent h1,
+.articleContent h2,
+.articleContent h3,
+.articleContent .article-subtitle {
+  margin: 24px 0 10px;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: rgb(0, 0, 0);
+  text-wrap: pretty;
+}
+
+.articleContent h1 {
+  font-size: clamp(26px, 3.4vw, 36px);
+  line-height: 1.16;
+  font-weight: 800;
 }
 
 .articleContent h2,
 .articleContent .article-subtitle {
-  margin: 34px 0 12px;
-  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
-  font-size: clamp(30px, 3.2vw, 42px);
-  line-height: 1.08;
-  font-weight: 700;
-  color: #111;
-  text-wrap: pretty;
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.22;
+}
+
+.articleContent h3 {
+  font-size: clamp(20px, 2vw, 24px);
+  line-height: 1.28;
 }
 
 .articleContent h2:first-child,
+.articleContent h3:first-child,
 .articleContent p:first-child,
 .articleContent blockquote:first-child {
   margin-top: 0;
 }
 
+.articleContent ul,
+.articleContent ol {
+  margin: 14px 0 18px;
+  padding-left: 1.35em;
+  font-size: 18px;
+  line-height: 26px;
+  color: rgb(0, 0, 0);
+}
+
+.articleContent li {
+  margin: 6px 0;
+  padding-left: 0.15em;
+}
+
+.articleContent li::marker {
+  color: rgb(83, 100, 113);
+  font-weight: 700;
+}
+
 .articleContent blockquote,
 .articleContent .article-quote {
   position: relative;
-  margin: 36px calc(50% - 50vw);
-  padding: clamp(72px, 9vw, 104px) max(28px, calc((100vw - 780px) / 2 + 28px)) clamp(70px, 8vw, 96px);
+  min-width: 0;
+  margin: 28px calc(50% - 50vw);
+  padding: 82px max(26px, calc((100vw - 760px) / 2 + 26px)) 76px;
   background: #000;
   border: 0;
-  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
-  font-size: clamp(28px, 4.8vw, 56px);
-  line-height: 1.24;
-  font-weight: 800;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: clamp(22px, 2.8vw, 30px);
+  line-height: 1.32;
+  font-weight: 700;
   letter-spacing: 0;
   color: #fff;
   text-align: center;
+  text-transform: none;
+  word-wrap: break-word;
 }
 
 .articleContent blockquote::before,
 .articleContent .article-quote::before {
-  content: "Royal";
+  content: "Mohamed Royal";
   position: absolute;
-  left: max(28px, calc((100vw - 780px) / 2 + 28px));
-  right: max(28px, calc((100vw - 780px) / 2 + 28px));
   top: 28px;
+  left: max(26px, calc((100vw - 760px) / 2 + 26px));
+  right: max(26px, calc((100vw - 760px) / 2 + 26px));
   display: flex;
   align-items: center;
   gap: 18px;
-  font-family: "Logic Monospace", monospace;
-  font-size: clamp(18px, 2.8vw, 38px);
+  font-size: clamp(18px, 3vw, 36px);
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.02em;
+  text-align: left;
+  text-transform: uppercase;
   color: transparent;
   background:
-    linear-gradient(90deg, #ff3434 0 36%, #fff 36% 100%) left center / min(435px, 47vw) 100% no-repeat,
-    linear-gradient(#ff3434, #ff3434) right center / calc(100% - min(445px, 46vw)) 4px no-repeat;
+    linear-gradient(90deg, #ff3434 0 38%, #fff 38% 100%) left center / min(430px, 48vw) 100% no-repeat,
+    linear-gradient(#ff3434, #ff3434) right center / calc(100% - min(445px, 49vw)) 4px no-repeat;
   -webkit-background-clip: text, border-box;
   background-clip: text, border-box;
-  text-align: left;
 }
 
 .articleContent blockquote::after,
 .articleContent .article-quote::after {
-  content: "Notes";
+  content: "Gift Notes";
   position: absolute;
-  left: max(28px, calc((100vw - 780px) / 2 + 28px));
-  right: max(28px, calc((100vw - 780px) / 2 + 28px));
+  left: max(26px, calc((100vw - 760px) / 2 + 26px));
+  right: max(26px, calc((100vw - 760px) / 2 + 26px));
   bottom: 28px;
   border-top: 4px solid #ff3434;
   padding-top: 12px;
-  font-family: "Logic Monospace", monospace;
-  font-size: clamp(18px, 2.6vw, 34px);
+  font-size: clamp(18px, 2.8vw, 34px);
   line-height: 1;
   font-weight: 800;
   letter-spacing: 0.01em;
   color: #fff;
   text-align: right;
+  text-transform: uppercase;
 }
 
 .articleContent blockquote p {
@@ -650,6 +852,7 @@
   font-size: inherit;
   line-height: inherit;
   font-weight: inherit;
+  color: inherit;
 }
 
 .articleContent .inline-highlight {
@@ -668,21 +871,27 @@
 }
 
 .articleContent a {
-  color: #b02a2a;
+  color: rgb(29, 155, 240);
+  text-decoration: none;
+}
+
+.articleContent a:hover {
+  text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.15em;
 }
 
 .previewGate {
   position: relative;
-  margin: 24px 0 28px;
-  padding: 28px 24px 24px;
+  margin: 16px 0 20px;
+  padding: 20px 16px 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 28px;
+  border-radius: 16px;
   background:
     radial-gradient(circle at 15% 0%, rgba(231, 19, 26, 0.26), transparent 32%),
     #0c0c0c;
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   text-align: center;
   overflow: hidden;
 }
@@ -700,20 +909,20 @@
 
 .previewGateKicker {
   margin: 0 0 8px;
-  font-family: "Logic Monospace", monospace;
-  font-size: 11px;
-  line-height: 1.2;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .previewGateTitle {
   margin: 0;
-  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.04;
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 24px;
   font-weight: 700;
   color: #fff;
   text-wrap: pretty;
@@ -722,9 +931,9 @@
 .previewGateText {
   margin: 10px auto 18px;
   max-width: 520px;
-  font-family: AGaramondPro, "Adobe Garamond Pro", garamond, Times, serif;
-  font-size: 20px;
-  line-height: 1.38;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 20px;
   color: rgba(255, 255, 255, 0.68);
 }
 
@@ -736,15 +945,15 @@
   min-height: 44px;
   padding: 0 18px;
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 16px;
+  border-radius: 9999px;
   background: #fff;
   color: #111;
-  font-family: "Logic Monospace", monospace;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
   cursor: pointer;
   transition: transform 140ms ease, background 140ms ease, opacity 140ms ease;
 }
@@ -778,12 +987,14 @@
 }
 
 .modalAuthor {
-  margin: 8px 0 18px;
-  font-family: "Logic Monospace", monospace;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #555;
+  margin: 4px 0 12px;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgb(83, 100, 113);
 }
 
 .shareRow {
@@ -791,28 +1002,171 @@
   gap: 10px;
   flex-wrap: wrap;
   margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid rgb(239, 243, 244);
 }
 
 .shareBtn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid #e7131a;
-  background: #e7131a;
-  color: #fff;
+  border: 1px solid rgb(207, 217, 222);
+  background: #fff;
+  color: rgb(15, 20, 25);
   text-decoration: none;
-  font-family: "Logic Monospace", monospace;
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 7px 12px;
-  border-radius: 0;
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  padding: 7px 16px;
+  border-radius: 9999px;
   cursor: pointer;
 }
 
 .shareIcon {
   width: 14px;
   height: 14px;
+}
+
+.readerPrompt {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 7;
+  width: min(390px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px 12px 14px;
+  border: 1px solid rgba(15, 20, 25, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 60px rgba(15, 20, 25, 0.18);
+  backdrop-filter: blur(18px);
+  color: rgb(15, 20, 25);
+  font-family: TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  animation: promptSlideUp 180ms ease-out both;
+}
+
+.readerPromptClose {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 20, 25, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: rgb(83, 100, 113);
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(15, 20, 25, 0.16);
+}
+
+.readerPromptCloseIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.readerPromptIcon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(231, 19, 26, 0.18), rgba(29, 155, 240, 0.14)),
+    #fff5f5;
+  color: #e7131a;
+}
+
+.readerPromptSparkle {
+  width: 19px;
+  height: 19px;
+}
+
+.readerPromptCopy {
+  min-width: 0;
+}
+
+.readerPromptKicker {
+  margin: 0 0 2px;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 800;
+  color: rgb(15, 20, 25);
+}
+
+.readerPromptText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 17px;
+  font-weight: 400;
+  color: rgb(83, 100, 113);
+}
+
+.readerPromptActions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.readerPromptCancel,
+.readerPromptButton {
+  min-height: 36px;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, opacity 120ms ease;
+}
+
+.readerPromptCancel {
+  border: 1px solid rgb(207, 217, 222);
+  background: #fff;
+  color: rgb(15, 20, 25);
+}
+
+.readerPromptCancel:hover {
+  background: rgb(247, 249, 249);
+}
+
+.readerPromptButton {
+  border: 0;
+  background: rgb(15, 20, 25);
+  color: #fff;
+}
+
+.readerPromptButton:hover {
+  background: #e7131a;
+  transform: translateY(-1px);
+}
+
+.readerPromptButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+  transform: none;
+}
+
+@keyframes promptSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .footer {
@@ -882,6 +1236,7 @@
 }
 
 @media (max-width: 1023px) {
+  .loadingShell,
   .leadSection {
     grid-template-columns: 1fr;
   }
@@ -900,9 +1255,23 @@
     padding: 10px 14px 50px;
   }
 
+  .loadingShell {
+    gap: 18px;
+    padding: 20px 0 24px;
+  }
+
+  .loadingImage {
+    min-height: 220px;
+  }
+
   .authBar {
     grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .river {
@@ -915,10 +1284,84 @@
   }
 
   .modalTitleWrap {
-    padding: 118px 14px 18px;
+    padding: 96px 14px 18px;
+  }
+
+  .modalHeader {
+    min-height: 340px;
   }
 
   .modalBody {
-    padding: 20px 14px 24px;
+    border-left: 0;
+    border-right: 0;
+    padding: 20px 16px 28px;
+  }
+
+  .articleContent blockquote,
+  .articleContent .article-quote {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 76px 18px 72px;
+    font-size: 21px;
+    line-height: 28px;
+  }
+
+  .articleContent blockquote::before,
+  .articleContent .article-quote::before {
+    left: 18px;
+    right: 18px;
+    top: 24px;
+    gap: 10px;
+    background:
+      linear-gradient(90deg, #ff3434 0 38%, #fff 38% 100%) left center / min(285px, 72vw) 100% no-repeat,
+      linear-gradient(#ff3434, #ff3434) right center / calc(100% - min(298px, 74vw)) 3px no-repeat;
+  }
+
+  .articleContent blockquote::after,
+  .articleContent .article-quote::after {
+    left: 18px;
+    right: 18px;
+    bottom: 24px;
+    border-top-width: 3px;
+  }
+
+  .readerPrompt {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+    grid-template-columns: auto 1fr;
+    padding: 12px;
+  }
+
+  .readerPromptActions {
+    width: 100%;
+  }
+
+  .readerPromptCancel,
+  .readerPromptButton {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadingImage,
+  .loadingLineWide,
+  .loadingLine,
+  .loadingLineShort,
+  .previewGateButtonIcon {
+    animation: none;
+  }
+
+  .featureImage,
+  .cardImage,
+  .readMore,
+  .modal,
+  .backdrop,
+  .readerPrompt,
+  .readerPromptCancel,
+  .readerPromptButton {
+    transition: none;
+    animation: none;
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { CSSProperties, FormEvent, useState } from "react";
+import { ClipboardEvent, CSSProperties, FormEvent, useRef, useState } from "react";
 
 type EventTotals = {
   open_modal: number;
@@ -24,6 +24,8 @@ type AnalyticsRow = {
 };
 
 export default function MyblogPostsAdminPage() {
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const savedSelectionRef = useRef<Range | null>(null);
   const [title, setTitle] = useState("");
   const [excerpt, setExcerpt] = useState("");
   const [body, setBody] = useState("");
@@ -41,6 +43,64 @@ export default function MyblogPostsAdminPage() {
   const [analyticsError, setAnalyticsError] = useState("");
   const [analyticsView, setAnalyticsView] = useState<"summary" | "detailed">("summary");
   const [expandedArticle, setExpandedArticle] = useState<string | null>(null);
+
+  const syncBodyFromEditor = () => {
+    setBody(editorRef.current?.innerHTML || "");
+  };
+
+  const saveEditorSelection = () => {
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    if (!editor || !selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    if (!editor.contains(range.commonAncestorContainer)) return;
+    savedSelectionRef.current = range.cloneRange();
+  };
+
+  const restoreEditorSelection = () => {
+    const selection = window.getSelection();
+    if (!selection || !savedSelectionRef.current) return;
+    selection.removeAllRanges();
+    selection.addRange(savedSelectionRef.current);
+  };
+
+  const focusEditor = () => {
+    editorRef.current?.focus();
+  };
+
+  const runEditorCommand = (command: string, value?: string) => {
+    focusEditor();
+    restoreEditorSelection();
+    document.execCommand(command, false, value);
+    saveEditorSelection();
+    syncBodyFromEditor();
+  };
+
+  const insertQuoteBlock = () => {
+    focusEditor();
+    restoreEditorSelection();
+    const selection = window.getSelection();
+    const selectedText = selection?.toString().trim();
+    if (selectedText) {
+      document.execCommand("formatBlock", false, "blockquote");
+    } else {
+      document.execCommand(
+        "insertHTML",
+        false,
+        "<blockquote>Write a highlighted quote here.</blockquote><p><br></p>"
+      );
+    }
+    saveEditorSelection();
+    syncBodyFromEditor();
+  };
+
+  const handleEditorPaste = (event: ClipboardEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const text = event.clipboardData.getData("text/plain");
+    document.execCommand("insertText", false, text);
+    saveEditorSelection();
+    syncBodyFromEditor();
+  };
 
   const loadAnalytics = async () => {
     setAnalyticsLoading(true);
@@ -72,13 +132,21 @@ export default function MyblogPostsAdminPage() {
     setResult("");
     setDebug("");
     try {
+      const articleBody = editorRef.current?.innerHTML || body;
+      const articleText = editorRef.current?.innerText || "";
+      if (!articleText.trim()) {
+        setResult("Failed to save post");
+        setDebug("Article body is required. Add body content before saving.");
+        setLoading(false);
+        return;
+      }
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
       const response = await fetch("/api/myblog-posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         signal: controller.signal,
-        body: JSON.stringify({ title, excerpt, body, featuredImageUrl, path, author, credit }),
+        body: JSON.stringify({ title, excerpt, body: articleBody, featuredImageUrl, path, author, credit }),
       });
       clearTimeout(timeout);
       const data = await response.json().catch(() => ({}));
@@ -95,6 +163,7 @@ export default function MyblogPostsAdminPage() {
         setTitle("");
         setExcerpt("");
         setBody("");
+        if (editorRef.current) editorRef.current.innerHTML = "";
         setFeaturedImageUrl("");
         setPath("");
         setCredit("");
@@ -119,7 +188,84 @@ export default function MyblogPostsAdminPage() {
         <form onSubmit={onSubmit} style={{ display: "grid", gap: 12, marginTop: 18 }}>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" required style={inputStyle} />
           <textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Excerpt" required rows={3} style={textareaStyle} />
-          <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Full article body" required rows={10} style={textareaStyle} />
+          <section style={editorShellStyle}>
+            <div style={editorHeaderStyle}>
+              <div>
+                <p style={editorLabelStyle}>Article Body Designer</p>
+                <p style={editorHintStyle}>Use the tools to create headings, quotes, lists, color, and bold text. The saved body is HTML.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setBody("");
+                  if (editorRef.current) editorRef.current.innerHTML = "";
+                }}
+                style={subtleToolButtonStyle}
+              >
+                Clear
+              </button>
+            </div>
+
+            <div style={toolbarStyle} aria-label="Article body formatting tools">
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("formatBlock", "p")} style={toolButtonStyle}>
+                Paragraph
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("formatBlock", "h1")} style={toolButtonStyle}>
+                Huge title
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("formatBlock", "h2")} style={toolButtonStyle}>
+                Title
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("formatBlock", "h3")} style={toolButtonStyle}>
+                Big subtitle
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("bold")} style={toolButtonStyle}>
+                Bold
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("italic")} style={toolButtonStyle}>
+                Italic
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={insertQuoteBlock} style={toolButtonStyle}>
+                Quote
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("insertUnorderedList")} style={toolButtonStyle}>
+                Bullet list
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("insertOrderedList")} style={toolButtonStyle}>
+                Numbering
+              </button>
+              <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("removeFormat")} style={toolButtonStyle}>
+                Remove style
+              </button>
+              <button type="button" aria-label="Black text" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("foreColor", "#000000")} style={{ ...colorToolStyle, background: "#000000" }} />
+              <button type="button" aria-label="Red text" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("foreColor", "#e7131a")} style={{ ...colorToolStyle, background: "#e7131a" }} />
+              <button type="button" aria-label="Blue text" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("foreColor", "#1d9bf0")} style={{ ...colorToolStyle, background: "#1d9bf0" }} />
+              <button type="button" aria-label="Gold text" onMouseDown={(e) => e.preventDefault()} onClick={() => runEditorCommand("foreColor", "#b7791f")} style={{ ...colorToolStyle, background: "#b7791f" }} />
+            </div>
+
+            <div
+              ref={editorRef}
+              contentEditable
+              role="textbox"
+              aria-label="Full article body"
+              aria-multiline="true"
+              onInput={syncBodyFromEditor}
+              onBlur={syncBodyFromEditor}
+              onFocus={saveEditorSelection}
+              onKeyUp={saveEditorSelection}
+              onMouseUp={saveEditorSelection}
+              onSelect={saveEditorSelection}
+              onPaste={handleEditorPaste}
+              suppressContentEditableWarning
+              style={editorCanvasStyle}
+              data-placeholder="Write the full article body here. Select text and use the tools above to style it."
+            />
+            <input type="hidden" value={body} required readOnly />
+            <details style={htmlPreviewStyle}>
+              <summary style={{ cursor: "pointer", fontWeight: 700 }}>HTML saved to Firestore</summary>
+              <pre style={htmlCodeStyle}>{body || "<p>Your styled HTML will appear here.</p>"}</pre>
+            </details>
+          </section>
           <input value={featuredImageUrl} onChange={(e) => setFeaturedImageUrl(e.target.value)} placeholder="Featured image URL" style={inputStyle} />
           <input value={path} onChange={(e) => setPath(e.target.value)} placeholder="Path (example: secret-of-survivor)" style={inputStyle} />
           <input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Author" style={inputStyle} />
@@ -438,6 +584,102 @@ const textareaStyle: CSSProperties = {
   padding: "10px 12px",
   fontSize: 14,
   lineHeight: 1.5,
+};
+
+const editorShellStyle: CSSProperties = {
+  border: "1px solid #d1d5db",
+  borderRadius: 12,
+  overflow: "hidden",
+  background: "#fff",
+};
+
+const editorHeaderStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "start",
+  justifyContent: "space-between",
+  gap: 12,
+  padding: "12px 14px",
+  borderBottom: "1px solid #e5e7eb",
+  background: "#f8fafc",
+};
+
+const editorLabelStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 14,
+  fontWeight: 800,
+  color: "#111827",
+};
+
+const editorHintStyle: CSSProperties = {
+  margin: "4px 0 0",
+  fontSize: 12,
+  lineHeight: 1.45,
+  color: "#64748b",
+};
+
+const toolbarStyle: CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8,
+  padding: 12,
+  borderBottom: "1px solid #e5e7eb",
+  background: "#fff",
+};
+
+const toolButtonStyle: CSSProperties = {
+  minHeight: 34,
+  border: "1px solid #d1d5db",
+  borderRadius: 999,
+  padding: "0 12px",
+  background: "#fff",
+  color: "#111827",
+  fontSize: 13,
+  fontWeight: 700,
+  cursor: "pointer",
+};
+
+const subtleToolButtonStyle: CSSProperties = {
+  ...toolButtonStyle,
+  color: "#64748b",
+  fontWeight: 600,
+};
+
+const colorToolStyle: CSSProperties = {
+  width: 34,
+  height: 34,
+  border: "2px solid #fff",
+  borderRadius: 999,
+  boxShadow: "0 0 0 1px #d1d5db",
+  cursor: "pointer",
+};
+
+const editorCanvasStyle: CSSProperties = {
+  minHeight: 360,
+  padding: "18px 20px",
+  fontFamily: 'TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  fontSize: 18,
+  lineHeight: "26px",
+  color: "#000",
+  outline: "none",
+};
+
+const htmlPreviewStyle: CSSProperties = {
+  borderTop: "1px solid #e5e7eb",
+  padding: "10px 12px",
+  background: "#fbfdff",
+  fontSize: 12,
+  color: "#334155",
+};
+
+const htmlCodeStyle: CSSProperties = {
+  margin: "10px 0 0",
+  maxHeight: 180,
+  overflow: "auto",
+  whiteSpace: "pre-wrap",
+  background: "#0f172a",
+  color: "#e2e8f0",
+  borderRadius: 8,
+  padding: 10,
 };
 
 const thStyle: CSSProperties = {
