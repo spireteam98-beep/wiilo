@@ -462,6 +462,8 @@ export default function HomePage() {
             <nav className={styles.headerMenu} aria-label="Primary">
               <Link href="/sounds" className={styles.headerMenuLink}>
                 Podcast
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
+     crossorigin="anonymous"></script>
               </Link>
             </nav>
             {isUserLoading ? <span className={styles.authText}>Checking account...</span> : null}
