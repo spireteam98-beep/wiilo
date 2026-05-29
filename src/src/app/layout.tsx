@@ -17,7 +17,6 @@ const geistMono = Geist_Mono({
 
 /**
  * GLOBAL METADATA
- * This handles the default title and OG tags for your site.
  */
 export const metadata: Metadata = {
   title: 'Mohamed Royal',
@@ -25,11 +24,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Royal Notes',
     description: 'Watch premium videos and read exclusive articles',
-    url: 'https://mohamedroyal.com', // Replace with your actual domain
+    url: 'https://mohamedroyal.com',
     siteName: 'Royal',
     images: [
       {
-        // Default image for the home page
         url: '/api/og?title=Dhuux&description=Watch premium videos and read exclusive articles',
         width: 1200,
         height: 630,
@@ -45,6 +43,22 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * HEAD
+ * Add Google Adsense script here
+ */
+export function Head() {
+  return (
+    <>
+      <script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
+        crossOrigin="anonymous"
+      ></script>
+    </>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -52,10 +66,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      {/* NOTE: No <Head> tag needed here. 
-          Next.js automatically injects metadata from the object above. 
-      */}
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
+      >
         <AuthProvider>
           <PlayerProvider>
             {children}
