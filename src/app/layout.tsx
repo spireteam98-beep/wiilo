@@ -93,6 +93,8 @@ export default function RootLayout({
             gtag('config', 'G-4YSMFG9FPL');
           `}
         </Script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
+     crossorigin="anonymous"></script>
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
