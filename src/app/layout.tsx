@@ -1,43 +1,17 @@
-import type { Metadata } from 'next';
+import type {Metadata} from 'next';
 import Script from 'next/script';
-import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
+import { Analytics } from '@vercel/analytics/next';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { PlayerProvider } from '@/contexts/PlayerContext';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 export const metadata: Metadata = {
   title: 'Mohamed Royal',
-  description: 'Watch premium videos and read exclusive articles',
-  openGraph: {
-    title: 'Royal Notes',
-    description: 'Watch premium videos and read exclusive articles',
-    url: 'https://mohamedroyal.com',
-    siteName: 'Royal',
-    images: [
-      {
-        url: '/api/og?title=Dhuux&description=Watch premium videos and read exclusive articles',
-        width: 1200,
-        height: 630,
-      },
-    ],
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Dhuux',
-    description: 'Watch premium videos and read exclusive articles',
+  description: 'Mohamed Royal - editorial blog and article platform.',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
   },
 };
 
@@ -47,21 +21,85 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
-        <Script
-          async
-          strategy="afterInteractive"
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://abs.twimg.com" crossOrigin="anonymous" />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://abs.twimg.com/responsive-web/client-web/Chirp-Regular.80fda27a.woff2"
           crossOrigin="anonymous"
         />
-
-        <AuthProvider>
-          <PlayerProvider>
-            {children}
-            <Toaster />
-          </PlayerProvider>
-        </AuthProvider>
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://abs.twimg.com/responsive-web/client-web/Chirp-Medium.f8e2739a.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://abs.twimg.com/responsive-web/client-web/Chirp-Bold.ebb56aba.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://www.theatlantic.com/packages/fonts/garamond/AGaramondPro-Regular.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://www.theatlantic.com/packages/fonts/graphik/Graphik-Regular-Web.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://www.theatlantic.com/packages/fonts/graphik/Graphik-Semibold-Web.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Medium.woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          as="font"
+          type="font/woff2"
+          href="https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Regular.woff2"
+          crossOrigin="anonymous"
+        />
+        <Script
+          id="google-analytics-loader"
+          src="https://www.googletagmanager.com/gtag/js?id=G-4YSMFG9FPL"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics-config" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-4YSMFG9FPL');
+          `}
+        </Script>
+      </head>
+      <body className="font-body antialiased">
+        <FirebaseClientProvider>
+          {children}
+          <Toaster />
+          <Analytics />
+        </FirebaseClientProvider>
       </body>
     </html>
   );
