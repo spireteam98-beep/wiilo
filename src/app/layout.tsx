@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals1.css';
-import { Toaster } from "@/components/ui/toaster";
+import './globals.css';
+import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { PlayerProvider } from '@/contexts/PlayerContext';
 
@@ -48,11 +48,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <Script
-          id="google-adsense"
           async
           strategy="afterInteractive"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
