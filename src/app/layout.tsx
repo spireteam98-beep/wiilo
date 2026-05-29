@@ -1,9 +1,10 @@
 import type {Metadata} from 'next';
-import Script from 'next/script';
 import './globals.css';
+import './font.css';
 import { Analytics } from '@vercel/analytics/next';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
+import Adsense from '@/components/Adsense';
 
 export const metadata: Metadata = {
   title: 'Mohamed Royal',
@@ -82,23 +83,9 @@ export default function RootLayout({
           href="https://www.theatlantic.com/packages/fonts/logic/LogicMonospace-Regular.woff2"
           crossOrigin="anonymous"
         />
-        <Script
-          id="google-analytics-loader"
-          src="https://www.googletagmanager.com/gtag/js?id=G-4YSMFG9FPL"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics-config" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-4YSMFG9FPL');
-          `}
-        </Script>
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
-     crossorigin="anonymous"></script>
       </head>
       <body className="font-body antialiased">
+        <Adsense />
         <FirebaseClientProvider>
           {children}
           <Toaster />

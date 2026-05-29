@@ -1,14 +1,14 @@
-"use client";
-
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Coins, Copy, Lock, ShieldCheck, Sparkles, UserRound, X } from "lucide-react";
-import styles from "./page.module.css";
-import Link from "next/link";
-import { useAuth, useFirestore, useUser } from "@/firebase";
-import { signOut } from "firebase/auth";
-import { arrayUnion, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
-import TopUpDialog from "@/components/TopUpDialog";
-import { toast } from "@/hooks/use-toast";
+'use client';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Coins, Copy, Lock, ShieldCheck, Sparkles, UserRound, X } from 'lucide-react';
+import styles from './page.module.css';
+import './font.css';
+import Link from 'next/link';
+import { useAuth, useFirestore, useUser } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { arrayUnion, doc, onSnapshot, setDoc, updateDoc } from 'firebase/firestore';
+import TopUpDialog from '@/components/TopUpDialog';
+import { toast } from '@/hooks/use-toast';
 
 type Entry = {
   id: string;
@@ -30,82 +30,66 @@ type ApiPost = {
   featuredImageUrl?: string;
 };
 
-const POSTS_CACHE_KEY = "myblog_posts_cache_v1";
+const POSTS_CACHE_KEY = 'myblog_posts_cache_v1';
 
 function mapApiPost(post: ApiPost): Entry {
-  const bodyHtml = String(post.body || post.excerpt || "").trim();
+  const bodyHtml = String(post.body || post.excerpt || '').trim();
 
   return {
     id: post.id,
     title: post.title,
     subtitle: post.excerpt,
-    author: post.author || "Mohamed Royal",
-    credit: post.credit || "",
+    author: post.author || 'Mohamed Royal',
+    credit: post.credit || '',
     bodyHtml,
-    featuredImageUrl: post.featuredImageUrl || "",
+    featuredImageUrl: post.featuredImageUrl || '',
   };
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
+const ArticleContent = ({ htmlString }: { htmlString: string }) => {
+  const processedHtml = useMemo(() => {
+    if (typeof window === 'undefined' || !htmlString) return '';
 
-function normalizeArticleHtml(value: string): string {
-  const cleaned = value
-    .replace(/\r\n/g, "\n")
-    .replace(/\bclassName=/g, "class=")
-    .replace(/<script[\s\S]*?<\/script>/gi, "")
-    .replace(/<style[\s\S]*?<\/style>/gi, "")
-    .replace(/<gpt-ad[\s\S]*?<\/gpt-ad>/gi, "")
-    .replace(/<\/?(?:iframe|object|embed|form|input|button|link|meta)[^>]*>/gi, "")
-    .replace(/\son\w+=(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "")
-    .replace(/\s(?:href|src)=["']\s*javascript:[^"']*["']/gi, "");
-  const preserveInnerSpacing = cleaned.replace(
-    /<(blockquote|div|p|section|h[1-6])\b([^>]*)>([\s\S]*?)<\/\1>/gi,
-    (_match, tag, attrs, content) => `<${tag}${attrs}>${content.trim().replace(/\n{2,}/g, "\n")}</${tag}>`
-  );
+    let cleanHtml = htmlString
+      .replace(/\r\n/g, '\n')
+      .replace(/\bclassName=/g, 'class=')
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<gpt-ad[\s\S]*?<\/gpt-ad>/gi, '')
+      .replace(/<\/?(?:iframe|object|embed|form|input|button|link|meta)[^>]*>/gi, '')
+      .replace(/\son\w+=(?:\"[^\"]*\"|\'[^\']*\'|[^\s>]+)/gi, '')
+      .replace(/\s(?:href|src)=["\']\s*javascript:[^"\']*["\']/gi, '');
 
-  const normalized = preserveInnerSpacing
-    .split(/\n{2,}/)
-    .map((block) => block.trim())
-    .filter(Boolean)
-    .map((block) => {
-      if (/^<\/?(?:section|div|p|h[1-6]|blockquote|ul|ol|li|span|strong|em|i|small|hr|br|a|img|figure|figcaption|picture|source)\b/i.test(block)) {
-        return block;
+    const doc = new DOMParser().parseFromString(cleanHtml, 'text/html');
+    const paragraphs = doc.querySelectorAll('p');
+    let firstParagraphHandled = false;
+
+    paragraphs.forEach((p) => {
+      const currentClasses = p.className.split(' ').filter(Boolean);
+      const newClasses = new Set(currentClasses);
+      newClasses.add('ArticleParagraph_root__4mszW');
+      p.setAttribute('data-flatplan-paragraph', 'true');
+
+      if (!firstParagraphHandled) {
+        newClasses.add('ArticleParagraph_dropcap__uIVzg');
+        p.setAttribute('data-flatplan-dropcap', 'true');
+        firstParagraphHandled = true;
       }
+      p.className = Array.from(newClasses).join(' ');
+    });
 
-      return `<p>${escapeHtml(block).replace(/\n/g, "<br />")}</p>`;
-    })
-    .join("\n");
+    return doc.body.innerHTML;
+  }, [htmlString]);
 
-  const bodyInnerHtml = normalized
-    .trim()
-    .replace(/^<section\b[^>]*ArticleBody_root__2gF81[^>]*>([\s\S]*)<\/section>$/i, "$1")
-    .replace(/^<section\b[^>]*>([\s\S]*)<\/section>$/i, "$1");
-
-  return bodyInnerHtml
-    .replace(/<p\b(?![^>]*\bclass=)([^>]*)>/gi, '<p class="ArticleParagraph_root__4mszW" data-flatplan-paragraph="true"$1>')
-    .replace(/<p\b([^>]*\bclass=["'][^"']*ArticleParagraph_root__4mszW[^"']*["'][^>]*)>/gi, (match) =>
-      /\bdata-flatplan-paragraph=/.test(match)
-        ? match
-        : match.replace(/>$/, ' data-flatplan-paragraph="true">')
-    );
-}
-
-function getArticlePreviewHtml(normalizedHtml: string): string {
-  const paragraphMatches = normalizedHtml.match(/<p\b[\s\S]*?<\/p>/gi);
-  if (paragraphMatches?.length) {
-    return paragraphMatches.slice(0, 2).join("\n");
-  }
-
-  const textOnly = normalizedHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-  return textOnly ? `<p>${escapeHtml(textOnly.slice(0, 700))}</p>` : "";
-}
+  return (
+    <section
+      className="ArticleBody_root__2gF81"
+      data-event-module="article body"
+      data-flatplan-body="true"
+      dangerouslySetInnerHTML={{ __html: processedHtml }}
+    />
+  );
+};
 
 export default function HomePage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -113,7 +97,7 @@ export default function HomePage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
-  const [origin, setOrigin] = useState("");
+  const [origin, setOrigin] = useState('');
   const [copied, setCopied] = useState(false);
   const [coinBalance, setCoinBalance] = useState(0);
   const [freeReadIds, setFreeReadIds] = useState<string[]>([]);
@@ -127,25 +111,25 @@ export default function HomePage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
-  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://mohamedroyal.com";
+  const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mohamedroyal.com';
 
   const trackEvent = async (
     articleId: string | null,
-    eventType: "open_modal" | "share_click" | "open_share_link" | "page_view",
+    eventType: 'open_modal' | 'share_click' | 'open_share_link' | 'page_view',
     options?: { pageUrl?: string; referrer?: string; source?: string }
   ) => {
     try {
       const payload: Record<string, unknown> = {
         eventType,
-        source: options?.source || "home",
+        source: options?.source || 'home',
       };
       if (articleId) payload.articleId = articleId;
       if (options?.pageUrl) payload.pageUrl = options.pageUrl;
       if (options?.referrer) payload.referrer = options.referrer;
 
-      await fetch("/api/analytics/track", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         keepalive: true,
         body: JSON.stringify(payload),
       });
@@ -157,20 +141,20 @@ export default function HomePage() {
   useEffect(() => {
     const sendPageView = () => {
       const pageUrl = window.location.href;
-      const referrer = document.referrer || "";
-      void trackEvent(null, "page_view", {
+      const referrer = document.referrer || '';
+      void trackEvent(null, 'page_view', {
         pageUrl,
         referrer,
-        source: referrer ? "referral" : "direct",
+        source: referrer ? 'referral' : 'direct',
       });
     };
     const idleId =
-      "requestIdleCallback" in window
+      'requestIdleCallback' in window
         ? window.requestIdleCallback(sendPageView, { timeout: 2200 })
         : window.setTimeout(sendPageView, 900);
 
     return () => {
-      if ("cancelIdleCallback" in window && typeof idleId === "number") {
+      if ('cancelIdleCallback' in window && typeof idleId === 'number') {
         window.cancelIdleCallback(idleId);
       } else {
         window.clearTimeout(idleId);
@@ -196,9 +180,9 @@ export default function HomePage() {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 6000);
 
-    fetch("/api/myblog-posts", {
+    fetch('/api/myblog-posts', {
       signal: controller.signal,
-      headers: { Accept: "application/json" },
+      headers: { Accept: 'application/json' },
     })
       .then((res) => (res.ok ? res.json() : []))
       .then((data: ApiPost[]) => {
@@ -243,15 +227,16 @@ export default function HomePage() {
       return;
     }
     setWalletLoaded(false);
-    const userRef = doc(firestore, "users", user.uid);
+    const userRef = doc(firestore, 'users', user.uid);
     const unsub = onSnapshot(
       userRef,
       (snap) => {
         const data = snap.data() as { coins?: number; freeArticleReads?: unknown } | undefined;
         setCoinBalance(Number(data?.coins || 0));
-        const reads = Array.isArray(data?.freeArticleReads)
-          ? data.freeArticleReads.filter((v): v is string => typeof v === "string")
-          : [];
+        const reads =
+          Array.isArray(data?.freeArticleReads)
+            ? data.freeArticleReads.filter((v): v is string => typeof v === 'string')
+            : [];
         setFreeReadIds(reads);
         setWalletLoaded(true);
       },
@@ -266,7 +251,7 @@ export default function HomePage() {
 
   const markFreeRead = async (articleId: string) => {
     if (!user?.uid) return;
-    const userRef = doc(firestore, "users", user.uid);
+    const userRef = doc(firestore, 'users', user.uid);
     try {
       await updateDoc(userRef, { freeArticleReads: arrayUnion(articleId) });
     } catch {
@@ -277,42 +262,30 @@ export default function HomePage() {
   useEffect(() => {
     if (!selectedId) return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("ref") !== "share") return;
+    if (params.get('ref') !== 'share') return;
     const key = `share_open_tracked_${selectedId}`;
     if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, "1");
-    void trackEvent(selectedId, "open_share_link");
+    sessionStorage.setItem(key, '1');
+    void trackEvent(selectedId, 'open_share_link');
   }, [selectedId]);
 
   const lead = entries[0];
   const river = entries.slice(1);
-  const selected = useMemo(
-    () => entries.find((item) => item.id === selectedId) ?? null,
-    [entries, selectedId]
-  );
-  const selectedArticleHtml = useMemo(
-    () => (selected ? normalizeArticleHtml(selected.bodyHtml) : ""),
-    [selected]
-  );
-  const selectedPreviewHtml = useMemo(
-    () => getArticlePreviewHtml(selectedArticleHtml),
-    [selectedArticleHtml]
-  );
-  const visibleArticleHtml = selectedArticleHtml || selectedPreviewHtml;
+  const selected = useMemo(() => entries.find((item) => item.id === selectedId) ?? null, [entries, selectedId]);
   const shareUrl = useMemo(() => {
-    if (!selected) return "";
+    if (!selected) return '';
     const base = publicSiteUrl || origin;
-    if (!base) return "";
-    return `${base.replace(/\/+$/, "")}/share/${encodeURIComponent(selected.id)}`;
+    if (!base) return '';
+    return `${base.replace(/\/+$/, '')}/share/${encodeURIComponent(selected.id)}`;
   }, [origin, publicSiteUrl, selected]);
-  const shareText = useMemo(() => (selected ? `${selected.title} - ${selected.subtitle}` : ""), [selected]);
+  const shareText = useMemo(() => (selected ? `${selected.title} - ${selected.subtitle}` : ''), [selected]);
 
   const handleCopyLink = async () => {
     if (!shareUrl) return;
     try {
       await navigator.clipboard.writeText(shareUrl);
       if (selected?.id) {
-        void trackEvent(selected.id, "share_click");
+        void trackEvent(selected.id, 'share_click');
       }
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
@@ -322,18 +295,18 @@ export default function HomePage() {
   };
 
   const trackShareClick = () => {
-    if (selected?.id) void trackEvent(selected.id, "share_click");
+    if (selected?.id) void trackEvent(selected.id, 'share_click');
   };
 
   const handleInstagramShare = async () => {
     await handleCopyLink();
-    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+    window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer');
   };
 
   const openArticle = (articleId: string) => {
     if (!user) {
       setSelectedId(articleId);
-      void trackEvent(articleId, "open_modal");
+      void trackEvent(articleId, 'open_modal');
       return;
     }
     const hasFreeRead = freeReadIds.includes(articleId);
@@ -351,13 +324,13 @@ export default function HomePage() {
     }
 
     setSelectedId(articleId);
-    void trackEvent(articleId, "open_modal");
+    void trackEvent(articleId, 'open_modal');
   };
 
   useEffect(() => {
     if (entries.length === 0 || selectedId || isUserLoading || !walletLoaded) return;
     const params = new URLSearchParams(window.location.search);
-    const queryPost = params.get("post");
+    const queryPost = params.get('post');
     if (!queryPost || queryPost === shareOpenedId) return;
     const match = entries.find((item) => item.id === queryPost);
     if (match) {
@@ -384,8 +357,8 @@ export default function HomePage() {
     };
 
     onScroll();
-    scroller.addEventListener("scroll", onScroll, { passive: true });
-    return () => scroller.removeEventListener("scroll", onScroll);
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    return () => scroller.removeEventListener('scroll', onScroll);
   }, [selected, readerPromptDismissed]);
 
   const handleReaderPromptTopUp = () => {
@@ -393,8 +366,8 @@ export default function HomePage() {
     setReaderPromptVisible(false);
     if (!user) {
       toast({
-        title: "Email access coming soon",
-        description: "We are replacing Google sign-in with an email code flow for easier social browser access.",
+        title: 'Email access coming soon',
+        description: 'We are replacing Google sign-in with an email code flow for easier social browser access.',
       });
       return;
     }
@@ -412,7 +385,7 @@ export default function HomePage() {
           </span>
           <span className={styles.statusPill}>
             <UserRound className={styles.statusIcon} />
-            {user ? "Signed in" : "Guest"}
+            {user ? 'Signed in' : 'Guest'}
           </span>
           {user ? (
             <>
@@ -464,7 +437,7 @@ export default function HomePage() {
                   }
                 }}
               >
-                {signingOut ? "Signing out..." : "Sign out"}
+                {signingOut ? 'Signing out...' : 'Sign out'}
               </button>
             ) : (
               <Link href="/signin" className={styles.authBtnLink}>
@@ -582,7 +555,7 @@ export default function HomePage() {
         </>
       )}
 
-      <div className={`${styles.modalRoot} ${selected ? styles.modalOpen : ""}`} aria-hidden={!selected}>
+      <div className={`${styles.modalRoot} ${selected ? styles.modalOpen : ''}`} aria-hidden={!selected}>
         <div onClick={() => setSelectedId(null)} className={styles.backdrop} />
         <section role="dialog" aria-modal="true" className={styles.modal}>
           <button type="button" onClick={() => setSelectedId(null)} className={styles.close} aria-label="Close article">
@@ -593,47 +566,47 @@ export default function HomePage() {
             <article className={`${styles.modalArticle} ArticleLayout_article__RHFMN article-content-body`} ref={modalArticleRef}>
               <header className={`${styles.modalHeader} ArticleHero_root__3w7kV ArticleHero_articleStandard__2tcdv`} data-event-module="hero">
                 <div className="ArticleHero_defaultArticleLockup__vb8lz">
-                <div className={styles.articleLockup}>
-                  <div className={`${styles.modalRubric} ArticleHero_rubric__e4rjD`}>
-                    <div className="ArticleRubric_root__HNhbf" id="rubric" data-flatplan-rubric="true">
-                      <span className={`${styles.modalRubricLink} ArticleRubric_link__nl9hy`}>Ideas</span>
-                    </div>
-                  </div>
-                  <div className={`${styles.modalTitleWrap} ArticleHero_title__PQ4pC`}>
-                    <h1 className={`${styles.modalTitle} ArticleTitle_root__VrZaG`} data-flatplan-title="true">{selected.title}</h1>
-                  </div>
-                  <div className={`${styles.modalDek} ArticleHero_dek__EqdkK`} data-flatplan-description="true">
-                    <p className={`${styles.modalSubtitle} ArticleDek_root__P3leE`}>{selected.subtitle}</p>
-                  </div>
-                  <div className={`${styles.modalByline} ArticleHero_byline__iFT6A`}>
-                    <div className="ArticleBylines_root__IBR5V">
-                      <address id="byline">By <span className="ArticleBylines_link__kNP4C" data-flatplan-author-link="true">{selected.author || "Mohamed Royal"}</span></address>
-                    </div>
-                  </div>
-                </div>
-
-                {selected.featuredImageUrl ? (
-                  <div className={`${styles.articleLeadArt} ArticleLeadArt_root__nRSLU`}>
-                    <figure className={`${styles.articleLeadFigure} ArticleLeadFigure_root__Bj81R ArticleLeadFigure_standard__20Izv`}>
-                      <div className={`${styles.articleLeadFigureMedia} ArticleLeadFigure_media__R1npW`} data-flatplan-lead_figure_media="true">
-                        <picture>
-                          <img
-                            src={selected.featuredImageUrl}
-                            alt={selected.title}
-                            className={`${styles.articleLeadImage} Image_root__XxsOp ArticleLeadArt_image__HZS4B`}
-                            width={960}
-                            height={540}
-                            sizes="(min-width: 976px) 976px, 100vw"
-                            id="article-lead-image"
-                          />
-                        </picture>
+                  <div className={styles.articleLockup}>
+                    <div className={`${styles.modalRubric} ArticleHero_rubric__e4rjD`}>
+                      <div className="ArticleRubric_root__HNhbf" id="rubric" data-flatplan-rubric="true">
+                        <span className={`${styles.modalRubricLink} ArticleRubric_link__nl9hy`}>Ideas</span>
                       </div>
-                      {selected.credit ? (
-                        <figcaption className={`${styles.articleLeadCaption} ArticleLeadFigure_caption__Byu7W ArticleLeadFigure_standardCaption__PsDkd`} data-flatplan-lead_figure_caption="true">{selected.credit}</figcaption>
-                      ) : null}
-                    </figure>
+                    </div>
+                    <div className={`${styles.modalTitleWrap} ArticleHero_title__PQ4pC`}>
+                      <h1 className={`${styles.modalTitle} ArticleTitle_root__VrZaG`} data-flatplan-title="true">{selected.title}</h1>
+                    </div>
+                    <div className={`${styles.modalDek} ArticleHero_dek__EqdkK`} data-flatplan-description="true">
+                      <p className={`${styles.modalSubtitle} ArticleDek_root__P3leE`}>{selected.subtitle}</p>
+                    </div>
+                    <div className={`${styles.modalByline} ArticleHero_byline__iFT6A`}>
+                      <div className="ArticleBylines_root__IBR5V">
+                        <address id="byline">By <span className="ArticleBylines_link__kNP4C" data-flatplan-author-link="true">{selected.author || 'Mohamed Royal'}</span></address>
+                      </div>
+                    </div>
                   </div>
-                ) : null}
+
+                  {selected.featuredImageUrl ? (
+                    <div className={`${styles.articleLeadArt} ArticleLeadArt_root__nRSLU`}>
+                      <figure className={`${styles.articleLeadFigure} ArticleLeadFigure_root__Bj81R ArticleLeadFigure_standard__20Izv`}>
+                        <div className={`${styles.articleLeadFigureMedia} ArticleLeadFigure_media__R1npW`} data-flatplan-lead_figure_media="true">
+                          <picture>
+                            <img
+                              src={selected.featuredImageUrl}
+                              alt={selected.title}
+                              className={`${styles.articleLeadImage} Image_root__XxsOp ArticleLeadArt_image__HZS4B`}
+                              width={960}
+                              height={540}
+                              sizes="(min-width: 976px) 976px, 100vw"
+                              id="article-lead-image"
+                            />
+                          </picture>
+                        </div>
+                        {selected.credit ? (
+                          <figcaption className={`${styles.articleLeadCaption} ArticleLeadFigure_caption__Byu7W ArticleLeadFigure_standardCaption__PsDkd`} data-flatplan-lead_figure_caption="true">{selected.credit}</figcaption>
+                        ) : null}
+                      </figure>
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className={`${styles.articleUtilityBar} ArticleHero_articleUtilityBar__JbQFj`}>
@@ -643,23 +616,17 @@ export default function HomePage() {
                   <div className={`${styles.articleUtilityTools} ArticleHero_articleUtilityBarTools__ZHw8s`}>
                     <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
                       <Copy className={styles.shareIcon} />
-                      {copied ? "Copied" : "Share"}
+                      {copied ? 'Copied' : 'Share'}
                     </button>
                   </div>
                 </div>
               </header>
               <div className={styles.modalBody}>
-                <section
-                  className={`${styles.articleContent} ArticleBody_root__2gF81`}
-                  data-event-module="article body"
-                  data-flatplan-body="true"
-                  data-cmd="true"
-                  dangerouslySetInnerHTML={{ __html: visibleArticleHtml }}
-                />
+                <ArticleContent htmlString={selected.bodyHtml} />
                 <div className={styles.shareRow}>
                   <button type="button" className={styles.shareBtn} onClick={handleCopyLink} aria-label="Copy article link">
                     <Copy className={styles.shareIcon} />
-                    {copied ? "Copied" : "Copy Link"}
+                    {copied ? 'Copied' : 'Copy Link'}
                   </button>
                   <a
                     className={styles.shareBtn}
@@ -785,7 +752,7 @@ export default function HomePage() {
           setPaywallOpen(open);
           if (!open) setPendingArticleId(null);
         }}
-        userId={user?.uid || ""}
+        userId={user?.uid || ''}
         userEmail={user?.email || null}
         userDisplayName={user?.displayName || null}
         userPhotoURL={user?.photoURL || null}
@@ -794,7 +761,7 @@ export default function HomePage() {
         onSuccess={() => {
           if (pendingArticleId) {
             setSelectedId(pendingArticleId);
-            void trackEvent(pendingArticleId, "open_modal");
+            void trackEvent(pendingArticleId, 'open_modal');
             setPendingArticleId(null);
           }
         }}
