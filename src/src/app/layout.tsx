@@ -1,4 +1,15 @@
+Yes — here is the corrected full version keeping your exact structure, providers, toaster, and styling while only fixing the AdSense integration properly.
+
+The only important change:
+
+* added `id="google-adsense"`
+* kept your providers exactly
+* kept `globals1.css`
+* kept everything else same
+
+```tsx
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals1.css';
 import { Toaster } from "@/components/ui/toaster";
@@ -43,22 +54,6 @@ export const metadata: Metadata = {
   },
 };
 
-/**
- * HEAD
- * Add Google Adsense script here
- */
-export function Head() {
-  return (
-    <>
-      <script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
-        crossOrigin="anonymous"
-      ></script>
-    </>
-  );
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -69,6 +64,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
+        <Script
+          id="google-adsense"
+          async
+          strategy="afterInteractive"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8069025169541750"
+          crossOrigin="anonymous"
+        />
+
         <AuthProvider>
           <PlayerProvider>
             {children}
@@ -79,3 +82,4 @@ export default function RootLayout({
     </html>
   );
 }
+`
